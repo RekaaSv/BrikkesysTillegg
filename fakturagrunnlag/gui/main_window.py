@@ -5,8 +5,9 @@ from PyQt5.QtWidgets import (
     QDialog, QMessageBox, QLineEdit,
     QProgressDialog, QApplication, QFrame
 )
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt
 
+from common.settings import set_setting, get_setting
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
 from fakturagrunnlag.db.connection import ConnectionManager
@@ -19,7 +20,7 @@ from fakturagrunnlag.html_report.server_control import ServerControl
 
 
 class MainWindow(QWidget):
-    def __init__(self, config, conn_mgr, icon_path, pdf_path, eventor_apikey):
+    def __init__(self, config, conn_mgr, icon_path, pdf_path):
         super().__init__()
         self.icon_path = icon_path
         self.pdf_path = pdf_path
@@ -30,7 +31,7 @@ class MainWindow(QWidget):
         self.col_widths_orders = [0, 60, 0, 0, 60, 150, 120, 120, 60, 80, 60, 200, 90, 80, 120]
         self.col_widths_lines = [0, 0, 0, 100, 220, 100, 0, 200, 0, 80, 200, 80, 120]
 
-        self.eventor_apikey = eventor_apikey
+        self.eventor_apikey = None
 
         self.button_style = """
             QPushButton {
@@ -586,12 +587,10 @@ class MainWindow(QWidget):
         self.load_lines(self.selected_order_id)
 
     def put_apikey_in_registry(self, api_key: str):
-        settings = QSettings("Brikkesys_svr", "Fakturagrunnlag")
-        settings.setValue("API-key", api_key)
+        set_setting("API-key", api_key)
 
     def get_apikey_from_registry(self) -> str | None:
-        settings = QSettings("Brikkesys_svr", "Fakturagrunnlag")
-        value = settings.value("API-key", None)
+        value = get_setting("API-key")
         return str(value) if value is not None else ""
 
     def show_message(self, tekst):

@@ -50,8 +50,6 @@ def start_app():
         config.read(config_path)
         db_config = config["mysql"]
         log_config = config["logging"]
-        eventor_config = config["eventor"]
-        eventor_apikey = eventor_config["apikey"]
 
         # Logging-oppsett ufra konfig fil.
         log_level = log_config.get("level", fallback="INFO")
@@ -85,7 +83,7 @@ def start_app():
             sql.is_db_at_least_version_8(conn_mgr)
             sql.install_db_objects(conn_mgr)
 
-        window = MainWindow(config, conn_mgr, icon_path, pdf_path, eventor_apikey)
+        window = MainWindow(config, conn_mgr, icon_path, pdf_path)
         window.show()
         sys.exit(app.exec_())
     except pymysql.Error as e:
