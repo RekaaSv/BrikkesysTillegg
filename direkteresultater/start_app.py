@@ -1,24 +1,21 @@
 import configparser
 import logging
 import os
-import traceback
-import pymysql
 
 from PyQt5.QtWidgets import QMessageBox
 
 from common.error_handling import install_global_exception_hook
 from common.logging_setup import setup_logging
-from common.paths import resource_path
 from common.connection import ConnectionManager
 
-from fakturagrunnlag.gui.main_window import MainWindow
-from fakturagrunnlag.db import sql
+from direkteresultater.gui.main_window import DirekteresultaterWindow
+from direkteresultater.server.http_server import InfoHandler
 
 _window = None
 
-def start_fakturagrunnlag():
+def start_direkteresultater():
     """
-    Starter Fakturagrunnlag-modulen.
+    Starter Direkteresultater-modulen.
     Forutsetter at QApplication allerede er startet av overbygningen.
     """
 
@@ -37,36 +34,20 @@ def start_fakturagrunnlag():
         db_config = config["mysql"]
         log_config = config["logging"]
 
-        # Ressurser
-        icon_path = resource_path("terning.ico")
-        pdf_path = resource_path("hjelp.pdf")
 
         # Database-tilkobling
         conn_mgr = ConnectionManager(db_config)
         conn_mgr.get_connection()
 
         # Gjør connection manager tilgjengelig for HTTP-serveren
-#        InfoHandler.conn_mgr = conn_mgr
-
-        # Sjekk/installér DB-objekter
-        is_installed = sql.is_db_objects_installed(conn_mgr)
-        logging.info(f"DB objects installed: {is_installed}")
-
-        if not is_installed:
-            sql.is_db_at_least_version_8(conn_mgr)
-            sql.install_db_objects(conn_mgr)
+        InfoHandler.conn_mgr = conn_mgr
 
         # Start GUI
         global _window
-        _window = MainWindow(config, conn_mgr, icon_path, pdf_path)
+        _window = DirekteresultaterWindow(conn_mgr)
         _window.show()
 
-    except pymysql.Error as e:
-        QMessageBox.critical(None, "Feil ved DB-kobling", f"Kunne ikke koble til databasen:\n{e}")
-        traceback.print_exc()
-        raise
-
     except Exception as e:
-        logging.error("Systemfeil", exc_info=True)
-        QMessageBox.critical(None, "Systemfeil", str(e))
+        logging.error("Feil ved oppstart av Direkteresultater", exc_info=True)
+        QMessageBox.critical(None, "Feil", str(e))
         raise

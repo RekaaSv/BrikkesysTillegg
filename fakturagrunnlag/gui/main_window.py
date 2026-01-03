@@ -14,7 +14,6 @@ from common.connection import ConnectionManager
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from fakturagrunnlag.gui.invoice_table_item import InvoiceTableItem
 from fakturagrunnlag.gui.select_race_dialog import SelectRaceDialog
-from fakturagrunnlag.html_report.server_control import ServerControl
 
 
 class MainWindow(QWidget):
@@ -101,11 +100,6 @@ class MainWindow(QWidget):
         self.reload_btn = QPushButton("Last klubber fra Eventor")
         self.reload_btn.setToolTip("Les inn klubbene fra Eventor på nytt (i tilfelle endringer).")
         self.reload_btn.clicked.connect(self.reload_customers_with_key)
-
-        self.server_control = ServerControl(self)
-        self.http_start_btn = QPushButton("Start HTTP server")
-        self.http_start_btn.setToolTip("Start HTTP server for reultatliste.")
-        self.http_start_btn.clicked.connect(self.server_control.toggle_server)
 
         self.close_button = QPushButton("Avslutt")
         self.close_button.setStyleSheet(self.button_style)
@@ -213,7 +207,6 @@ class MainWindow(QWidget):
         main_layout.addWidget(bottom_frame)
 
         top_layout.addWidget(self.reload_btn)
-        top_layout.addWidget(self.http_start_btn)
 
         top_layout.addStretch()
 
@@ -758,9 +751,3 @@ class MainWindow(QWidget):
         if bundle_id:
             control.make_amount_per_race_product(self, bundle_id)
 
-    def closeEvent(self, event):
-        # Stopp serveren hvis den kjører
-        if self.server_control.server_running:
-            self.server_control.stop_server()
-
-        event.accept()  # lukk vinduet

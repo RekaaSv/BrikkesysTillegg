@@ -4,8 +4,10 @@ from decimal import Decimal
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
-from fakturagrunnlag.db import sql
+# from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
+from direkteresultater.db import sql
+
 
 class InfoHandler(BaseHTTPRequestHandler):
     conn_mgr: ConnectionManager = None

@@ -2,7 +2,7 @@ import logging
 import threading
 
 
-from fakturagrunnlag.html_report.http_server import InfoHandler
+from direkteresultater.server.http_server import InfoHandler
 
 
 class ServerControl:
@@ -31,7 +31,7 @@ class ServerControl:
         logging.info("start_server")
         # Start server i egen tråd
         import threading
-        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        from http.server import HTTPServer
 
         self.httpd = HTTPServer(("0.0.0.0", 8000), InfoHandler)
         self.httpd.timeout = 1  # gjør shutdown rask
@@ -57,6 +57,8 @@ class ServerControl:
         if self.server_running:
             self.parent.http_start_btn.setText("Stopp HTTP server")
             self.parent.http_start_btn.setStyleSheet("background-color: #d9534f; color: white;")
+            self.parent.status_label.setText("Status: Kjører")
         else:
             self.parent.http_start_btn.setText("Start HTTP server")
             self.parent.http_start_btn.setStyleSheet("background-color: #5cb85c; color: white;")
+            self.parent.status_label.setText("Status: Stoppet")
