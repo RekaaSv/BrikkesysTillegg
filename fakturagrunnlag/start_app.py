@@ -2,102 +2,70 @@ import configparser
 import logging
 import os
 import traceback
-from logging.handlers import RotatingFileHandler
-from pathlib import Path
-
 import pymysql
 
-from fakturagrunnlag.db import sql
+from PyQt5.QtWidgets import QMessageBox
+
+from common.error_handling import install_global_exception_hook
+from common.logging_setup import setup_logging
+from common.paths import resource_path
 from common.connection import ConnectionManager
-from PyQt5.QtWidgets import QApplication, QMessageBox
-import sys
 
 from fakturagrunnlag.gui.main_window import MainWindow
+from fakturagrunnlag.db import sql
 from fakturagrunnlag.html_report.http_server import InfoHandler
 
 
-def global_exception_hook(exctype, value, tb):
-    logging.error("Feil: ", exc_info=(exctype, value, tb))
-    msg = f"{exctype.__name__}: {value}"
-    QMessageBox.critical(None, "Feil", msg)
-    traceback.print_exception(exctype, value, tb)
-
 def start_fakturagrunnlag():
-    # Global feilhåndtering
-    sys.excepthook = global_exception_hook
+    """
+    Starter Fakturagrunnlag-modulen.
+    Forutsetter at QApplication allerede er startet av overbygningen.
+    """
 
-    # Start GUI
-    app = QApplication(sys.argv)
+    install_global_exception_hook()
+    setup_logging()
+
     try:
+        # Finn configfil
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(base_dir, "..", "brikkesystillegg.cfg")
+        config_path = os.path.abspath(config_path)
 
-        icon_path = resource_path("terning.ico")
-        pdf_path = resource_path("hjelp.pdf")
-
-        app.setStyleSheet("""
-        QToolTip {
-            background-color: rgb(255, 255, 220);  /* svak gul */
-            color: black;
-            border: 1px solid gray;
-            padding: 4px;
-            font-size: 10pt;
-        }
-        """)
-
-        # Sikrer at det fungerer også når exe-filen startes fra annet sted.
-        base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        config_path = os.path.join(base_dir, "brikkesystillegg.cfg")
         config = configparser.ConfigParser()
         config.read(config_path)
+
         db_config = config["mysql"]
         log_config = config["logging"]
 
-        # Logging-oppsett ufra konfig fil.
-        log_level = log_config.get("level", fallback="INFO")
-        log_file = log_config.get("file", fallback="BrikkesysTillegg.log")
-        log_max_bytes = log_config.getint("max_bytes", fallback=500_000)
-        log_backup_count = log_config.getint("backup_count", fallback=5)
-        file_handler = RotatingFileHandler(
-            log_file,
-            maxBytes=log_max_bytes,
-            backupCount=log_backup_count,
-            encoding="utf-8"
-        )
+        # Ressurser
+        icon_path = resource_path("terning.ico")
+        pdf_path = resource_path("hjelp.pdf")
 
-        logging.basicConfig(
-            level=getattr(logging, log_level.upper(), logging.INFO),
-            format="%(asctime)s [%(levelname)s] %(message)s",
-            handlers=[
-                file_handler,
-                logging.StreamHandler()
-            ]
-        )
-
+        # Database-tilkobling
         conn_mgr = ConnectionManager(db_config)
         conn_mgr.get_connection()
+
+        # Gjør connection manager tilgjengelig for HTTP-serveren
         InfoHandler.conn_mgr = conn_mgr
 
-        # Sjekk om Trekkeplan DB-objekter er på plass.
+        # Sjekk/installér DB-objekter
         is_installed = sql.is_db_objects_installed(conn_mgr)
         logging.info(f"DB objects installed: {is_installed}")
+
         if not is_installed:
             sql.is_db_at_least_version_8(conn_mgr)
             sql.install_db_objects(conn_mgr)
 
+        # Start GUI
         window = MainWindow(config, conn_mgr, icon_path, pdf_path)
         window.show()
-        sys.exit(app.exec_())
+
     except pymysql.Error as e:
         QMessageBox.critical(None, "Feil ved DB-kobling", f"Kunne ikke koble til databasen:\n{e}")
         traceback.print_exc()
         raise
+
     except Exception as e:
         logging.error("Systemfeil", exc_info=True)
         QMessageBox.critical(None, "Systemfeil", str(e))
-        raise  # sender videre til global_exception_hook
-
-
-def resource_path(relative_path):
-    """Finner riktig bane til ressursen, uansett om det kjøres fra .py eller .exe"""
-    base_path = getattr(sys, '_MEIPASS', Path(__file__).parent)
-    return os.path.join(base_path, relative_path)
-
+        raise

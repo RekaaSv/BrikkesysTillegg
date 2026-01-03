@@ -1,4 +1,9 @@
-from fakturagrunnlag import start as start_fakturagrunnlag
+from PyQt5.QtWidgets import QApplication
+from common.main_window import MainWindow
+import sys
 
 if __name__ == "__main__":
-    start_fakturagrunnlag()
+    app = QApplication(sys.argv)
+    win = MainWindow()
+    win.show()
+    sys.exit(app.exec_())
