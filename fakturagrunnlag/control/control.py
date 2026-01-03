@@ -17,7 +17,7 @@ from reportlab.lib.units import cm
 from fakturagrunnlag.brreg import brreg
 from fakturagrunnlag.db import sql
 from fakturagrunnlag.eventor import eventor
-from fakturagrunnlag.html_report.html_builder import HtmlBuilder
+from common.html_builder import HtmlBuilder
 
 
 def import_eventor_clubs(parent, eventor_apikey, progress):

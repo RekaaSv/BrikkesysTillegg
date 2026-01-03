@@ -53,7 +53,7 @@ def start_app():
 
         # Logging-oppsett ufra konfig fil.
         log_level = log_config.get("level", fallback="INFO")
-        log_file = log_config.get("file", fallback="fakturagrunnlag.log")
+        log_file = log_config.get("file", fallback="BrikkesysTillegg.log")
         log_max_bytes = log_config.getint("max_bytes", fallback=500_000)
         log_backup_count = log_config.getint("backup_count", fallback=5)
         file_handler = RotatingFileHandler(
@@ -101,6 +101,3 @@ def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', Path(__file__).parent)
     return os.path.join(base_path, relative_path)
 
-
-if __name__ == "__main__":
-    main()
