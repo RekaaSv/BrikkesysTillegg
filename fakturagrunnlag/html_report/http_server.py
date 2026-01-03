@@ -1,12 +1,11 @@
 import datetime
 import logging
-import threading
 from decimal import Decimal
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 from fakturagrunnlag.db import sql
-from fakturagrunnlag.db.connection import ConnectionManager
+from common.connection import ConnectionManager
 
 class InfoHandler(BaseHTTPRequestHandler):
     conn_mgr: ConnectionManager = None

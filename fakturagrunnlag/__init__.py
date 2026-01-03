@@ -1,4 +1,4 @@
-from .start_app import start_app
+from .start_app import start_fakturagrunnlag
 
 def start():
-    start_app()
+    start_fakturagrunnlag()

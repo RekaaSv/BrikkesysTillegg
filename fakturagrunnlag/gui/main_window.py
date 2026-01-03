@@ -1,7 +1,7 @@
 import logging
 
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QSplitter, QSizePolicy,
+    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QSizePolicy,
     QDialog, QMessageBox, QLineEdit,
     QProgressDialog, QApplication, QFrame
 )
@@ -10,12 +10,10 @@ from PyQt5.QtCore import Qt
 from common.settings import set_setting, get_setting
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
-from fakturagrunnlag.db.connection import ConnectionManager
-from fakturagrunnlag.gui.api_key_dialog import ApiKeyDialog
+from common.connection import ConnectionManager
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from fakturagrunnlag.gui.invoice_table_item import InvoiceTableItem
 from fakturagrunnlag.gui.select_race_dialog import SelectRaceDialog
-from fakturagrunnlag.html_report import http_server
 from fakturagrunnlag.html_report.server_control import ServerControl
 
 

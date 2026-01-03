@@ -8,7 +8,7 @@ from pathlib import Path
 import pymysql
 
 from fakturagrunnlag.db import sql
-from fakturagrunnlag.db.connection import ConnectionManager
+from common.connection import ConnectionManager
 from PyQt5.QtWidgets import QApplication, QMessageBox
 import sys
 
@@ -22,7 +22,7 @@ def global_exception_hook(exctype, value, tb):
     QMessageBox.critical(None, "Feil", msg)
     traceback.print_exception(exctype, value, tb)
 
-def start_app():
+def start_fakturagrunnlag():
     # Global feilhåndtering
     sys.excepthook = global_exception_hook
 
