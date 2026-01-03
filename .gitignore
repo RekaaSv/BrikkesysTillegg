@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# PyCharm
+.idea/
+*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Config files that should NOT be versioned
+brikkesystillegg.cfg
+
+# Infoskjerm generated files (if any)
+infoskjerm/static/generated/
+infoskjerm/templates/generated/
+
+# Temporary files
+*.tmp
+*.bak
