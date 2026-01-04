@@ -5,21 +5,19 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from fakturagrunnlag.db import sql
+from common import sql
 
 
 class SelectRaceDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        logging.info("SelectRaceDialog")
+        logging.info("commen.SelectRaceDialog")
         self.parent = parent
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowTitle("Velg et løp")
-        self.resize(600, 300)
+        self.resize(650, 300)
         self.setFont(parent.font())  # arver font fra hovedvinduet
-        self.col_widths_races = [100, 400, 70, 0]
-
-        logging.info("SelectRaceDialog 2")
+        self.col_widths_races = [60, 100, 350, 70, 70]
 
         self.selected_race_id = None
 
@@ -33,8 +31,6 @@ class SelectRaceDialog(QDialog):
         self.table_race.setStyleSheet(self.parent.table_style_sheet)
 #        parent.table_race.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
-        logging.info("SelectRaceDialog 3")
-
         # Knapper
         layout_buttons = QHBoxLayout()
         ok_btn = QPushButton("OK")
@@ -46,7 +42,6 @@ class SelectRaceDialog(QDialog):
 
         ok_btn.clicked.connect(self.ok_clicked)
         cancel_btn.clicked.connect(self.reject)
-        logging.info("SelectRaceDialog 4")
 
         layout = QVBoxLayout()
         layout.addWidget(self.table_race)
@@ -56,11 +51,11 @@ class SelectRaceDialog(QDialog):
         self.refresh()
 
     def refresh(self):
-        logging.info("SelectRaceDialog.refresh")
+        logging.info("common.SelectRaceDialog.refresh")
         rows, columns = None, None
         rows, columns = sql.read_race_list(self.parent.conn_mgr)
         self.parent.populate_table(self.table_race, columns, rows)
-        self.table_race.setColumnHidden(3, True)
+#        self.table_race.setColumnHidden(3, True)
 
         self.parent.set_table_sizes(self.table_race, self.col_widths_races, 300)
 
@@ -68,16 +63,16 @@ class SelectRaceDialog(QDialog):
         valgt = self.table_race.currentRow()
         if valgt >= 0:
             # Er dette løpet med i en bunt?
-            item_bundle = self.table_race.item(valgt, 2)
+            item_bundle = self.table_race.item(valgt, 4)
             self.selected_bundle = int(item_bundle.text()) if item_bundle.text() else None
 
             # Id til valgt løp.
-            item_id = self.table_race.item(valgt, 3)
+            item_id = self.table_race.item(valgt, 0)
             self.selected_race_id = int(item_id.text())
 
             # Dato og navn på valgt løp.
-            item_day = self.table_race.item(valgt, 0)
-            item_race = self.table_race.item(valgt, 1)
+            item_day = self.table_race.item(valgt, 1)
+            item_race = self.table_race.item(valgt, 2)
             self.selected_race = f"{item_day.text()} {item_race.text()}"
 
             self.accept()

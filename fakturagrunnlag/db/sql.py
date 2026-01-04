@@ -589,19 +589,6 @@ def select_order(conn_mgr, order_id, order_no_base):
         logging.error(f"Uventet feil: {e}")
         raise
 
-
-def read_race_list(conn_mgr):
-    logging.info("db.read_race_list")
-    conn = conn_mgr.get_connection()
-    cursor = conn.cursor()
-    sql = """
-    SELECT r.racedate Dag, r.name Løp, r.svr_bundle_id Bunt_ID, r.id
-    FROM races r
-    ORDER BY r.racedate DESC, r.created COLLATE utf8mb3_danish_ci DESC
-    """
-    cursor.execute(sql)
-    return cursor.fetchall(), [desc[0] for desc in cursor.description]
-
 #
 # Sjekk om database objektene til Trekkeplan er installert.
 #

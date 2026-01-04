@@ -3,17 +3,6 @@ import logging
 import pymysql
 from trekkeplan.control.errors import MyCustomError
 
-def read_race_list(conn_mgr):
-    logging.info("sql.read_race_list")
-    conn = conn_mgr.get_connection()
-    cursor = conn.cursor()
-    sql = """
-SELECT r.racedate Dag, r.name Løp, r.svr_first_start Starttid, r.id
-FROM races r
-ORDER BY r.racedate DESC, r.created DESC
-"""
-    cursor.execute(sql)
-    return cursor.fetchall(), [desc[0] for desc in cursor.description]
 
 """
 Løpere som har klubbkamerat i samme klasse rett før.

@@ -13,7 +13,7 @@ from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from fakturagrunnlag.gui.invoice_table_item import InvoiceTableItem
-from fakturagrunnlag.gui.select_race_dialog import SelectRaceDialog
+from common.select_race_dialog import SelectRaceDialog
 
 
 class MainWindow(QWidget):
@@ -642,7 +642,7 @@ class MainWindow(QWidget):
         confirm_btn.clicked.connect(start_import)
         dlg.exec_()
 
-    def set_table_sizes(self, table, col_sizes, max_height):
+    def set_table_sizes(self, table, col_sizes, max_height=600):
         self.set_fixed_widths(table, col_sizes)
         table.resizeRowsToContents()
         self.adjust_table_hight(table, max_height)
@@ -652,15 +652,15 @@ class MainWindow(QWidget):
         for col_inx, width in enumerate(widths):
             table.setColumnWidth(col_inx, width)
 
-    def adjust_table_hight(self, table, max_height = 200):
+    def adjust_table_hight(self, table, max_height = 600):
         logging.info("adjust_table_hight")
         header_h = table.horizontalHeader().height()
         row_height = header_h
         scrollbar_h = table.horizontalScrollBar().height() if table.horizontalScrollBar().isVisible() else 0
         total_height = header_h + (row_height * table.rowCount()) + scrollbar_h + 2  # +2 for ramme
-#        limited_height = min(total_height, max_height)
-        limited_height = max_height
+        limited_height = min(total_height, max_height)
         table.setFixedHeight(limited_height)
+
 
     def adjust_table_width(self, table, extra_margin=2):
         logging.info("adjust_table_width")

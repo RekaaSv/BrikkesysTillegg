@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QTime, QSettings, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
 from common.connection import ConnectionManager
+from common.select_race_dialog import SelectRaceDialog
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
 from trekkeplan.db import sql
@@ -18,7 +19,6 @@ from trekkeplan.gui.draw_plan_table_item import DrawPlanTableItem
 
 from trekkeplan.gui.filtered_table import FilteredTable
 from trekkeplan.gui.split_club_mates import SplitClubMates
-from trekkeplan.gui.select_race_dialog import SelectRaceDialog
 
 
 class MainWindow(QWidget):
@@ -1038,10 +1038,10 @@ class MainWindow(QWidget):
         logging.debug(f"Vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
         super().closeEvent(event)
 
-    def set_table_sizes(self, table, col_sizes):
+    def set_table_sizes(self, table, col_sizes, max_height=600):
         self.set_fixed_widths(table, col_sizes)
         table.resizeRowsToContents()
-        self.adjust_table_hight(table)
+        self.adjust_table_hight(table, max_height)
         self.adjust_table_width(table)
 
     def select_by_id(self, table, id, col=0):

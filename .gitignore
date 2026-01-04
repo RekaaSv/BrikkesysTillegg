@@ -18,7 +18,7 @@ env/
 Thumbs.db
 
 # Logs
-*.log
+BrikkesysTillegg.log*
 
 # Byte-compiled / optimized / DLL files
 *.so
