@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel
 # from trekkeplan.start_app import start_trekkeplan
 from direkteresultater.start_app import start_direkteresultater
 from fakturagrunnlag.start_app import start_fakturagrunnlag
+from trekkeplan.start_app import start_trekkeplan
+
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -15,7 +17,7 @@ class MainWindow(QWidget):
 
         # Rekkefølge etter faktisk bruk
         btn_tp = QPushButton("Trekkeplan")
-#        btn_tp.clicked.connect(start_trekkeplan)
+        btn_tp.clicked.connect(start_trekkeplan)
 
         btn_dr = QPushButton("Direkteresultater")
         btn_dr.clicked.connect(start_direkteresultater)

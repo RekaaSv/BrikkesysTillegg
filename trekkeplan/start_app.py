@@ -11,12 +11,12 @@ from common.logging_setup import setup_logging
 from common.paths import resource_path
 from common.connection import ConnectionManager
 
-from fakturagrunnlag.gui.main_window import MainWindow
-from fakturagrunnlag.db import sql
+from trekkeplan.gui.main_window import MainWindow
+from trekkeplan.db import sql
 
 _window = None
 
-def start_fakturagrunnlag():
+def start_trekkeplan():
     """
     Starter Fakturagrunnlag-modulen.
     Forutsetter at QApplication allerede er startet av overbygningen.
@@ -39,14 +39,11 @@ def start_fakturagrunnlag():
 
         # Ressurser
         icon_path = resource_path("terning.ico")
-        pdf_path = resource_path("hjelp_fakturagrunnlag.pdf")
+        pdf_path = resource_path("hjelp_trekkeplan.pdf")
 
         # Database-tilkobling
         conn_mgr = ConnectionManager(db_config)
         conn_mgr.get_connection()
-
-        # Gjør connection manager tilgjengelig for HTTP-serveren
-#        InfoHandler.conn_mgr = conn_mgr
 
         # Sjekk/installér DB-objekter
         is_installed = sql.is_db_objects_installed(conn_mgr)
