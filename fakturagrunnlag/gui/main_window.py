@@ -25,46 +25,10 @@ class MainWindow(QWidget):
         self.config = config
         self.conn_mgr: ConnectionManager = conn_mgr
         self.col_widths_bundles = [80, 120, 400, 80, 100, 200]
-#       self.col_widths_orders = [0, 80, 0, 0, 80, 200, 150, 150, 70, 100, 80, 250, 100, 150, 150]
         self.col_widths_orders = [0, 60, 0, 0, 60, 150, 120, 120, 60, 80, 60, 200, 90, 80, 120]
         self.col_widths_lines = [0, 0, 0, 100, 220, 100, 0, 200, 0, 80, 200, 80, 120]
 
         self.eventor_apikey = None
-
-        self.style_table_header = "font-weight: bold; font-size: 16px; margin: 10px 0;"
-        style_sheet_time = """
-            background-color: rgb(255, 250, 205);  /* svak gul */
-            border: 1px solid #aaa;
-            padding: 2px;
-            border-radius: 3px;
-        """
-        self.table_header_style_sheet = """
-            QHeaderView::section {
-                background-color: #e0e0e0;
-                color: #333;
-                font-weight: bold;
-                padding: 1px;
-                border: 1px solid #ccc;
-            }
-        """
-        self.table_style_sheet = """
-            QTableView {
-                background-color: #f0f0f0; /* tomme områder */
-                border: none;
-            }
-            QTableView::viewport {
-                background-color: #f0f0f0; /* bak radene */
-            }
-            /*
-            QTableView::item {
-                background-color: white;
-            }
-            */
-            QTableView::item:selected {
-                background-color: #3399ff;  /* klassisk blå */
-                color: white;
-            }
-        """
 
         self.setWindowTitle("Fakturagrunnlag")
         self.resize(1500, 750)
@@ -145,14 +109,6 @@ class MainWindow(QWidget):
         self.order_table.itemSelectionChanged.connect(self.on_order_selected)
 
         self.bundle_table.setMouseTracking(True)
-
-        self.bundle_table.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-        self.order_table.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-        self.line_table.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-
-        self.bundle_table.setStyleSheet(self.table_style_sheet)
-        self.order_table.setStyleSheet(self.table_style_sheet)
-        self.line_table.setStyleSheet(self.table_style_sheet)
 
 #        self.make_layout()
 

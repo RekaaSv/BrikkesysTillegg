@@ -42,13 +42,9 @@ class MainWindow(QWidget):
         #
         # Komponenter
         #
-        self.style_table_header = "font-weight: bold; font-size: 16px; margin: 10px 0;"
         title_non_planned = QLabel("Ikke-planlagte klasser")
-        title_non_planned.setStyleSheet(self.style_table_header)
         title_block_lag = QLabel("Bås/tidsslep/gap")
-        title_block_lag.setStyleSheet(self.style_table_header)
         title_class_start = QLabel("Trekkeplan")
-        title_class_start.setStyleSheet(self.style_table_header)
 
         style_sheet_time = """
             background-color: rgb(255, 250, 205);  /* svak gul */
@@ -57,7 +53,6 @@ class MainWindow(QWidget):
             border-radius: 3px;
         """
         title_first_start = QLabel("Første start:")
-        title_first_start.setStyleSheet(self.style_table_header)
         self.field_first_start = QTimeEdit()
         self.field_first_start.setButtonSymbols(QTimeEdit.NoButtons)  # Skjuler opp/ned-piler
         self.field_first_start.setStyleSheet(style_sheet_time)
@@ -67,9 +62,10 @@ class MainWindow(QWidget):
             border: 1px solid #aaa;
             padding: 2px;
             border-radius: 3px;
+            font-weight: normal;
+            margin: 0;
         """
         title_last_start = QLabel("Siste start:")
-        title_last_start.setStyleSheet(self.style_table_header)
         self.field_last_start = QTimeEdit()
         self.field_last_start.setReadOnly(True)
         self.field_last_start.setButtonSymbols(QTimeEdit.NoButtons)  # Skjuler opp/ned-piler
@@ -78,12 +74,10 @@ class MainWindow(QWidget):
         self.field_last_start.setFixedWidth(80)
 
         title_duration = QLabel("Varighet:")
-        title_duration.setStyleSheet(self.style_table_header)
         self.field_duration = QLabel()
         self.field_duration.setStyleSheet(style_sheet_time_ro)
 
         title_utilization = QLabel("Utnyttelse (%):")
-        title_utilization.setStyleSheet(self.style_table_header)
         self.field_utilization = QLabel()
         self.field_utilization.setStyleSheet(style_sheet_time_ro)
 
@@ -112,35 +106,6 @@ class MainWindow(QWidget):
         self.field_gap.setValidator(QIntValidator(0, 999))
         self.field_gap.setText("60")
 
-        self.table_header_style_sheet = """
-            QHeaderView::section {
-                background-color: #e0e0e0;
-                color: #333;
-                font-weight: bold;
-                padding: 1px;
-                border: 1px solid #ccc;
-            }
-        """
-
-        self.table_style_sheet = """
-            QTableView {
-                background-color: #f0f0f0; /* tomme områder */
-                border: none;
-            }
-            QTableView::viewport {
-                background-color: #f0f0f0; /* bak radene */
-            }
-            /*
-            QTableView::item {
-                background-color: white;
-            }
-            */
-            QTableView::item:selected {
-                background-color: #3399ff;  /* klassisk blå */
-                color: white;
-            }
-        """
-
         self.table_not_planned = QTableWidget()
         self.table_not_planned.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table_not_planned.setSelectionBehavior(QTableWidget.SelectRows)
@@ -151,8 +116,6 @@ class MainWindow(QWidget):
         # Og på header.
         self.table_not_planned.horizontalHeader().setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_not_planned.horizontalHeader().customContextMenuRequested.connect(self.show_not_planned_header_menu)
-        self.table_not_planned.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-        self.table_not_planned.setStyleSheet(self.table_style_sheet)
 
         self.table_block_lag = QTableWidget()
         self.table_block_lag.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -162,8 +125,6 @@ class MainWindow(QWidget):
         self.table_block_lag.setSortingEnabled(True)
         self.table_block_lag.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_block_lag.customContextMenuRequested.connect(self.show_block_lag_menu)
-        self.table_block_lag.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-        self.table_block_lag.setStyleSheet(self.table_style_sheet)
 
         self.table_class_start = FilteredTable(self.table_block_lag, 0, 1)  #QTableWidget()
 #        self.table_class_start.setMinimumSize(660, 100)
@@ -174,8 +135,6 @@ class MainWindow(QWidget):
         self.table_class_start.setSortingEnabled(False)
         self.table_class_start.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_class_start.customContextMenuRequested.connect(self.show_class_start_menu)
-        self.table_class_start.horizontalHeader().setStyleSheet(self.table_header_style_sheet)
-        self.table_class_start.setStyleSheet(self.table_style_sheet)
 
         self.help_button = QPushButton("Hjelp")
         self.help_button.setFixedWidth(150)

@@ -18,8 +18,6 @@ class SplitClubMates(QDialog):
 #        parent.resize(1000, 700)
         self.resize(1287, 707)
 
-        self.setFont(parent.font())  # arver font fra hovedvinduet
-
         # Tabeller
         self.left_columns = [0, 0, 0, 80, 200, 250, 70]
         self.table_club_mates = QTableWidget()
@@ -28,8 +26,6 @@ class SplitClubMates(QDialog):
         self.table_club_mates.verticalHeader().setVisible(False)
         self.table_club_mates.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_club_mates.customContextMenuRequested.connect(self.menu_draw_class)
-        self.table_club_mates.horizontalHeader().setStyleSheet(self.parent.table_header_style_sheet)
-        self.table_club_mates.setStyleSheet(self.parent.table_style_sheet)
 
         parent.keep_selection_colour(self.table_club_mates)
 
@@ -39,16 +35,12 @@ class SplitClubMates(QDialog):
         self.table_class_startlist.verticalHeader().setVisible(False)
         self.table_class_startlist.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_class_startlist.customContextMenuRequested.connect(self.menu_swap_times)
-        self.table_class_startlist.horizontalHeader().setStyleSheet(self.parent.table_header_style_sheet)
-        self.table_class_startlist.setStyleSheet(self.parent.table_style_sheet)
         parent.keep_selection_colour(self.table_class_startlist)
 
         # Overskrifter
         label_club_mates = QLabel("Løpere med klubbkamerat rett før")
-        label_club_mates.setStyleSheet(parent.style_table_header)
 
         label_startlist = QLabel("Startrekkefølge (bytte starttider)")
-        label_startlist.setStyleSheet(parent.style_table_header)
 
         # Knapper
         self.refresh_button = QPushButton("Oppfrisk")
@@ -247,7 +239,7 @@ class SplitClubMates(QDialog):
 
     def draw_start_times_class(self):
         logging.info("draw_start_times_class")
-        if self.parent.drawplan_changed > self.parent.draw_time:
+        if self.parent.draw_time & (self.parent.drawplan_changed > self.parent.draw_time):
             show_message("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre table.")
             return
 
