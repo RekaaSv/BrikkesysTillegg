@@ -36,12 +36,6 @@ class MainWindow(QWidget):
         self.race_id = self.get_raceid_from_registry() # Lagres i registry.
         self.race_name = None
 
-        field_input_style = """
-        QLineEdit {
-            background-color: rgb(255, 250, 205);  /* svak gul */
-        }
-        """
-
         self.resize(1497, 780)
         self.move(0, 0)
 
@@ -105,17 +99,14 @@ class MainWindow(QWidget):
         self.field_first_start.setDisplayFormat("HH:mm:ss")
         self.field_first_start.setFixedWidth(80)
         self.field_block = BlockLineEdit(self)
-        self.field_block.setStyleSheet(field_input_style)
         self.field_block.setReadOnly(False)
         self.field_block.setFixedWidth(100)
         self.field_lag = QLineEdit()
-        self.field_lag.setStyleSheet(field_input_style)
         self.field_lag.setReadOnly(False)
         self.field_lag.setFixedWidth(50)
         self.field_lag.setValidator(QIntValidator(0, 999))
         self.field_lag.setText("0")
         self.field_gap = QLineEdit()
-        self.field_gap.setStyleSheet(field_input_style)
         self.field_gap.setReadOnly(False)
         self.field_gap.setFixedWidth(50)
         self.field_gap.setValidator(QIntValidator(0, 999))
