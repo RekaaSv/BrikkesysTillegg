@@ -13,6 +13,7 @@ class CommonTableItem(QTableWidgetItem):
         super().__init__(display_text)
         self.setBackground(QColor("white"))
         self.setData(Qt.UserRole, sort_value)
+        self.sort_value = sort_value
         self.setTextAlignment(alignment)
         self.type = type(sort_value)
 

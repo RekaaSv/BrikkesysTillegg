@@ -93,7 +93,7 @@ def refresh_table(parent, table):
         logging.error("Systemfeil!", exc_info=True)
         raise Exception("Systemfeil!")
 
-    parent.populate_table(table, columns, rows)
+    parent.populate_my_table(table, columns, rows)
     parent.set_table_sizes(table, col_widths)
     return max_next_time
 

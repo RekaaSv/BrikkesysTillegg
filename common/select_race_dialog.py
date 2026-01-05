@@ -54,7 +54,7 @@ class SelectRaceDialog(QDialog):
         logging.info("common.SelectRaceDialog.refresh")
         rows, columns = None, None
         rows, columns = sql.read_race_list(self.parent.conn_mgr)
-        self.parent.populate_table(self.table_race, columns, rows)
+        self.parent.populate_my_table(self.table_race, columns, rows)
 #        self.table_race.setColumnHidden(3, True)
 
         self.parent.set_table_sizes(self.table_race, self.col_widths_races, 300)

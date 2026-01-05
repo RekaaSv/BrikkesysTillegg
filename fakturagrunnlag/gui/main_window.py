@@ -11,7 +11,7 @@ from common.settings import set_setting, get_setting
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
-from common.gui.utils import show_message
+from common.gui.utils import show_message, populate_table
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
@@ -258,7 +258,7 @@ class MainWindow(QWidget):
     def load_bundles(self):
         logging.info("load_bundles")
         rows, columns = sql.select_bundles(self.conn_mgr)
-        self.populate_table(self.bundle_table, columns, rows)
+        self.populate_my_table(self.bundle_table, columns, rows)
 #        self.bundle_table.setColumnHidden(2, True)
         self.set_table_sizes(self.bundle_table, self.col_widths_bundles, 150)
 
@@ -269,7 +269,7 @@ class MainWindow(QWidget):
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
 
         rows, columns = sql.select_orders(self.conn_mgr, bundle_id, order_no_base, customer_no_base)
-        self.populate_table(self.order_table, columns, rows)
+        self.populate_my_table(self.order_table, columns, rows)
         self.order_table.setColumnHidden(0, True)
         self.order_table.setColumnHidden(2, True)
         self.order_table.setColumnHidden(3, True)
@@ -278,7 +278,7 @@ class MainWindow(QWidget):
     def load_lines(self, order_id):
         logging.info("load_orders")
         rows, columns = sql.select_order_lines(self.conn_mgr, order_id)
-        self.populate_table(self.line_table, columns, rows)
+        self.populate_my_table(self.line_table, columns, rows)
         self.line_table.setColumnHidden(0, True)
         self.line_table.setColumnHidden(1, True)
         self.line_table.setColumnHidden(2, True)
@@ -524,36 +524,30 @@ class MainWindow(QWidget):
 
         control.make_order_pdf(self, invoice_config, order_no)
 
-    def populate_table(self, table, columns: list[any], rows):
-        logging.debug("populate_table")
-#        self.table_class_start.blockSignals(True)
-        table.clearContents()
-        is_sorted = table.isSortingEnabled()
-        if is_sorted: table.setSortingEnabled(False)
-        table.setColumnCount(len(columns))
-        table.setRowCount(len(rows))
-        table.setHorizontalHeaderLabels(columns)
-        for row_idx, row_data in enumerate(rows):
-            for col_idx, value in enumerate(row_data):
-                value_type = type(value)
-                logging.debug("populate_table value_type: %s", value_type)
+    def map_invoice_row(self, row_data):
+        return [CommonTableItem.from_value(v) for v in row_data]
 
-                item = CommonTableItem.from_value(value)
-                # Checkbox et sted.
-                if (table == self.order_table) & (col_idx == 13):
-                    item.setCheckState(Qt.Checked if value == 0 else Qt.Unchecked)
-                    item.setText("")
-                    item.setFlags(item.flags() & ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled)
+    def invoice_cell_postprocessor(self, table, row_idx, col_idx, item):
+        # Checkbox i order_table
+        if table == self.order_table and col_idx == 13:
+            value = item.sort_value
+            item.setCheckState(Qt.Checked if value == 0 else Qt.Unchecked)
+            item.setText("")
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable & ~Qt.ItemIsEnabled)
 
-                # Vis tooltip for Beskrivelse kolonna i bundle_table.
-                if (table == self.bundle_table) & (col_idx == 2):
-                    item.setToolTip(value)
-                table.setItem(row_idx, col_idx, item)
-        if is_sorted: table.setSortingEnabled(True)
-        table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        # Tooltip i bundle_table
+        if table == self.bundle_table and col_idx == 2:
+            item.setToolTip(item.text())
 
-#        self.table_class_start.blockSignals(False)
-        logging.info("populate_table end")
+    def populate_my_table(self, table, columns: list[any], rows):
+        logging.debug("populate_my_table")
+        populate_table(
+            table,
+            columns,
+            rows,
+            self.map_invoice_row,
+            self.invoice_cell_postprocessor
+        )
 
     def on_bundle_selected(self):
         logging.info("on_bundle_selected")

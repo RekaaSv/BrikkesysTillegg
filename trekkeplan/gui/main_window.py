@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QTime, QSettings, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
 from common.connection import ConnectionManager
-from common.gui.utils import show_message
+from common.gui.utils import show_message, populate_table
 from common.select_race_dialog import SelectRaceDialog
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
@@ -526,27 +526,14 @@ class MainWindow(QWidget):
         else: q_time = QTime(0,0)
         self.field_first_start.setTime(q_time)
 
-    def populate_table(self, table, columns: list[any], rows):
-        logging.debug("populate_table")
+    def map_draw_row(self, row_data):
+        return [CommonTableItem.from_value(v, time_only=True) for v in row_data]
+
+    def populate_my_table(self, table, columns: list[any], rows):
+        logging.debug("populate_my_table")
         self.table_class_start.blockSignals(True)
-        table.clearContents()
-        is_sorted = table.isSortingEnabled()
-        if is_sorted: table.setSortingEnabled(False)
-        table.setColumnCount(len(columns))
-        table.setRowCount(len(rows))
-        table.setHorizontalHeaderLabels(columns)
-        for row_idx, row_data in enumerate(rows):
-            for col_idx, value in enumerate(row_data):
-                value_type = type(value)
-                logging.debug("populate_table value_type: %s", value_type)
-
-                item = CommonTableItem.from_value(value, True)
-                table.setItem(row_idx, col_idx, item)
-        if is_sorted: table.setSortingEnabled(True)
-        table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
+        populate_table(table, columns, rows, self.map_draw_row)
         self.table_class_start.blockSignals(False)
-        logging.info("populate_table end")
 
     def keep_selection_colour(self, table):
         logging.info("keep_selection_colour")
