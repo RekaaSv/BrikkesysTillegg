@@ -1,6 +1,5 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel
-# from trekkeplan.start_app import start_trekkeplan
 from direkteresultater.start_app import start_direkteresultater
 from fakturagrunnlag.start_app import start_fakturagrunnlag
 from trekkeplan.start_app import start_trekkeplan
@@ -34,3 +33,5 @@ class MainWindow(QWidget):
         layout.addWidget(btn_fg)
 
         self.setLayout(layout)
+
+

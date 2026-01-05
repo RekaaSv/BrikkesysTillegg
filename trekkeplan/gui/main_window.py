@@ -8,11 +8,11 @@ from PyQt5.QtCore import Qt, QTime, QSettings, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
 from common.connection import ConnectionManager
+from common.gui.utils import show_message
 from common.select_race_dialog import SelectRaceDialog
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
 from trekkeplan.db import sql
-# from trekkeplan.db.connection import ConnectionManager
 from trekkeplan.gui.about_dialog import AboutDialog
 from trekkeplan.gui.block_line_edit import BlockLineEdit
 from common.gui.common_table_item import CommonTableItem
@@ -537,7 +537,6 @@ class MainWindow(QWidget):
         table.setHorizontalHeaderLabels(columns)
         for row_idx, row_data in enumerate(rows):
             for col_idx, value in enumerate(row_data):
-                item = None
                 value_type = type(value)
                 logging.debug("populate_table value_type: %s", value_type)
 
@@ -639,23 +638,15 @@ class MainWindow(QWidget):
 
         returned = control.delete_blocklag(self, self.race_id, blocklagid, blockid)
         if returned:
-            self.show_message(returned)
+            show_message(returned)
         else:
             self.after_plan_changed(None)
-
-    def show_message(self, tekst):
-        logging.info("show_message")
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setWindowTitle("Info")
-        msg.setText(tekst)
-        msg.exec_()
 
     def delete_class_start_row(self):
         logging.info("delete_class_start_row")
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
-            self.show_message("Du må velge klassen som skal fjernes fra planen!")
+            show_message("Du må velge klassen som skal fjernes fra planen!")
             return
         row_id = selected[0].row()
 
@@ -795,7 +786,7 @@ class MainWindow(QWidget):
         logging.info("class_start_down_up")
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
-            self.show_message("Du må velge klassen som skal flyttes et hakk!")
+            show_message("Du må velge klassen som skal flyttes et hakk!")
             return
         row_id = selected[0].row()
 
@@ -819,7 +810,7 @@ class MainWindow(QWidget):
     def add_block_lag(self):
         logging.info("add_block_lag")
         if self.race_id == 0:
-            self.show_message("Må velge et løp først!")
+            show_message("Må velge et løp først!")
             return
         model_indexes = self.table_block_lag.selectionModel().selectedRows()
         if model_indexes:
@@ -830,11 +821,11 @@ class MainWindow(QWidget):
             try:
                 control.add_lag(self, blockid, lag, gap)
             except MyCustomError as e:
-                self.show_message(e.message)
+                show_message(e.message)
         else:
             block = self.field_block.text()
             if not block:
-                self.show_message("Du må fylle inn navnet på båsen, \neller velge en rad fra tabellen under!")
+                show_message("Du må fylle inn navnet på båsen, \neller velge en rad fra tabellen under!")
                 return
             lag = self.field_lag.text()
             if not lag: lag = 0
@@ -843,7 +834,7 @@ class MainWindow(QWidget):
             try:
                 control.add_block_lag(self, self.race_id, block, lag, gap)
             except MyCustomError as e:
-                self.show_message(e.message)
+                show_message(e.message)
 
         self.after_plan_changed(None)
 
@@ -852,16 +843,16 @@ class MainWindow(QWidget):
         logging.info("move_class_to_plan")
         selected_model_rows = self.table_not_planned.selectionModel().selectedRows()
         if not selected_model_rows:
-            self.show_message("Du må velge ei klasse å flytte til Trekkeplanen!")
+            show_message("Du må velge ei klasse å flytte til Trekkeplanen!")
             return
         elif (selected_model_rows.__len__() > 9):
-            self.show_message("Du kan ikke flytte flere enn 9 klasser til Trekkeplanen i en runde!")
+            show_message("Du kan ikke flytte flere enn 9 klasser til Trekkeplanen i en runde!")
             return
 
         # Bås/slep
         block_lag_rows = self.table_block_lag.selectionModel().selectedRows()
         if not block_lag_rows:
-            self.show_message("Du må velge et bås/tidsslep å flytte til!")
+            show_message("Du må velge et bås/tidsslep å flytte til!")
             return
 
         # Hvilken bås/slep skal klassen inn i?

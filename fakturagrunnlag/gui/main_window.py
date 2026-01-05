@@ -11,6 +11,7 @@ from common.settings import set_setting, get_setting
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
+from common.gui.utils import show_message
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
@@ -365,7 +366,7 @@ class MainWindow(QWidget):
             try:
                 count_orders, count_lines = control.add_race_to_bundle(self, bundle_id, raceid)
 
-                self.show_message(f"Løp {raceid} lagt til bunt {bundle_id} med {count_orders} nye ordrer og {count_lines} nye ordrelinjer")
+                show_message(f"Løp {raceid} lagt til bunt {bundle_id} med {count_orders} nye ordrer og {count_lines} nye ordrelinjer")
 
                 self.load_bundles()
                 self.select_bundle_by_id(bundle_id)
@@ -403,7 +404,7 @@ class MainWindow(QWidget):
             # 3. Utfør fjern-løp-fra-bunten.
             try:
                 count_orders, count_lines = control.remove_race_from_bundle(self, bundle_id, raceid)
-                self.show_message(f"Løp {raceid} fjernet fra bunt {bundle_id}. {count_orders} ordrer fjernet, {count_lines} ordrelinjer fjernet")
+                show_message(f"Løp {raceid} fjernet fra bunt {bundle_id}. {count_orders} ordrer fjernet, {count_lines} ordrelinjer fjernet")
 
                 self.load_bundles()
                 self.select_bundle_by_id(bundle_id)
@@ -459,13 +460,13 @@ class MainWindow(QWidget):
                 no_of_orgnr = control.add_org_no(self, bundle_id, progress)
             except ValueError as ve:
                 progress.close()
-                self.show_message(str(ve))
+                show_message(str(ve))
             except Exception as e:
                 progress.close()
-                self.show_message(str(e))
+                show_message(str(e))
             else:
                 progress.close()
-                self.show_message("Antall org.nr importert: " + str(no_of_orgnr))
+                show_message("Antall org.nr importert: " + str(no_of_orgnr))
 
         confirm_btn.clicked.connect(start_org_import)
         dlg.exec_()
@@ -476,20 +477,20 @@ class MainWindow(QWidget):
         if bundle_id is None:
             return
         noof_rows = control.export_tripletex_csv(self, bundle_id)
-        self.show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
 
     def export_bundle_excel(self):
         bundle_id = self.get_selected_bundle_id()
         if bundle_id is None:
             return
         noof_rows = control.export_tripletex_excel(self, bundle_id)
-        self.show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
 
     def dont_export_on_off(self):
         logging.info("dont_export_on_off")
         selected_model_rows = self.order_table.selectionModel().selectedRows()
         if not selected_model_rows:
-            self.show_message("Du må velge minst en rad!")
+            show_message("Du må velge minst en rad!")
             return
         for index in selected_model_rows:
             row_ix = index.row()
@@ -584,14 +585,6 @@ class MainWindow(QWidget):
         value = get_setting("API-key")
         return str(value) if value is not None else ""
 
-    def show_message(self, tekst):
-        logging.info("show_message")
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setWindowTitle("Info")
-        msg.setText(tekst)
-        msg.exec_()
-
     def reload_customers_with_key(self):
         self.eventor_apikey = self.get_apikey_from_registry()
         dlg = QDialog(self)
@@ -611,7 +604,7 @@ class MainWindow(QWidget):
         def start_import():
             new_key = api_input.text().strip()
             if not new_key:
-                self.show_message("Du må angi Eventor sin API-key. Prøv igjen!")
+                show_message("Du må angi Eventor sin API-key. Prøv igjen!")
                 return
             dlg.accept()
 
@@ -627,17 +620,17 @@ class MainWindow(QWidget):
                 no_of_clubs = control.import_eventor_clubs(self, new_key, progress)
             except ValueError as ve:
                 progress.close()
-                self.show_message(str(ve))
+                show_message(str(ve))
             except Exception as e:
                 progress.close()
-                self.show_message(str(e))
+                show_message(str(e))
             else:
                 if new_key != self.eventor_apikey:
                     self.eventor_apikey = new_key
                     self.put_apikey_in_registry(self.eventor_apikey)
 
                 progress.close()
-                self.show_message("Antall klubber importert: " + str(no_of_clubs))
+                show_message("Antall klubber importert: " + str(no_of_clubs))
 
         confirm_btn.clicked.connect(start_import)
         dlg.exec_()

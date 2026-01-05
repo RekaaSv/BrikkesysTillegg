@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from common.html_builder import HtmlBuilder
+from common.gui.utils import show_message
 from trekkeplan.db import sql
 #from trekkeplan.html.html_builder import HtmlBuilder
 
@@ -162,11 +163,11 @@ def draw_start_times(parent, race_id):
     sql.upd_draw_time(parent.conn_mgr, race_id, now)
     parent.draw_time = now
 
-    parent.show_message("Trekking foretatt, se Startliste!")
+    show_message("Trekking foretatt, se Startliste!")
 
 def clear_start_times(parent, race_id):
     sql.clear_start_times(parent.conn_mgr, race_id)
-    parent.show_message("Starttider fjernet, se Startliste!")
+    show_message("Starttider fjernet, se Startliste!")
 
 def rebuild_class_starts(parent, race_id):
     sql.rebuild_class_starts(parent.conn_mgr, race_id)
