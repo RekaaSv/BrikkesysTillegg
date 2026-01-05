@@ -12,7 +12,7 @@ from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
-from fakturagrunnlag.gui.invoice_table_item import InvoiceTableItem
+from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
 
 
@@ -537,7 +537,7 @@ class MainWindow(QWidget):
                 value_type = type(value)
                 logging.debug("populate_table value_type: %s", value_type)
 
-                item = InvoiceTableItem.from_value(value)
+                item = CommonTableItem.from_value(value)
                 # Checkbox et sted.
                 if (table == self.order_table) & (col_idx == 13):
                     item.setCheckState(Qt.Checked if value == 0 else Qt.Unchecked)

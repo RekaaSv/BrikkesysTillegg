@@ -15,7 +15,7 @@ from trekkeplan.db import sql
 # from trekkeplan.db.connection import ConnectionManager
 from trekkeplan.gui.about_dialog import AboutDialog
 from trekkeplan.gui.block_line_edit import BlockLineEdit
-from trekkeplan.gui.draw_plan_table_item import DrawPlanTableItem
+from common.gui.common_table_item import CommonTableItem
 
 from trekkeplan.gui.filtered_table import FilteredTable
 from trekkeplan.gui.split_club_mates import SplitClubMates
@@ -541,7 +541,7 @@ class MainWindow(QWidget):
                 value_type = type(value)
                 logging.debug("populate_table value_type: %s", value_type)
 
-                item = DrawPlanTableItem.from_value(value)
+                item = CommonTableItem.from_value(value, True)
                 table.setItem(row_idx, col_idx, item)
         if is_sorted: table.setSortingEnabled(True)
         table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -714,7 +714,7 @@ class MainWindow(QWidget):
             count_idletime = count_idletime + 1
 
             # Lag nytt item med differansen
-            idle_item = DrawPlanTableItem.from_value(idletime)
+            idle_item = CommonTableItem.from_value(idletime)
             idle_item.setBackground(self.color_idle_time(idle_ratio))
             table.setItem(row_idx, 6, idle_item)
 

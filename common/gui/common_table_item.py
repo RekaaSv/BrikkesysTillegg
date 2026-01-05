@@ -8,7 +8,7 @@ from datetime import datetime, date, time, timedelta
 collator = QCollator()
 collator.setLocale(QLocale(QLocale.Norwegian, QLocale.Norway))
 
-class InvoiceTableItem(QTableWidgetItem):
+class CommonTableItem(QTableWidgetItem):
     def __init__(self, display_text: str, sort_value, alignment: Qt.AlignmentFlag):
         super().__init__(display_text)
         self.setBackground(QColor("white"))
@@ -30,13 +30,16 @@ class InvoiceTableItem(QTableWidgetItem):
             return super().__lt__(other)
 
     @classmethod
-    def from_value(cls, value):
+    def from_value(cls, value, time_only=False):
         """Velger visning, sorteringsverdi og justering basert på type. None vises som blankt."""
         if value is None:
             return cls("", "", Qt.AlignLeft | Qt.AlignVCenter)
 
         if isinstance(value, datetime):
-            return cls(value.strftime("%Y-%m-%d %H:%M:%S"), value, Qt.AlignCenter)
+            if time_only:
+                return cls(value.strftime("%H:%M:%S"), value, Qt.AlignCenter)
+            else:
+                return cls(value.strftime("%Y-%m-%d %H:%M:%S"), value, Qt.AlignCenter)
         elif isinstance(value, date):
             return cls(value.strftime("%Y-%m-%d"), value, Qt.AlignCenter)
         elif isinstance(value, time):
@@ -56,11 +59,9 @@ class InvoiceTableItem(QTableWidgetItem):
         elif isinstance(value, Decimal):
             # Norsk format: to desimaler, komma som skilletegn
             text = f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-#            alignment = Qt.AlignRight | Qt.AlignVCenter
             return cls(text, value, Qt.AlignRight | Qt.AlignVCenter)
         elif isinstance(value, float):
             text = f"{value:.2f}"
-#            alignment = Qt.AlignRight | Qt.AlignVCenter
             return cls(text, value, Qt.AlignRight | Qt.AlignVCenter)
         elif isinstance(value, str):
             show_value = value
