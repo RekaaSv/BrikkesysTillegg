@@ -36,20 +36,6 @@ class MainWindow(QWidget):
         self.race_id = self.get_raceid_from_registry() # Lagres i registry.
         self.race_name = None
 
-        self.button_style = """
-            QPushButton {
-                background-color: rgb(200, 220, 240);
-                border: 1px solid #888;
-                padding: 4px 10px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: rgb(170, 200, 230);
-            }
-            QPushButton:pressed {
-                background-color: rgb(150, 180, 220);
-            }
-        """
         field_input_style = """
         QLineEdit {
             background-color: rgb(255, 250, 205);  /* svak gul */
@@ -201,13 +187,11 @@ class MainWindow(QWidget):
         self.table_class_start.setStyleSheet(self.table_style_sheet)
 
         self.help_button = QPushButton("Hjelp")
-        self.help_button.setStyleSheet(self.button_style)
         self.help_button.setFixedWidth(150)
         self.help_button.clicked.connect(self.open_help)
 
         layout = QVBoxLayout()
         self.about_button = QPushButton("Om Trekkeplan")
-        self.about_button.setStyleSheet(self.button_style)
         self.about_button.setFixedWidth(150)
         self.about_button.clicked.connect(self.show_about_dialog)
         layout.addWidget(self.about_button)
@@ -215,17 +199,14 @@ class MainWindow(QWidget):
         central.setLayout(layout)
 
         self.close_button = QPushButton("Avslutt")
-        self.close_button.setStyleSheet(self.button_style)
         self.close_button.clicked.connect(self.close)
 
         self.race_button = QPushButton("Velg løp")
-        self.race_button.setStyleSheet(self.button_style)
         self.race_button.setFixedWidth(150)
         self.race_button.setToolTip("Velg et annet løp.")
         self.race_button.clicked.connect(self.select_race)
 
         self.move_button = QPushButton("\u21D2        (F2)")
-        self.move_button.setStyleSheet(self.button_style)
         font = QFont("Segoe UI Symbol")  # "Segoe UI Symbol" eller "Arial", "Consolas", "Fira Code"
         font.setPointSize(12)
         self.move_button.setFont(font)
@@ -239,68 +220,57 @@ class MainWindow(QWidget):
 #        self.move_shortcut.activated.connect(lambda: print("F2 trykket"))  # Simulerer knappetrykk
 
         self.remove_button = QPushButton("\u21D0        (F3)")
-        self.remove_button.setStyleSheet(self.button_style)
         self.remove_button.setFont(font)
         self.remove_button.setFixedWidth(200)
         self.remove_button.setToolTip("Fjern valgt klasse fra Trekkeplan")
         self.remove_button.clicked.connect(self.delete_class_start_row)
 
         self.add_block_button = QPushButton("➕ Legg til")
-        self.add_block_button.setStyleSheet(self.button_style)
         self.add_block_button.setFixedWidth(157)
         self.add_block_button.setToolTip("Legg til en ny bås/slep med vedier fra feltene over.\nHvis du har valgt ut en rad i tabellen under,\nvil bås feltet bli hentet herfra.")
         self.add_block_button.clicked.connect(self.add_block_lag)
 
         self.draw_start_times_button = QPushButton("Trekk starttider")
-        self.draw_start_times_button.setStyleSheet(self.button_style)
         self.draw_start_times_button.setFixedWidth(150)
         self.draw_start_times_button.setToolTip("Trekk starttider for alle klasser i trekkeplanen.")
         self.draw_start_times_button.clicked.connect(self.draw_start_times)
 
         self.clear_start_times_button = QPushButton("Fjern starttider")
-        self.clear_start_times_button.setStyleSheet(self.button_style)
         self.clear_start_times_button.setFixedWidth(150)
         self.clear_start_times_button.setToolTip("Fjern starttider for alle klasser i trekkeplanen.")
         self.clear_start_times_button.clicked.connect(self.clear_start_times)
 
         self.club_mates_button = QPushButton("Splitt klubbkamerater")
-        self.club_mates_button.setStyleSheet(self.button_style)
         self.club_mates_button.setFixedWidth(150)
         self.club_mates_button.setToolTip("Løpere fra samme klubb som starter etter hverandre i samme klasse.")
         self.club_mates_button.clicked.connect(self.handle_club_mates)
 
         self.startListButton = QPushButton("Startliste")
-        self.startListButton.setStyleSheet(self.button_style)
  #       self.startListButton.setFixedWidth(150)
         self.startListButton.setToolTip("Lag startliste pr. klasse.")
         self.startListButton.clicked.connect(self.make_startlist)
 
         self.starterListButton = QPushButton("Starter-liste")
-        self.starterListButton.setStyleSheet(self.button_style)
  #       self.starterListButton.setFixedWidth(150)
         self.starterListButton.setToolTip("Lag startliste pr. starttid.")
         self.starterListButton.clicked.connect(self.make_starterlist)
 
         self.btn_noof_in_cource = QPushButton("# pr løype")
-        self.btn_noof_in_cource.setStyleSheet(self.button_style)
 #        self.btn_noof_in_cource.setFixedWidth(150)
         self.btn_noof_in_cource.setToolTip("Antall løpere pr løype.")
         self.btn_noof_in_cource.clicked.connect(self.make_noof_in_cource)
 
         self.btn_noof_in_control1 = QPushButton("# pr post1")
-        self.btn_noof_in_control1.setStyleSheet(self.button_style)
 #        self.btn_noof_in_control1.setFixedWidth(150)
         self.btn_noof_in_control1.setToolTip("Antall løpere pr løype.")
         self.btn_noof_in_control1.clicked.connect(self.make_noof_in_control1)
 
         self.btn_same_time_cource = QPushButton("Samtidige løype")
-        self.btn_same_time_cource.setStyleSheet(self.button_style)
         #        self.btn_same_time_cource.setFixedWidth(150)
         self.btn_same_time_cource.setToolTip("Samtidig startende i samme løype.")
         self.btn_same_time_cource.clicked.connect(self.make_same_time_cource)
 
         self.btn_same_time_control1 = QPushButton("Samtidige post1")
-        self.btn_same_time_control1.setStyleSheet(self.button_style)
         #        self.btn_same_time_control1.setFixedWidth(150)
         self.btn_same_time_control1.setToolTip("Samtidig startende mot samme post 1.")
         self.btn_same_time_control1.clicked.connect(self.make_same_time_control1)

@@ -34,9 +34,7 @@ class SelectRaceDialog(QDialog):
         # Knapper
         layout_buttons = QHBoxLayout()
         ok_btn = QPushButton("OK")
-        ok_btn.setStyleSheet(self.parent.button_style)
         cancel_btn = QPushButton("Avbryt")
-        cancel_btn.setStyleSheet(self.parent.button_style)
         layout_buttons.addWidget(ok_btn)
         layout_buttons.addWidget(cancel_btn)
 

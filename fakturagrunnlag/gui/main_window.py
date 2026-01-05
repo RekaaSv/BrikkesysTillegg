@@ -31,25 +31,6 @@ class MainWindow(QWidget):
 
         self.eventor_apikey = None
 
-        self.button_style = """
-            QPushButton {
-                background-color: rgb(200, 220, 240);
-                border: 1px solid #888;
-                padding: 4px 10px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: rgb(170, 200, 230);
-            }
-            QPushButton:pressed {
-                background-color: rgb(150, 180, 220);
-            }
-        """
-        field_input_style = """
-        QLineEdit {
-            background-color: rgb(255, 250, 205);  /* svak gul */
-        }
-        """
         self.style_table_header = "font-weight: bold; font-size: 16px; margin: 10px 0;"
         style_sheet_time = """
             background-color: rgb(255, 250, 205);  /* svak gul */
@@ -103,31 +84,25 @@ class MainWindow(QWidget):
         self.reload_btn.clicked.connect(self.reload_customers_with_key)
 
         self.close_button = QPushButton("Avslutt")
-        self.close_button.setStyleSheet(self.button_style)
         self.close_button.clicked.connect(self.close)
 
         self.amountPerClubButton = QPushButton("Beløp pr klubb")
-        self.amountPerClubButton.setStyleSheet(self.button_style)
         self.amountPerClubButton.setToolTip("Liste som viser beløp pr. klubb.")
         self.amountPerClubButton.clicked.connect(self.make_amount_per_club)
 
         self.amountPerClubProductButton = QPushButton("Beløp pr klubb, produkt")
-        self.amountPerClubProductButton.setStyleSheet(self.button_style)
         self.amountPerClubProductButton.setToolTip("Liste som viser beløp pr. klubb og produkt.")
         self.amountPerClubProductButton.clicked.connect(self.make_amount_per_club_product)
 
         self.amountPerProductButton = QPushButton("Beløp pr produkt")
-        self.amountPerProductButton.setStyleSheet(self.button_style)
         self.amountPerProductButton.setToolTip("Liste som viser beløp pr. produkt.")
         self.amountPerProductButton.clicked.connect(self.make_amount_per_product)
 
         self.amountPerProductClubButton = QPushButton("Beløp pr produkt, klubb")
-        self.amountPerProductClubButton.setStyleSheet(self.button_style)
         self.amountPerProductClubButton.setToolTip("Liste som viser beløp pr. produkt og klubb.")
         self.amountPerProductClubButton.clicked.connect(self.make_amount_per_product_club)
 
         self.amountPerRaceProduct = QPushButton("Beløp pr løp, produkt")
-        self.amountPerRaceProduct.setStyleSheet(self.button_style)
         self.amountPerRaceProduct.setToolTip("Liste som viser beløp pr. løp og produkt.")
         self.amountPerRaceProduct.clicked.connect(self.make_amount_per_race_product)
 
