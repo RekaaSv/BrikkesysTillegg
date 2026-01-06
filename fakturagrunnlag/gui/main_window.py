@@ -17,13 +17,11 @@ from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
 
 
-class MainWindow(QWidget):
-    def __init__(self, config, conn_mgr, icon_path, pdf_path):
+class FakturaMainWindow(QWidget):
+    def __init__(self, ctx):
         super().__init__()
-        self.icon_path = icon_path
-        self.pdf_path = pdf_path
-        self.config = config
-        self.conn_mgr: ConnectionManager = conn_mgr
+        self.ctx = ctx
+
         self.col_widths_bundles = [80, 120, 400, 80, 100, 200]
         self.col_widths_orders = [0, 60, 0, 0, 60, 150, 120, 120, 60, 80, 60, 200, 90, 80, 120]
         self.col_widths_lines = [0, 0, 0, 100, 220, 100, 0, 200, 0, 80, 200, 80, 120]
@@ -46,6 +44,10 @@ class MainWindow(QWidget):
         self.reload_btn = QPushButton("Last klubber fra Eventor")
         self.reload_btn.setToolTip("Les inn klubbene fra Eventor på nytt (i tilfelle endringer).")
         self.reload_btn.clicked.connect(self.reload_customers_with_key)
+
+        self.new_bundle_btn = QPushButton("Ny ordrebunt")
+        self.new_bundle_btn.setToolTip("Lag en ny ordrebunt.")
+        self.new_bundle_btn.clicked.connect(self.create_bundle)
 
         self.close_button = QPushButton("Avslutt")
         self.close_button.clicked.connect(self.close)
@@ -139,7 +141,7 @@ class MainWindow(QWidget):
         main_layout.addWidget(bottom_frame)
 
         top_layout.addWidget(self.reload_btn)
-
+        top_layout.addWidget(self.new_bundle_btn)
         top_layout.addStretch()
 
         bundle_layout = QVBoxLayout()
@@ -188,18 +190,18 @@ class MainWindow(QWidget):
         """
     def load_bundles(self):
         logging.info("load_bundles")
-        rows, columns = sql.select_bundles(self.conn_mgr)
+        rows, columns = sql.select_bundles(self.ctx.conn_mgr)
         self.populate_my_table(self.bundle_table, columns, rows)
 #        self.bundle_table.setColumnHidden(2, True)
         self.set_table_sizes(self.bundle_table, self.col_widths_bundles, 150)
 
     def load_orders(self, bundle_id):
         logging.info("load_orders")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
 
-        rows, columns = sql.select_orders(self.conn_mgr, bundle_id, order_no_base, customer_no_base)
+        rows, columns = sql.select_orders(self.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
         self.populate_my_table(self.order_table, columns, rows)
         self.order_table.setColumnHidden(0, True)
         self.order_table.setColumnHidden(2, True)
@@ -208,7 +210,7 @@ class MainWindow(QWidget):
 
     def load_lines(self, order_id):
         logging.info("load_orders")
-        rows, columns = sql.select_order_lines(self.conn_mgr, order_id)
+        rows, columns = sql.select_order_lines(self.ctx.conn_mgr, order_id)
         self.populate_my_table(self.line_table, columns, rows)
         self.line_table.setColumnHidden(0, True)
         self.line_table.setColumnHidden(1, True)
@@ -267,7 +269,7 @@ class MainWindow(QWidget):
             values = dlg.get_values()
             try:
                 sql.cre_order_bundle(
-                    self.conn_mgr,
+                    self.ctx.conn_mgr,
                     values["order_date"],
                     values["remark"],
                     values["currency"]
@@ -276,6 +278,7 @@ class MainWindow(QWidget):
                 self.load_bundles()
             except Exception as e:
                 QMessageBox.critical(self, "Feil", f"Kunne ikke opprette ordrebunt:\n{e}")
+                raise
 
     def add_race_to_bundle(self):
         bundle_id = self.get_selected_bundle_id()
@@ -283,7 +286,7 @@ class MainWindow(QWidget):
             return
 
         # 2. Åpne dialog for å velge løp
-        dlg = SelectRaceDialog(self)
+        dlg = SelectRaceDialog(self.ctx, self)
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.selected_race_id
             if not raceid:
@@ -303,6 +306,7 @@ class MainWindow(QWidget):
                 self.select_bundle_by_id(bundle_id)
             except Exception as e:
                 QMessageBox.critical(self, "Feil", f"Klarte ikke legge til løp:\n{e}")
+                raise
 
     def select_bundle_by_id(self, bundle_id):
         # Antar at kolonne 0 inneholder id
@@ -320,7 +324,7 @@ class MainWindow(QWidget):
             return
 
         # 2. Åpne dialog for å velge løp
-        dlg = SelectRaceDialog(self)
+        dlg = SelectRaceDialog(self.ctx, self)
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.selected_race_id
             if not raceid:
@@ -342,6 +346,7 @@ class MainWindow(QWidget):
 
             except Exception as e:
                 QMessageBox.critical(self, "Feil", f"Klarte ikke fjerne løp:\n{e}")
+                raise
 
 
     def delete_this_bundle(self):
@@ -427,7 +432,7 @@ class MainWindow(QWidget):
             row_ix = index.row()
             item = self.order_table.item(row_ix, 0)
             order_id = int(item.text())
-            sql.toggle_dont_export(self.conn_mgr, order_id)
+            sql.toggle_dont_export(self.ctx.conn_mgr, order_id)
 
         bundle_id = self.get_selected_bundle_id()
         self.select_bundle_by_id(bundle_id)
@@ -442,7 +447,7 @@ class MainWindow(QWidget):
         if order_no is None:
             return
 
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
 
         control.make_order_word(self, invoice_config, order_no)
 
@@ -451,7 +456,7 @@ class MainWindow(QWidget):
         if order_no is None:
             return
 
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
 
         control.make_order_pdf(self, invoice_config, order_no)
 
@@ -619,16 +624,16 @@ class MainWindow(QWidget):
         logging.debug("vertical_scroll: %s", vertical_scroll)
 
     def get_order_no_base(self):
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         return invoice_config.getint("ordrenummer_start", fallback=100000)
 
     def get_customer_no_base(self):
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         return invoice_config.getint("kundenummer_start", fallback=100000)
 
     def make_amount_per_club(self):
         logging.info("make_amount_per_club")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
         bundle_id = self.get_selected_bundle_id()
@@ -637,7 +642,7 @@ class MainWindow(QWidget):
 
     def make_amount_per_club_product(self):
         logging.info("make_amount_per_club_product")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
         bundle_id = self.get_selected_bundle_id()
@@ -646,7 +651,7 @@ class MainWindow(QWidget):
 
     def make_amount_per_product(self):
         logging.info("make_amount_per_product")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
         bundle_id = self.get_selected_bundle_id()
@@ -655,7 +660,7 @@ class MainWindow(QWidget):
 
     def make_amount_per_product_club(self):
         logging.info("make_amount_per_product_club")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
         customer_no_base = invoice_config.getint("kundenummer_start", fallback=100000)
         bundle_id = self.get_selected_bundle_id()
@@ -664,7 +669,7 @@ class MainWindow(QWidget):
 
     def make_amount_per_race_product(self):
         logging.info("make_amount_per_race_product")
-        invoice_config = self.config["fakturering"]
+        invoice_config = self.ctx.config["fakturering"]
         bundle_id = self.get_selected_bundle_id()
         if bundle_id:
             control.make_amount_per_race_product(self, bundle_id)

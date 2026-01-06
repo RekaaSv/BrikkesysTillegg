@@ -25,36 +25,25 @@ def import_eventor_clubs(parent, eventor_apikey, progress):
     orgs = eventor.get_clubs(eventor_apikey, "NOR")
     actual_progress = 0
     progress.setValue(actual_progress)
-    sql.delete_inv_customers(parent.conn_mgr, "NOR")
+    sql.delete_inv_customers(parent.ctx.conn_mgr, "NOR")
 
     progress.setMaximum(len(orgs))
     for i, org in enumerate(orgs, start=1):
-        sql.insert_inv_customer(parent.conn_mgr, org)
+        sql.insert_inv_customer(parent.ctx.conn_mgr, org)
         progress.setValue(i)
         QApplication.processEvents()  # holder GUI responsivt
 
     return len(orgs)
 
-def test(parent):
-
-    sql.cre_orders(parent.conn_mgr, 1, 179)
-    sql.cre_order_lines(parent.conn_mgr, 1, 179)
-
-    sql.cre_orders(parent.conn_mgr, 1, 178)
-    sql.cre_order_lines(parent.conn_mgr, 1, 178)
-
-    sql.cre_orders(parent.conn_mgr, 1, 180)
-    sql.cre_order_lines(parent.conn_mgr, 1, 180)
-
 """
     invoice_date = datetime.date.today()
     due_date = invoice_date + datetime.timedelta(days=30)
-    sql.cre_order_bundle(parent.conn_mgr, invoice_date, due_date, "BO", "BF", "Samlefaktura Veteranmesterskapet.", "NOK")
+    sql.cre_order_bundle(parent.ctx.conn_mgr, invoice_date, due_date, "BO", "BF", "Samlefaktura Veteranmesterskapet.", "NOK")
 """
 
 def export_tripletex_csv(parent, bundle_id):
     logging.info("control.export_tripletex")
-    rows, columns = sql.export_tripletex(parent.conn_mgr, bundle_id, parent.get_order_no_base(), parent.get_customer_no_base())
+    rows, columns = sql.export_tripletex(parent.ctx.conn_mgr, bundle_id, parent.get_order_no_base(), parent.get_customer_no_base())
 
     download_path = get_download_path()
     full_path = os.path.join(download_path, "tripletex_invoice.csv")
@@ -68,7 +57,7 @@ plasserer på alle ordrer i en bunt.
 """
 def add_org_no(parent, bundle_id, progress):
 #    logging.info("control.add_org_no")
-    rows, columns = sql.select_norge_orders(parent.conn_mgr, bundle_id)
+    rows, columns = sql.select_norge_orders(parent.ctx.conn_mgr, bundle_id)
 
     actual_progress = 0
     progress.setValue(actual_progress)
@@ -82,7 +71,7 @@ def add_org_no(parent, bundle_id, progress):
         org_no = brreg.get_orgnummer(org_name)
         i = i + 1
         if org_no:
-            sql.upd_org_no(parent.conn_mgr, order_id, org_no)
+            sql.upd_org_no(parent.ctx.conn_mgr, order_id, org_no)
             j = j + 1
         progress.setValue(i)
         QApplication.processEvents()  # holder GUI responsivt
@@ -111,7 +100,7 @@ def write_tripletex_csv(rows, columns, output_path="tripletex_invoice.csv"):
 
 def export_tripletex_excel(parent, bundle_id):
     logging.info("control.export_tripletex")
-    rows, columns = sql.export_tripletex(parent.conn_mgr, bundle_id, parent.get_order_no_base(), parent.get_customer_no_base())
+    rows, columns = sql.export_tripletex(parent.ctx.conn_mgr, bundle_id, parent.get_order_no_base(), parent.get_customer_no_base())
 
     download_path = get_download_path()
     full_path = os.path.join(download_path, "tripletex_invoice.xlsx")
@@ -222,25 +211,25 @@ def generate_kid(base: str, method: str = "MOD10") -> str:
     return base_digits + check
 
 def add_race_to_bundle(parent, bundle_id, raceid):
-    count_orders = sql.cre_orders(parent.conn_mgr, bundle_id, raceid)
-    count_lines = sql.cre_order_lines(parent.conn_mgr, bundle_id, raceid)
-    sql.append_remark(parent.conn_mgr, bundle_id, raceid)
-    sql.upd_race_bundle_id(parent.conn_mgr, raceid, bundle_id)
+    count_orders = sql.cre_orders(parent.ctx.conn_mgr, bundle_id, raceid)
+    count_lines = sql.cre_order_lines(parent.ctx.conn_mgr, bundle_id, raceid)
+    sql.append_remark(parent.ctx.conn_mgr, bundle_id, raceid)
+    sql.upd_race_bundle_id(parent.ctx.conn_mgr, raceid, bundle_id)
     return str(count_orders), str(count_lines)
 
 def remove_race_from_bundle(parent, bundle_id, raceid):
-    count_lines = sql.rem_order_lines(parent.conn_mgr, bundle_id, raceid)
-    count_orders = sql.rem_empty_orders(parent.conn_mgr, bundle_id)
-    sql.remove_race_from_remark(parent.conn_mgr, bundle_id, raceid)
-    sql.upd_race_bundle_id(parent.conn_mgr, raceid, None)
+    count_lines = sql.rem_order_lines(parent.ctx.conn_mgr, bundle_id, raceid)
+    count_orders = sql.rem_empty_orders(parent.ctx.conn_mgr, bundle_id)
+    sql.remove_race_from_remark(parent.ctx.conn_mgr, bundle_id, raceid)
+    sql.upd_race_bundle_id(parent.ctx.conn_mgr, raceid, None)
     return str(count_orders), str(count_lines)
 
 def delete_bundle(parent, bundle_id):
     logging.info("control.delete_bundle")
-    sql.delete_order_lines(parent.conn_mgr, bundle_id)
-    sql.delete_orders(parent.conn_mgr, bundle_id)
-    sql.delete_bundle(parent.conn_mgr, bundle_id)
-    sql.remove_bundle_from_race(parent.conn_mgr, bundle_id)
+    sql.delete_order_lines(parent.ctx.conn_mgr, bundle_id)
+    sql.delete_orders(parent.ctx.conn_mgr, bundle_id)
+    sql.delete_bundle(parent.ctx.conn_mgr, bundle_id)
+    sql.remove_bundle_from_race(parent.ctx.conn_mgr, bundle_id)
     parent.load_bundles()
     parent.line_table.setRowCount(0)
     parent.order_table.setRowCount(0)
@@ -249,14 +238,14 @@ def delete_bundle(parent, bundle_id):
 def make_order_word(parent, invoice_config, order_id):
     logging.info("control.make_order_word")
     order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
-    rows, columns = sql.select_order(parent.conn_mgr, order_id, order_no_base)
+    rows, columns = sql.select_order(parent.ctx.conn_mgr, order_id, order_no_base)
     download_path = get_download_path()
     write_manual_invoice_word(parent, invoice_config, rows, columns, download_path)
 
 def make_order_pdf(parent, invoice_config, order_id):
     logging.info("control.make_order_pdf")
     order_no_base = invoice_config.getint("ordrenummer_start", fallback=100000)
-    rows, columns = sql.select_order(parent.conn_mgr, order_id, order_no_base)
+    rows, columns = sql.select_order(parent.ctx.conn_mgr, order_id, order_no_base)
     download_path = get_download_path()
     write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_path)
 
@@ -487,30 +476,30 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
 
 def make_amount_per_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
-    rows, columns = sql.make_amount_per_club(parent.conn_mgr, bundle_id, order_no_base, customer_no_base)
+    rows, columns = sql.make_amount_per_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
     html = HtmlBuilder.table(rows, columns, 0, sum_columns=[2], sum_position="above")
     HtmlBuilder.download(html, "BeløpPrKlubb.html")
 
 def make_amount_per_club_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club_product")
-    rows, columns = sql.make_amount_per_club_product(parent.conn_mgr, bundle_id, order_no_base, customer_no_base)
+    rows, columns = sql.make_amount_per_club_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 1, "strong", 0)
     HtmlBuilder.download(html, "BeløpPrKlubbProdukt.html")
 
 def make_amount_per_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
-    rows, columns = sql.make_amount_per_product(parent.conn_mgr, bundle_id, order_no_base, customer_no_base)
+    rows, columns = sql.make_amount_per_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
     html = HtmlBuilder.table(rows, columns, 0, [1], "above")
     HtmlBuilder.download(html, "BeløpPrProduct.html")
 
 def make_amount_per_product_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
-    rows, columns = sql.make_amount_per_product_club(parent.conn_mgr, bundle_id, order_no_base, customer_no_base)
+    rows, columns = sql.make_amount_per_product_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 2, "strong", 0)
     HtmlBuilder.download(html, "BeløpPrProduktKlubb.html")
 
 def make_amount_per_race_product(parent, bundle_id):
     logging.info("control.make_amount_per_club")
-    rows, columns = sql.make_amount_per_race_product(parent.conn_mgr, bundle_id)
+    rows, columns = sql.make_amount_per_race_product(parent.ctx.conn_mgr, bundle_id)
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, "strong", 1)
     HtmlBuilder.download(html, "BeløpPrLøpProdukt.html")

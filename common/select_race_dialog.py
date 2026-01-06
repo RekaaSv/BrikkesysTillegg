@@ -9,9 +9,10 @@ from common import sql
 
 
 class SelectRaceDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, ctx, parent=None):
         super().__init__(parent)
         logging.info("commen.SelectRaceDialog")
+        self.ctx = ctx
         self.parent = parent
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowTitle("Velg et løp")
@@ -49,7 +50,7 @@ class SelectRaceDialog(QDialog):
     def refresh(self):
         logging.info("common.SelectRaceDialog.refresh")
         rows, columns = None, None
-        rows, columns = sql.read_race_list(self.parent.conn_mgr)
+        rows, columns = sql.read_race_list(self.ctx.conn_mgr)
         self.parent.populate_my_table(self.table_race, columns, rows)
 #        self.table_race.setColumnHidden(3, True)
 

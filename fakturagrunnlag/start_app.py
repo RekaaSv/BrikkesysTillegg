@@ -11,7 +11,7 @@ from common.logging_setup import setup_logging
 from common.paths import resource_path
 from common.connection import ConnectionManager
 
-from fakturagrunnlag.gui.main_window import MainWindow
+from fakturagrunnlag.gui.main_window import FakturaMainWindow
 from fakturagrunnlag.db import sql
 
 _window = None
@@ -58,7 +58,7 @@ def start_fakturagrunnlag():
 
         # Start GUI
         global _window
-        _window = MainWindow(config, conn_mgr, icon_path, pdf_path)
+        _window = FakturaMainWindow(config, conn_mgr, icon_path, pdf_path)
         _window.show()
 
     except pymysql.Error as e:

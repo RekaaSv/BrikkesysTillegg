@@ -6,12 +6,13 @@ import pymysql
 
 from PyQt5.QtWidgets import QMessageBox
 
+import common.sql
 from common.error_handling import install_global_exception_hook
 from common.logging_setup import setup_logging
 from common.paths import resource_path
 from common.connection import ConnectionManager
 
-from trekkeplan.gui.main_window import MainWindow
+from trekkeplan.gui.main_window import TrekkeplanMainWindow
 from trekkeplan.db import sql
 
 _window = None
@@ -46,16 +47,16 @@ def start_trekkeplan():
         conn_mgr.get_connection()
 
         # Sjekk/installér DB-objekter
-        is_installed = sql.is_db_objects_installed(conn_mgr)
+        is_installed = common.sql.is_db_objects_installed(conn_mgr)
         logging.info(f"DB objects installed: {is_installed}")
 
         if not is_installed:
-            sql.is_db_at_least_version_8(conn_mgr)
-            sql.install_db_objects(conn_mgr)
+            common.sql.is_db_at_least_version_8(conn_mgr)
+            common.sql.install_db_objects(conn_mgr)
 
         # Start GUI
         global _window
-        _window = MainWindow(config, conn_mgr, icon_path, pdf_path)
+        _window = TrekkeplanMainWindow(config, conn_mgr, icon_path, pdf_path)
         _window.show()
 
     except pymysql.Error as e:

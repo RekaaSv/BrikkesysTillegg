@@ -1,13 +1,18 @@
-from PyQt5.QtWidgets import QApplication
-from common.main_window import MainWindow
-from common.gui.style import apply_global_style
 import sys
+from PyQt5.QtWidgets import QApplication
+from common.gui.style import apply_global_style
+from common.app_context import AppContext
+from app.main_window import MainWindow
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
-
     apply_global_style(app)
 
-    win = MainWindow()
+    ctx = AppContext()
+    win = MainWindow(ctx)
     win.show()
+
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

@@ -21,13 +21,10 @@ from trekkeplan.gui.filtered_table import FilteredTable
 from trekkeplan.gui.split_club_mates import SplitClubMates
 
 
-class MainWindow(QWidget):
-    def __init__(self, config, conn_mgr, icon_path, pdf_path):
+class TrekkeplanMainWindow(QWidget):
+    def __init__(self, ctx):
         super().__init__()
-        self.icon_path = icon_path
-        self.pdf_path = pdf_path
-        self.config = config
-        self.conn_mgr: ConnectionManager = conn_mgr
+        self.ctx = ctx
         self.col_widths_not_planned = [0, 120, 50, 100, 60]
         self.col_widths_block_lag = [0, 0, 100, 50, 50, 70, 70]
         self.col_widths_class_start = [0, 0, 100, 50, 0, 100, 100, 60, 50, 60, 65, 65, 70, 70]
@@ -239,7 +236,7 @@ class MainWindow(QWidget):
         table_font = self.table_not_planned.font()
         self.setFont(table_font)
 
-        self.setWindowIcon(QIcon(self.icon_path))
+        self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         self.field_first_start.editingFinished.connect(self.first_start_edited)
 
@@ -429,7 +426,7 @@ class MainWindow(QWidget):
 
     def refresh_race_times(self, raceid):
         logging.debug("refresh_race_times")
-        rows0, columns0 = sql.read_race(self.conn_mgr, self.race_id)
+        rows0, columns0 = sql.read_race(self.ctx.conn_mgr, self.race_id)
         if not rows0: return
         race = rows0[0]
         self.race_name = race[1]
@@ -802,14 +799,14 @@ class MainWindow(QWidget):
 
     def show_about_dialog(self):
         dialog = AboutDialog()
-        dialog.setWindowIcon(QIcon(self.icon_path))
+        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
         dialog.exec_()
 
 
     def select_race(self: QWidget):
         logging.info("select_race")
-        dialog = SelectRaceDialog(self)
-        dialog.setWindowIcon(QIcon(self.icon_path))
+        dialog = SelectRaceDialog(self.ctx, self)
+        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
 
         logging.info("select_race 2")
 
@@ -827,8 +824,8 @@ class MainWindow(QWidget):
 
     def handle_club_mates(self):
         logging.info("handle_club_mates")
-        dialog = SplitClubMates(self)
-        dialog.setWindowIcon(QIcon(self.icon_path))
+        dialog = SplitClubMates(self.ctx, self)
+        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
         dialog.exec_() # modal visning.
 
     def print_col_width(self, table):
@@ -928,7 +925,7 @@ class MainWindow(QWidget):
 
 
     def open_help(self):
-        QDesktopServices.openUrl(QUrl.fromLocalFile(self.pdf_path))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_pdf_path))
 
     # Override closeEvent.
     def closeEvent(self, event):

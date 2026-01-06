@@ -10,9 +10,10 @@ from trekkeplan.db import sql
 
 
 class SplitClubMates(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, ctx, parent=None):
         super().__init__(parent)
         logging.info("SplitClubMates")
+        self.ctx = ctx
         self.parent = parent
         self.setWindowTitle("Splitt klubbkamerater")
 #        parent.resize(1000, 700)
@@ -119,7 +120,7 @@ class SplitClubMates(QDialog):
 
     def refresh_left(self):
         logging.info("SplitClubMates.refresh_left")
-        rows, columns = sql.read_club_mates(self.parent.conn_mgr, self.parent.race_id)
+        rows, columns = sql.read_club_mates(self.ctx.conn_mgr, self.parent.race_id)
         logging.debug("columns: %s", columns)
         logging.debug("rows: %s", rows)
 
@@ -153,7 +154,7 @@ class SplitClubMates(QDialog):
             logging.debug("left_id: %s", left_id)
 
         # Populer høyre table.
-        rows, columns = sql.read_names(self.parent.conn_mgr, classid)
+        rows, columns = sql.read_names(self.ctx.conn_mgr, classid)
         logging.debug("columns: %s", columns)
         logging.debug("rows: %s", rows)
         self.parent.populate_my_table(self.table_class_startlist, columns, rows)
@@ -233,7 +234,7 @@ class SplitClubMates(QDialog):
 
         logging.debug("id1: %s", id1)
         logging.debug("id2: %s", id2)
-        sql.swap_start_times(self.parent.conn_mgr, id1, id2, self.parent.race_id)
+        sql.swap_start_times(self.ctx.conn_mgr, id1, id2, self.parent.race_id)
 
         self.refresh_right()
 
@@ -250,7 +251,7 @@ class SplitClubMates(QDialog):
         inx = model_indexes[0].row()
         class_id = self.table_club_mates.item(inx, 2).text()
 
-        sql.draw_start_times_class(self.parent.conn_mgr, class_id)
+        sql.draw_start_times_class(self.ctx.conn_mgr, class_id)
         self.refresh_left()
         self.parent.select_by_id(self.table_club_mates, class_id, 2)
 
