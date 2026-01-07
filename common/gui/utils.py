@@ -30,7 +30,7 @@ def populate_table(table, columns, rows, row_mapper, cell_postprocessor=None):
         for col_idx, item in enumerate(items):
             # Modulspesifikk cell-behandling
             if cell_postprocessor:
-                cell_postprocessor(table, row_idx, col_idx, item)
+                cell_postprocessor(table, row_idx, col_idx, item, row_data[col_idx])
 
             table.setItem(row_idx, col_idx, item)
 

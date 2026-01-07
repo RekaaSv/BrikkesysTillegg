@@ -463,7 +463,7 @@ class FakturaMainWindow(QWidget):
     def map_invoice_row(self, row_data):
         return [CommonTableItem.from_value(v) for v in row_data]
 
-    def invoice_cell_postprocessor(self, table, row_idx, col_idx, item):
+    def invoice_cell_postprocessor(self, table, row_idx, col_idx, item, value):
         # Checkbox i order_table
         if table == self.order_table and col_idx == 13:
             value = item.sort_value
@@ -473,7 +473,7 @@ class FakturaMainWindow(QWidget):
 
         # Tooltip i bundle_table
         if table == self.bundle_table and col_idx == 2:
-            item.setToolTip(item.text())
+            item.setToolTip(value)
 
     def populate_my_table(self, table, columns: list[any], rows):
         logging.debug("populate_my_table")
