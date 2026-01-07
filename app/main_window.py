@@ -43,11 +43,19 @@ class MainWindow(QMainWindow):
         self.setLayout(layout)
 
     def open_fakturagrunnlag(self):
-        from fakturagrunnlag.gui.main_window import FakturaMainWindow
-        self.faktura_win = FakturaMainWindow(self.ctx)
-        self.faktura_win.show()
+        if getattr(self, "faktura_win", None) is None or not self.faktura_win.isVisible():
+            from fakturagrunnlag.gui.main_window import FakturaMainWindow
+            self.faktura_win = FakturaMainWindow(self.ctx)
+            self.faktura_win.show()
+        else:
+            self.faktura_win.raise_()
+            self.faktura_win.activateWindow()
 
     def open_trekkeplan(self):
-        from trekkeplan.gui.main_window import TrekkeplanMainWindow
-        self.trekkeplan_win = TrekkeplanMainWindow(self.ctx)
-        self.trekkeplan_win.show()
+        if getattr(self, "trekkeplan_win", None) is None or not self.trekkeplan_win.isVisible():
+            from trekkeplan.gui.main_window import TrekkeplanMainWindow
+            self.trekkeplan_win = TrekkeplanMainWindow(self.ctx)
+            self.trekkeplan_win.show()
+        else:
+            self.trekkeplan_win.raise_()
+            self.trekkeplan_win.activateWindow()
