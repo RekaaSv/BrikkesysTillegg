@@ -1,12 +1,14 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow
 
+from direkteresultater.server.http_server import InfoHandler
 from direkteresultater.server.server_control import ServerControl
 
-
-class DirekteresultaterWindow(QWidget):
-    def __init__(self, conn_mgr):
+class DirekteMainWindow(QWidget):
+    def __init__(self, ctx):
         super().__init__()
-        self.conn_mgr = conn_mgr
+        self.ctx = ctx
+
+        self.conn_mgr = ctx.conn_mgr
 
         self.setWindowTitle("Direkteresultater")
 
@@ -23,6 +25,10 @@ class DirekteresultaterWindow(QWidget):
         layout.addWidget(self.http_start_btn)
 
         self.setLayout(layout)
+
+        # Gjør connection manager tilgjengelig for HTTP-serveren
+        InfoHandler.conn_mgr = self.conn_mgr
+
 
     def closeEvent(self, event):
         # Stopp serveren hvis den kjører

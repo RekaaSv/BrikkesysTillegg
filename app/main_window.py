@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_tp)
 
         btn_dr = QPushButton("Direkteresultater")
-#        btn_dr.clicked.connect(start_direkteresultater)
+        btn_dr.clicked.connect(self.open_direkteresultater)
 
         btn_fg = QPushButton("Fakturagrunnlag")
         btn_fg.clicked.connect(self.open_fakturagrunnlag)
@@ -88,6 +88,22 @@ class MainWindow(QMainWindow):
 
         win.show()
 
+    def open_direkteresultater(self):
+        if getattr(self, "direkte_win", None) is not None:
+            if not sip.isdeleted(self.direkte_win):
+                self.direkte_win.raise_()
+                self.direkte_win.activateWindow()
+                return
+
+        from direkteresultater.gui.main_window import DirekteMainWindow
+        win = DirekteMainWindow(self.ctx)
+        win.setAttribute(Qt.WA_DeleteOnClose)
+        win.destroyed.connect(lambda: self.on_module_closed(win))
+
+        self.direkte_win = win
+        self.open_modules.append(win)
+
+        win.show()
 
     def on_module_closed(self, win):
         # Fjern fra open_modules
