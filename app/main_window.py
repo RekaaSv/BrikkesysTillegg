@@ -1,3 +1,4 @@
+from PyQt5 import sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
 
@@ -9,6 +10,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ctx = ctx
 
+        self.open_modules = []
         self.setWindowTitle("BrikkesysTillegg")
         self.setMinimumSize(900, 600)
 
@@ -43,19 +45,61 @@ class MainWindow(QMainWindow):
         self.setLayout(layout)
 
     def open_fakturagrunnlag(self):
-        if getattr(self, "faktura_win", None) is None or not self.faktura_win.isVisible():
-            from fakturagrunnlag.gui.main_window import FakturaMainWindow
-            self.faktura_win = FakturaMainWindow(self.ctx)
-            self.faktura_win.show()
-        else:
-            self.faktura_win.raise_()
-            self.faktura_win.activateWindow()
+        # Hvis vinduet finnes og ikke er slettet → bruk det
+        if getattr(self, "faktura_win", None) is not None:
+            if not sip.isdeleted(self.faktura_win):
+                self.faktura_win.raise_()
+                self.faktura_win.activateWindow()
+                return
+
+        # Ellers opprett nytt vindu
+        from fakturagrunnlag.gui.main_window import FakturaMainWindow
+        win = FakturaMainWindow(self.ctx)
+        win.setAttribute(Qt.WA_DeleteOnClose)
+
+        win.destroyed.connect(lambda: self.on_module_closed(win))
+
+        # Lagre referanse for én-instans-sperre
+        self.faktura_win = win
+
+        # Registrer i open_modules
+        self.open_modules.append(win)
+
+        win.show()
 
     def open_trekkeplan(self):
-        if getattr(self, "trekkeplan_win", None) is None or not self.trekkeplan_win.isVisible():
-            from trekkeplan.gui.main_window import TrekkeplanMainWindow
-            self.trekkeplan_win = TrekkeplanMainWindow(self.ctx)
-            self.trekkeplan_win.show()
-        else:
-            self.trekkeplan_win.raise_()
-            self.trekkeplan_win.activateWindow()
+        if getattr(self, "trekkeplan_win", None) is not None:
+            if not sip.isdeleted(self.trekkeplan_win):
+                self.trekkeplan_win.raise_()
+                self.trekkeplan_win.activateWindow()
+                return
+
+        from trekkeplan.gui.main_window import TrekkeplanMainWindow
+        win = TrekkeplanMainWindow(self.ctx)
+        win.setAttribute(Qt.WA_DeleteOnClose)
+
+        win.destroyed.connect(lambda: self.on_module_closed(win))
+
+        # Lagre referanse for én-instans-sperre
+        self.trekkeplan_win = win
+
+        # Registrer i open_modules
+        self.open_modules.append(win)
+
+        win.show()
+
+
+    def on_module_closed(self, win):
+        # Fjern fra open_modules
+        self.open_modules = [m for m in self.open_modules if m is not win]
+
+        # Nullstill instansreferansen hvis det er denne modulen
+        if getattr(self, "faktura_win", None) is win:
+            self.faktura_win = None
+        if getattr(self, "trekkeplan_win", None) is win:
+            self.trekkeplan_win = None
+
+        # Hvis ingen moduler er åpne → lukk hovedvinduet
+        if not self.open_modules:
+            self.close()
+
