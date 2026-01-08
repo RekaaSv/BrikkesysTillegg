@@ -1,13 +1,13 @@
 import datetime
 import logging
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog, QHBoxLayout, QFrame
 
 import common.sql
 from common.gui.common_table_item import CommonTableItem
 from common.gui.utils import populate_table
-from common.select_race_dialog import reload_race
-from common.settings import get_direkte_race_id, put_trekkeplan_race_id
+from common.select_race_dialog import reload_race, SelectRaceDialog
+from common.settings import get_direkte_race_id, put_trekkeplan_race_id, put_direkte_race_id
 from direkteresultater.server.http_server import InfoHandler
 from direkteresultater.server.server_control import ServerControl
 
@@ -17,14 +17,23 @@ class DirekteMainWindow(QWidget):
         self.ctx = ctx
         self.conn_mgr = ctx.conn_mgr
 
+        # Globale variable
         self.race_id = get_direkte_race_id()
-        self.race_name = None
+        if self.race_id:
+            self.race = reload_race(ctx.conn_mgr, self.race_id)
+        else:
+            self.race = {
+                "id": None,
+                "day": "",
+                "name": "",
+                "first_start": None,
+                "bundle_id": None,
+            }
 
-        self.selected_race = None
-        race = reload_race(ctx.conn_mgr, self.race_id)
-        if not self.race_name: self.setWindowTitle("Brikkesys/SvR Direkteresultater - ")
-        else: self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {race['name']}" )
+        if not self.race_id: self.setWindowTitle("Brikkesys/SvR Direkteresultater")
+        else: self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race['name']}    {self.race['day']}")
 
+        self.resize(800, 700)
 
 
         self.status_label = QLabel("Status: Stoppet")
@@ -45,39 +54,77 @@ class DirekteMainWindow(QWidget):
         self.select_race_btn = QPushButton("Velg løp")
         self.select_race_btn.clicked.connect(self.select_race)
 
-        self.race_label = QLabel("Valgt løp: (ingen)")
+        self.close_button = QPushButton("Avslutt")
+        self.close_button.clicked.connect(self.close)
 
     def make_layout(self):
+        #
+        # Layout
+        #
+        main_layout = QVBoxLayout()
+        top_layout = QHBoxLayout()
+        center_layout = QVBoxLayout()
+        bottom_layout = QHBoxLayout()
+
+        center_frame = QFrame()
+        center_frame.setFrameShape(QFrame.StyledPanel)
+        center_frame.setFrameShadow(QFrame.Plain)
+        center_frame.setLayout(center_layout)
+        bottom_frame = QFrame()
+        bottom_frame.setFrameShape(QFrame.StyledPanel)
+        bottom_frame.setFrameShadow(QFrame.Plain)
+        bottom_frame.setLayout(bottom_layout)
+
+        main_layout.addLayout(top_layout)
+        main_layout.addWidget(center_frame)
+        #        main_layout.addLayout(center_layout)
+        main_layout.addWidget(bottom_frame)
+
+        # Plasser komponenter
+        top_layout.addWidget(self.select_race_btn)
+        top_layout.addWidget(self.http_start_btn)
+        top_layout.addStretch()
+
+        center_layout.addWidget(self.status_label)
+        center_layout.addStretch()
+
+        bottom_layout.addStretch()
+        bottom_layout.addWidget(self.close_button)
+
+        self.setLayout(main_layout)
+
+
+
+    def xmake_layout(self):
         layout = QVBoxLayout()
 
         layout.addWidget(self.select_race_btn)
         layout.addWidget(self.status_label)
         layout.addWidget(self.http_start_btn)
-        layout.addWidget(self.race_label)
 
         self.setLayout(layout)
 
-    def select_race(self):
-        from common.select_race_dialog import SelectRaceDialog
+    def select_race(self: QWidget):
+        logging.info("select_race")
+        dialog = SelectRaceDialog(self.ctx, self)
+#        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
 
-        dlg = SelectRaceDialog(self.ctx, parent=self)
-        if dlg.exec_() == QDialog.Accepted:
-            race_id = dlg.race["id"]
-            if race_id:
-                self.refresh_race(self.race_id)
-                self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race_name}   {self.race_date_db.isoformat()}")
-                put_trekkeplan_race_id(self.race_id)
+        if dialog.exec_() == QDialog.Accepted:
+            self.race = dialog.race
+            self.race_id = dialog.race["id"]
+            if not self.race_id:
+                self.setWindowTitle("Brikkesys/SvR Direktereultater")
+            else:
+                self.setWindowTitle(f"Brikkesys/SvR Direktereultater - {self.race['name']}    {self.race['day']}")
+            put_direkte_race_id(self.race_id)
 
-                self.selected_race = race_id
-                self.race_label.setText(f"Valgt løp: {dlg.race['name']} (ID: {dlg.race['id']})")
+            self.after_plan_changed()
+        else:
+            logging.debug("Brukeren avbrøt")
 
-    def refresh_race(self, race_id):
-        logging.debug("refresh_race")
-        rows0, columns0 = common.sql.read_race(self.ctx.conn_mgr, race_id)
-        if not rows0: return
-        race = rows0[0]
-        self.race_name = race[1]
-        self.race_date_db: datetime.date = race[2]
+    def after_plan_changed(self):
+        logging.info("after_plan_changed")
+
 
 
     def populate_my_table(self, table, columns: list[any], rows):

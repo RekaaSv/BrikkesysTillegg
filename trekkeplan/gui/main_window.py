@@ -42,6 +42,7 @@ class TrekkeplanMainWindow(QWidget):
 
         if not self.race_id: self.setWindowTitle("Brikkesys/SvR Trekkeplan")
         else: self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
+
         self.setWindowIcon(QIcon(self.ctx.icon_path))
 
 
@@ -239,14 +240,6 @@ class TrekkeplanMainWindow(QWidget):
         self.btn_same_time_control1.clicked.connect(self.make_same_time_control1)
 
         self.make_layout(title_block_lag, title_class_start, title_first_start, title_last_start, title_duration, title_utilization, title_non_planned)
-
-        #        self.load_button.clicked.connect(self.load_data)
-        #
-        # Les fra MySQL initielt.
-        #
-        logging.debug("refresh 1: %s", self.race_id)
-#        self.refresh_race(self.race_id)
-
 
         table_font = self.table_not_planned.font()
         self.setFont(table_font)
@@ -815,8 +808,6 @@ class TrekkeplanMainWindow(QWidget):
         logging.info("select_race")
         dialog = SelectRaceDialog(self.ctx, self)
         dialog.setWindowIcon(QIcon(self.ctx.icon_path))
-
-        logging.info("select_race 2")
 
         if dialog.exec_() == QDialog.Accepted:
             self.race = dialog.race
