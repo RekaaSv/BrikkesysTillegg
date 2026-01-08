@@ -1,13 +1,14 @@
 import datetime
 import logging
+import webbrowser
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog, QHBoxLayout, QFrame, \
+    QLineEdit, QFormLayout, QApplication
 
 import common.sql
 from common.gui.common_table_item import CommonTableItem
 from common.gui.utils import populate_table
 from common.select_race_dialog import reload_race, SelectRaceDialog
-from common.settings import get_direkte_race_id, put_trekkeplan_race_id, put_direkte_race_id
 from direkteresultater.server.http_server import InfoHandler
 from direkteresultater.server.server_control import ServerControl
 
@@ -15,10 +16,10 @@ class DirekteMainWindow(QWidget):
     def __init__(self, ctx):
         super().__init__()
         self.ctx = ctx
-        self.conn_mgr = ctx.conn_mgr
+#        self.conn_mgr = ctx.conn_mgr
 
         # Globale variable
-        self.race_id = get_direkte_race_id()
+        self.race_id = self.ctx.registry.get_int("direkte_race_id")
         if self.race_id:
             self.race = reload_race(ctx.conn_mgr, self.race_id)
         else:
@@ -35,7 +36,6 @@ class DirekteMainWindow(QWidget):
 
         self.resize(800, 700)
 
-
         self.status_label = QLabel("Status: Stoppet")
 
         self.server_control = ServerControl(self)
@@ -43,9 +43,25 @@ class DirekteMainWindow(QWidget):
         self.http_start_btn.setToolTip("Start HTTP server for reultatliste.")
         self.http_start_btn.clicked.connect(self.server_control.toggle_server)
 
+        cfg = self.ctx.config["direkteresultater"]
+        self.default_ip = cfg.get("ip", "127.0.0.1")
+        self.default_port = cfg.getint("port", 8080)
+        self.default_cl_from = cfg.getint("cl_from", 1)
+        self.default_cl_to = cfg.getint("cl_to", 999)
+        self.default_scroll = cfg.getint("scroll", 3)
+        self.default_px = cfg.getint("px", 1)
+
+        reg = self.ctx.registry
+
+        self.ip = reg.get("direkte_ip", self.default_ip)
+        self.port = reg.get_int("direkte_port", self.default_port)
+        self.cl_from = reg.get_int("direkte_cl_from", self.default_cl_from)
+        self.cl_to = reg.get_int("direkte_cl_to", self.default_cl_to)
+        self.scroll = reg.get_int("direkte_scroll", self.default_scroll)
+
 
         # Gjør connection manager tilgjengelig for HTTP-serveren
-        InfoHandler.conn_mgr = self.conn_mgr
+        InfoHandler.conn_mgr = self.ctx.conn_mgr
 
         self.init_ui()
         self.make_layout()
@@ -56,6 +72,36 @@ class DirekteMainWindow(QWidget):
 
         self.close_button = QPushButton("Avslutt")
         self.close_button.clicked.connect(self.close)
+
+        self.ip_edit = QLineEdit(self.ip)
+        self.port_edit = QLineEdit(str(self.port))
+        self.cl_from_edit = QLineEdit(str(self.cl_from))
+        self.cl_to_edit = QLineEdit(str(self.cl_to))
+        self.scroll_edit = QLineEdit(str(self.scroll))
+
+        self.ip_edit.editingFinished.connect(self.save_settings)
+        self.port_edit.editingFinished.connect(self.save_settings)
+        self.cl_from_edit.editingFinished.connect(self.save_settings)
+        self.cl_to_edit.editingFinished.connect(self.save_settings)
+        self.scroll_edit.editingFinished.connect(self.save_settings)
+
+        self.ip_edit.textChanged.connect(self.update_url)
+        self.port_edit.textChanged.connect(self.update_url)
+        self.cl_from_edit.textChanged.connect(self.update_url)
+        self.cl_to_edit.textChanged.connect(self.update_url)
+        self.scroll_edit.textChanged.connect(self.update_url)
+
+        self.url_edit = QLineEdit()
+        self.url_edit.setReadOnly(True)
+        self.url_edit.setStyleSheet("font-family: Consolas, monospace;")
+
+        self.copy_url_btn = QPushButton("Kopier URL")
+        self.copy_url_btn.clicked.connect(self.copy_url)
+
+        self.open_url_btn = QPushButton("Åpne i nettleser")
+        self.open_url_btn.clicked.connect(self.open_url)
+
+
 
     def make_layout(self):
         #
@@ -91,18 +137,65 @@ class DirekteMainWindow(QWidget):
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.close_button)
 
+        form = QFormLayout()
+        form.addRow("IP-adresse:", self.ip_edit)
+        form.addRow("Port:", self.port_edit)
+        form.addRow("Klasse fra:", self.cl_from_edit)
+        form.addRow("Klasse til:", self.cl_to_edit)
+        form.addRow("Scroll (sek):", self.scroll_edit)
+
+        center_layout.addLayout(form)
+        center_layout.addWidget(self.url_edit)
+
+        url_btns = QHBoxLayout()
+        url_btns.addWidget(self.copy_url_btn)
+        url_btns.addWidget(self.open_url_btn)
+
+        center_layout.addLayout(url_btns)
+
         self.setLayout(main_layout)
 
+    def save_settings(self):
+        reg = self.ctx.registry
+
+        reg.set("direkte_ip", self.ip_edit.text())
+        reg.set_int("direkte_port", int(self.port_edit.text()))
+        reg.set_int("direkte_cl_from", int(self.cl_from_edit.text()))
+        reg.set_int("direkte_cl_to", int(self.cl_to_edit.text()))
+        reg.set_int("direkte_scroll", int(self.scroll_edit.text()))
+
+    def build_url(self):
+        if not self.race_id:
+            return ""
+
+        ip = self.ip_edit.text().strip()
+        port = self.port_edit.text().strip()
+        cl_from = self.cl_from_edit.text().strip()
+        cl_to = self.cl_to_edit.text().strip()
+        scroll = self.scroll_edit.text().strip()
+
+        race_id = self.race["id"]
+
+        return (
+            f"http://{ip}:{port}/infoskjerm?"
+            f"race={race_id}&cl_from={cl_from}&cl_to={cl_to}&scroll={scroll}"
+        )
+
+    def update_url(self):
+        url = self.build_url()
+        self.url_edit.setText(url)
+
+    def copy_url(self):
+        url = self.url_edit.text()
+        if url:
+            QApplication.clipboard().setText(url)
+
+    def open_url(self):
+        url = self.url_edit.text()
+        if url:
+            webbrowser.open(url)
 
 
-    def xmake_layout(self):
-        layout = QVBoxLayout()
-
-        layout.addWidget(self.select_race_btn)
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.http_start_btn)
-
-        self.setLayout(layout)
 
     def select_race(self: QWidget):
         logging.info("select_race")
@@ -116,9 +209,11 @@ class DirekteMainWindow(QWidget):
                 self.setWindowTitle("Brikkesys/SvR Direktereultater")
             else:
                 self.setWindowTitle(f"Brikkesys/SvR Direktereultater - {self.race['name']}    {self.race['day']}")
-            put_direkte_race_id(self.race_id)
+                self.ctx.registry.set_int("direkte_race_id", self.race_id)
+                self.update_url()
 
-            self.after_plan_changed()
+
+        #            self.after_plan_changed()
         else:
             logging.debug("Brukeren avbrøt")
 

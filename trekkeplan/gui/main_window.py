@@ -10,7 +10,6 @@ from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices
 import common.sql
 from common.gui.utils import show_message, populate_table
 from common.select_race_dialog import SelectRaceDialog, reload_race
-from common.settings import get_trekkeplan_race_id, put_trekkeplan_race_id
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
 from trekkeplan.db import sql
@@ -28,7 +27,7 @@ class TrekkeplanMainWindow(QWidget):
         self.ctx = ctx
 
         # Globale variable
-        self.race_id = get_trekkeplan_race_id()
+        self.race_id = self.ctx.registry.get_int("trekkeplan_race_id", None)
         if self.race_id:
             self.race = reload_race(ctx.conn_mgr, self.race_id)
         else:
@@ -816,7 +815,7 @@ class TrekkeplanMainWindow(QWidget):
                 self.setWindowTitle("Brikkesys/SvR Trekkeplan")
             else:
                 self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
-            put_trekkeplan_race_id(self.race_id)
+            self.ctx.registry.set_int("trekkeplan_race_id", self.race_id)
 
             self.set_first_start_field()
             control.refresh_table(self, self.table_not_planned)

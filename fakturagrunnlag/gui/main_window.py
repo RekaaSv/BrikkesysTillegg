@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from common.settings import get_eventor_api_key, put_eventor_api_key
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
 from common.gui.utils import show_message, populate_table, set_table_sizes
@@ -507,10 +506,10 @@ class FakturaMainWindow(QWidget):
         self.load_lines(self.selected_order_id)
 
     def put_apikey_in_registry(self, api_key: str):
-        put_eventor_api_key(api_key)
+        self.ctx.registry.set("API-key", api_key)
 
     def get_apikey_from_registry(self) -> str | None:
-        value = get_eventor_api_key()
+        value = self.ctx.registry.get("API-key")
         return str(value) if value is not None else ""
 
     def reload_customers_with_key(self):
