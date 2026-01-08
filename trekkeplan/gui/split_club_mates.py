@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QTableWidget, QHBoxLayout, QMenu, QAction, QLabel, QPushButton, \
     QVBoxLayout
 
-from common.gui.utils import show_message
+from common.gui.utils import show_message, set_table_sizes
 from trekkeplan.db import sql
 
 
@@ -127,7 +127,7 @@ class SplitClubMates(QDialog):
         self.parent.populate_my_table(self.table_club_mates, columns, rows)
 
         # Dimesjoner tabellen.
-        self.parent.set_table_sizes(self.table_club_mates, self.left_columns)
+        set_table_sizes(self.table_club_mates, self.left_columns)
 
         # Selekter 1. rad.
         if self.table_club_mates.rowCount() > 0:
@@ -174,7 +174,7 @@ class SplitClubMates(QDialog):
             self.mark_row(row_inx, match)
 
         # Dimesjoner tabellen.
-        self.parent.set_table_sizes(self.table_class_startlist, self.right_columns)
+        set_table_sizes(self.table_class_startlist, self.right_columns)
 
         if first_found_row_inx is not None:
 #            parent.table_class_startlist.scrollToItem(parent.table_class_startlist.item(first_found_row_inx, 3))

@@ -39,3 +39,34 @@ def populate_table(table, columns, rows, row_mapper, cell_postprocessor=None):
 
     table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
     logging.info("populate_table end")
+
+
+def adjust_table_hight(table, max_height = 600):
+    logging.info("adjust_table_hight")
+    header_h = table.horizontalHeader().height()
+    row_height = header_h
+    scrollbar_h = table.horizontalScrollBar().height() if table.horizontalScrollBar().isVisible() else 0
+    total_height = header_h + (row_height * table.rowCount()) + scrollbar_h + 2  # +2 for ramme
+    limited_height = min(total_height, max_height)
+    table.setFixedHeight(limited_height)
+
+
+def adjust_table_width(table, extra_margin=2):
+    logging.info("adjust_table_width")
+    total_width = sum(table.columnWidth(kol) for kol in range(table.columnCount()))
+    vertical_scroll = table.verticalScrollBar().sizeHint().width() # if table.verticalScrollBar().isVisible() else 0
+    frame = table.frameWidth() * 2
+    table.setFixedWidth(total_width + vertical_scroll + frame + extra_margin)
+    logging.debug("vertical_scroll: %s", vertical_scroll)
+
+
+def set_fixed_widths(table, widths):
+    for col_inx, width in enumerate(widths):
+        table.setColumnWidth(col_inx, width)
+
+
+def set_table_sizes(table, col_sizes, max_height=600):
+    set_fixed_widths(table, col_sizes)
+    table.resizeRowsToContents()
+    adjust_table_hight(table, max_height)
+    adjust_table_width(table)

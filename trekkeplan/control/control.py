@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from common.html_builder import HtmlBuilder
-from common.gui.utils import show_message
+from common.gui.utils import show_message, set_table_sizes
 from trekkeplan.db import sql
 #from trekkeplan.html.html_builder import HtmlBuilder
 
@@ -94,7 +94,7 @@ def refresh_table(parent, table):
         raise Exception("Systemfeil!")
 
     parent.populate_my_table(table, columns, rows)
-    parent.set_table_sizes(table, col_widths)
+    set_table_sizes(table, col_widths)
     return max_next_time
 
 def class_start_free_updated(parent, race_id, classstartid, blocklagid, new_value, cellno):

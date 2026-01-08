@@ -36,21 +36,6 @@ WHERE a.club = a.prevclub
     return cursor.fetchall(), [desc[0] for desc in cursor.description]
 
 
-
-
-def read_race(conn_mgr, raceid):
-    logging.info("read_race: %s", raceid)
-    conn = conn_mgr.get_connection()
-
-    cursor = conn.cursor()
-    sql = """
-SELECT r.id, r.name, r.racedate, r.svr_first_start, r.svr_drawplan_changed, r.svr_draw_time
-FROM races r 
-WHERE r.id = %s
-"""
-    cursor.execute(sql, (raceid,))
-    return cursor.fetchall(), [desc[0] for desc in cursor.description]
-
 def read_not_planned(conn_mgr, raceid):
     logging.info("sql.read_not_planned, raceid: %s", raceid)
     conn = conn_mgr.get_connection()

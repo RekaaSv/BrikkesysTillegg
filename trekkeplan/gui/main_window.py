@@ -2,14 +2,15 @@ import datetime
 import logging
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QTableWidget, \
-    QTimeEdit, QMenu, QAction, QMessageBox, QLineEdit, QDialog, QSizePolicy, QFrame, \
+    QTimeEdit, QMenu, QAction, QMessageBox, QLineEdit, QDialog, QFrame, \
     QApplication, QShortcut
-from PyQt5.QtCore import Qt, QTime, QSettings, QUrl
+from PyQt5.QtCore import Qt, QTime, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
-from common.connection import ConnectionManager
+import common.sql
 from common.gui.utils import show_message, populate_table
 from common.select_race_dialog import SelectRaceDialog
+from common.settings import get_trekkeplan_race_id, put_trekkeplan_race_id
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
 from trekkeplan.db import sql
@@ -30,7 +31,7 @@ class TrekkeplanMainWindow(QWidget):
         self.col_widths_class_start = [0, 0, 100, 50, 0, 100, 100, 60, 50, 60, 65, 65, 70, 70]
 
         # Globale variable
-        self.race_id = self.get_raceid_from_registry() # Lagres i registry.
+        self.race_id = get_trekkeplan_race_id()
         self.race_name = None
 
         self.resize(1497, 780)
@@ -229,7 +230,7 @@ class TrekkeplanMainWindow(QWidget):
         # Les fra MySQL initielt.
         #
         logging.debug("refresh 1: %s", self.race_id)
-        self.refresh_race_times(self.race_id)
+        self.refresh_race(self.race_id)
 
         if not self.race_name: self.setWindowTitle("Brikkesys/SvR Trekkeplan - ")
         else: self.setWindowTitle("Brikkesys/SvR Trekkeplan - " + self.race_name + "   " + self.race_date_db.isoformat() )
@@ -424,9 +425,9 @@ class TrekkeplanMainWindow(QWidget):
 
         self.setLayout(main_layout)
 
-    def refresh_race_times(self, raceid):
-        logging.debug("refresh_race_times")
-        rows0, columns0 = sql.read_race(self.ctx.conn_mgr, self.race_id)
+    def refresh_race(self, raceid):
+        logging.debug("refresh_race")
+        rows0, columns0 = common.sql.read_race(self.ctx.conn_mgr, raceid)
         if not rows0: return
         race = rows0[0]
         self.race_name = race[1]
@@ -811,13 +812,13 @@ class TrekkeplanMainWindow(QWidget):
         logging.info("select_race 2")
 
         if dialog.exec_() == QDialog.Accepted:
-            valgt_id = dialog.selected_race_id
+            valgt_id = dialog.race["id"]
 
             self.race_id = valgt_id
             control.refresh_table(self, self.table_not_planned)
-            self.refresh_race_times(self.race_id)
+            self.refresh_race(self.race_id)
             self.setWindowTitle("Brikkesys/SvR Trekkeplan - " + self.race_name + "   " + self.race_date_db.isoformat())
-            self.put_raceid_in_registry(self.race_id) # I registry
+            put_trekkeplan_race_id(self.race_id)
             self.after_plan_changed(None)
         else:
             logging.debug("Brukeren avbrøt")
@@ -832,10 +833,6 @@ class TrekkeplanMainWindow(QWidget):
         for kol in range(table.columnCount()):
             bredde = table.columnWidth(kol)
             logging.debug(f"Kolonne {kol}: {bredde}px")
-
-    def set_fixed_widths(self, table, widths):
-        for col_inx, width in enumerate(widths):
-            table.setColumnWidth(col_inx, width)
 
     def class_start_item_changed(self, item):
         logging.info("class_start_item_changed")
@@ -855,32 +852,6 @@ class TrekkeplanMainWindow(QWidget):
                 control.class_start_free_updated(self, self.race_id, classstartid, blocklagid, new_value, 2)
 
         self.table_class_start.blockSignals(False)
-
-    def put_raceid_in_registry(self, raceid: int):
-        settings = QSettings("Brikkesys_svr", "Trekkeplan")
-        settings.setValue("Race_id", raceid)
-
-    def get_raceid_from_registry(self) -> int | None:
-        settings = QSettings("Brikkesys_svr", "Trekkeplan")
-        verdi = settings.value("Race_id", None)
-        return int(verdi) if verdi is not None else 0
-
-    def adjust_table_hight(self, table, max_height = 600):
-        logging.info("adjust_table_hight")
-        header_h = table.horizontalHeader().height()
-        row_height = header_h
-        scrollbar_h = table.horizontalScrollBar().height() if table.horizontalScrollBar().isVisible() else 0
-        total_height = header_h + (row_height * table.rowCount()) + scrollbar_h + 2  # +2 for ramme
-        limited_height = min(total_height, max_height)
-        table.setFixedHeight(limited_height)
-
-    def adjust_table_width(self, table, extra_margin=2):
-        logging.info("adjust_table_width")
-        total_width = sum(table.columnWidth(kol) for kol in range(table.columnCount()))
-        vertical_scroll = table.verticalScrollBar().sizeHint().width() # if table.verticalScrollBar().isVisible() else 0
-        frame = table.frameWidth() * 2
-        table.setFixedWidth(total_width + vertical_scroll + frame + extra_margin)
-        logging.debug("vertical_scroll: %s", vertical_scroll)
 
     def draw_start_times(self):
         logging.info("draw_start_times")
@@ -932,12 +903,6 @@ class TrekkeplanMainWindow(QWidget):
         size = self.size()
         logging.debug(f"Vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
         super().closeEvent(event)
-
-    def set_table_sizes(self, table, col_sizes, max_height=600):
-        self.set_fixed_widths(table, col_sizes)
-        table.resizeRowsToContents()
-        self.adjust_table_hight(table, max_height)
-        self.adjust_table_width(table)
 
     def select_by_id(self, table, id, col=0):
         logging.info("select_by_id id: %s", id)

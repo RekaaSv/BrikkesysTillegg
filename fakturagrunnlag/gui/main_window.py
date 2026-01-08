@@ -1,17 +1,15 @@
 import logging
 
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QSizePolicy,
-    QDialog, QMessageBox, QLineEdit,
+    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox, QLineEdit,
     QProgressDialog, QApplication, QFrame
 )
 from PyQt5.QtCore import Qt
 
-from common.settings import set_setting, get_setting
+from common.settings import get_eventor_api_key, put_eventor_api_key
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
-from common.connection import ConnectionManager
-from common.gui.utils import show_message, populate_table
+from common.gui.utils import show_message, populate_table, set_table_sizes
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
@@ -193,7 +191,7 @@ class FakturaMainWindow(QWidget):
         rows, columns = sql.select_bundles(self.ctx.conn_mgr)
         self.populate_my_table(self.bundle_table, columns, rows)
 #        self.bundle_table.setColumnHidden(2, True)
-        self.set_table_sizes(self.bundle_table, self.col_widths_bundles, 150)
+        set_table_sizes(self.bundle_table, self.col_widths_bundles, 150)
 
     def load_orders(self, bundle_id):
         logging.info("load_orders")
@@ -206,7 +204,7 @@ class FakturaMainWindow(QWidget):
         self.order_table.setColumnHidden(0, True)
         self.order_table.setColumnHidden(2, True)
         self.order_table.setColumnHidden(3, True)
-        self.set_table_sizes(self.order_table, self.col_widths_orders, 400)
+        set_table_sizes(self.order_table, self.col_widths_orders, 400)
 
     def load_lines(self, order_id):
         logging.info("load_orders")
@@ -217,7 +215,7 @@ class FakturaMainWindow(QWidget):
         self.line_table.setColumnHidden(2, True)
         self.line_table.setColumnHidden(6, True)
         self.line_table.setColumnHidden(8, True)
-        self.set_table_sizes(self.line_table, self.col_widths_lines, 300)
+        set_table_sizes(self.line_table, self.col_widths_lines, 300)
 
     def bundle_menu(self, pos):
         menu = QMenu()
@@ -288,7 +286,7 @@ class FakturaMainWindow(QWidget):
         # 2. Åpne dialog for å velge løp
         dlg = SelectRaceDialog(self.ctx, self)
         if dlg.exec_() == QDialog.Accepted:
-            raceid = dlg.selected_race_id
+            raceid = dlg.race["id"]
             if not raceid:
                 QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
                 return
@@ -326,12 +324,12 @@ class FakturaMainWindow(QWidget):
         # 2. Åpne dialog for å velge løp
         dlg = SelectRaceDialog(self.ctx, self)
         if dlg.exec_() == QDialog.Accepted:
-            raceid = dlg.selected_race_id
+            raceid = dlg.race["id"]
             if not raceid:
                 QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
                 return
 
-            if dlg.selected_bundle != int(bundle_id):
+            if dlg.race["bundle_id"] != int(bundle_id):
                 QMessageBox.warning(self, "Feil løp valgt",
                                     f"Løp {raceid} er ikke med i bunt {bundle_id}")
                 return
@@ -509,10 +507,10 @@ class FakturaMainWindow(QWidget):
         self.load_lines(self.selected_order_id)
 
     def put_apikey_in_registry(self, api_key: str):
-        set_setting("API-key", api_key)
+        put_eventor_api_key(api_key)
 
     def get_apikey_from_registry(self) -> str | None:
-        value = get_setting("API-key")
+        value = get_eventor_api_key()
         return str(value) if value is not None else ""
 
     def reload_customers_with_key(self):
@@ -564,34 +562,6 @@ class FakturaMainWindow(QWidget):
 
         confirm_btn.clicked.connect(start_import)
         dlg.exec_()
-
-    def set_table_sizes(self, table, col_sizes, max_height=600):
-        self.set_fixed_widths(table, col_sizes)
-        table.resizeRowsToContents()
-        self.adjust_table_hight(table, max_height)
-        self.adjust_table_width(table)
-
-    def set_fixed_widths(self, table, widths):
-        for col_inx, width in enumerate(widths):
-            table.setColumnWidth(col_inx, width)
-
-    def adjust_table_hight(self, table, max_height = 600):
-        logging.info("adjust_table_hight")
-        header_h = table.horizontalHeader().height()
-        row_height = header_h
-        scrollbar_h = table.horizontalScrollBar().height() if table.horizontalScrollBar().isVisible() else 0
-        total_height = header_h + (row_height * table.rowCount()) + scrollbar_h + 2  # +2 for ramme
-        limited_height = min(total_height, max_height)
-        table.setFixedHeight(limited_height)
-
-
-    def adjust_table_width(self, table, extra_margin=2):
-        logging.info("adjust_table_width")
-        total_width = sum(table.columnWidth(kol) for kol in range(table.columnCount()))
-        vertical_scroll = table.verticalScrollBar().sizeHint().width() # if table.verticalScrollBar().isVisible() else 0
-        frame = table.frameWidth() * 2
-        table.setFixedWidth(total_width + vertical_scroll + frame + extra_margin)
-        logging.debug("vertical_scroll: %s", vertical_scroll)
 
     def get_selected_bundle_id(self):
         selected = self.bundle_table.selectionModel().selectedRows()

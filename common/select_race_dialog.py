@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 from common import sql
+from common.gui.utils import set_table_sizes
 
 
 class SelectRaceDialog(QDialog):
@@ -14,6 +15,8 @@ class SelectRaceDialog(QDialog):
         logging.info("commen.SelectRaceDialog")
         self.ctx = ctx
         self.parent = parent
+        self.race = None
+
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowTitle("Velg et løp")
         self.resize(650, 300)
@@ -54,12 +57,21 @@ class SelectRaceDialog(QDialog):
         self.parent.populate_my_table(self.table_race, columns, rows)
 #        self.table_race.setColumnHidden(3, True)
 
-        self.parent.set_table_sizes(self.table_race, self.col_widths_races, 300)
+        set_table_sizes(self.table_race, self.col_widths_races, 300)
 
     def ok_clicked(self):
         valgt = self.table_race.currentRow()
         if valgt >= 0:
             # Er dette løpet med i en bunt?
+            item_bundle = self.table_race.item(valgt, 4)
+            self.race = {
+                "id": int(self.table_race.item(valgt, 0).text()),
+                "day": self.table_race.item(valgt, 1).text(),
+                "name": self.table_race.item(valgt, 2).text(),
+                "bundle_id": int(item_bundle.text()) if item_bundle.text() else None,
+            }
+            self.accept()
+"""
             item_bundle = self.table_race.item(valgt, 4)
             self.selected_bundle = int(item_bundle.text()) if item_bundle.text() else None
 
@@ -68,8 +80,7 @@ class SelectRaceDialog(QDialog):
             self.selected_race_id = int(item_id.text())
 
             # Dato og navn på valgt løp.
-            item_day = self.table_race.item(valgt, 1)
-            item_race = self.table_race.item(valgt, 2)
-            self.selected_race = f"{item_day.text()} {item_race.text()}"
-
-            self.accept()
+            self.race_day = self.table_race.item(valgt, 1).text()
+            self.race_name = self.table_race.item(valgt, 2).text()
+            self.selected_race = f"{self.race_day} {self.race_name}"
+"""
