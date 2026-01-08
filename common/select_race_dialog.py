@@ -1,10 +1,12 @@
 import logging
+from datetime import datetime
 
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QTableWidget, QPushButton
 )
 from PyQt5.QtCore import Qt
 
+import common
 from common import sql
 from common.gui.utils import set_table_sizes
 
@@ -62,25 +64,34 @@ class SelectRaceDialog(QDialog):
     def ok_clicked(self):
         valgt = self.table_race.currentRow()
         if valgt >= 0:
-            # Er dette løpet med i en bunt?
-            item_bundle = self.table_race.item(valgt, 4)
+            day = datetime.strptime(self.table_race.item(valgt, 1).text() , "%Y-%m-%d").date()
+            first_start_str = self.table_race.item(valgt, 3).text()
+            if first_start_str != "":
+                first_start_time = datetime.strptime(first_start_str, "%H:%M:%S").time()
+                first_start = datetime.fromisoformat(f"{day}T{first_start_time}")
+            else:
+                first_start = None
+            bundle_id = self.table_race.item(valgt, 4).text()
             self.race = {
                 "id": int(self.table_race.item(valgt, 0).text()),
-                "day": self.table_race.item(valgt, 1).text(),
+                "day": day,
                 "name": self.table_race.item(valgt, 2).text(),
-                "bundle_id": int(item_bundle.text()) if item_bundle.text() else None,
+                "first_start":  first_start,
+                "bundle_id": int(bundle_id) if bundle_id else None,
             }
             self.accept()
-"""
-            item_bundle = self.table_race.item(valgt, 4)
-            self.selected_bundle = int(item_bundle.text()) if item_bundle.text() else None
 
-            # Id til valgt løp.
-            item_id = self.table_race.item(valgt, 0)
-            self.selected_race_id = int(item_id.text())
 
-            # Dato og navn på valgt løp.
-            self.race_day = self.table_race.item(valgt, 1).text()
-            self.race_name = self.table_race.item(valgt, 2).text()
-            self.selected_race = f"{self.race_day} {self.race_name}"
-"""
+def reload_race(conn_mgr, raceid):
+    logging.debug("refresh_race")
+    rows0, columns0 = common.sql.read_race(conn_mgr, raceid)
+    if not rows0: return
+    race_row = rows0[0]
+    return {
+        "id": race_row[0],
+        "day": race_row[2],
+        "name": race_row[1],
+        "first_start": race_row[3] if race_row[3] else None,
+        "bundle_id": race_row[4] if race_row[4] else None,
+    }
+

@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWind
 import common.sql
 from common.gui.common_table_item import CommonTableItem
 from common.gui.utils import populate_table
-from common.settings import get_direkte_race_id
+from common.select_race_dialog import reload_race
+from common.settings import get_direkte_race_id, put_trekkeplan_race_id
 from direkteresultater.server.http_server import InfoHandler
 from direkteresultater.server.server_control import ServerControl
 
@@ -20,9 +21,9 @@ class DirekteMainWindow(QWidget):
         self.race_name = None
 
         self.selected_race = None
-        self.refresh_race(self.race_id)
+        race = reload_race(ctx.conn_mgr, self.race_id)
         if not self.race_name: self.setWindowTitle("Brikkesys/SvR Direkteresultater - ")
-        else: self.setWindowTitle("Brikkesys/SvR Direkteresultater - " + self.race_name + "   " + self.race_date_db.isoformat() )
+        else: self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {race['name']}" )
 
 
 
@@ -63,6 +64,10 @@ class DirekteMainWindow(QWidget):
         if dlg.exec_() == QDialog.Accepted:
             race_id = dlg.race["id"]
             if race_id:
+                self.refresh_race(self.race_id)
+                self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race_name}   {self.race_date_db.isoformat()}")
+                put_trekkeplan_race_id(self.race_id)
+
                 self.selected_race = race_id
                 self.race_label.setText(f"Valgt løp: {dlg.race['name']} (ID: {dlg.race['id']})")
 

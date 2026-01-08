@@ -9,7 +9,7 @@ from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices
 
 import common.sql
 from common.gui.utils import show_message, populate_table
-from common.select_race_dialog import SelectRaceDialog
+from common.select_race_dialog import SelectRaceDialog, reload_race
 from common.settings import get_trekkeplan_race_id, put_trekkeplan_race_id
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
@@ -26,13 +26,28 @@ class TrekkeplanMainWindow(QWidget):
     def __init__(self, ctx):
         super().__init__()
         self.ctx = ctx
-        self.col_widths_not_planned = [0, 120, 50, 100, 60]
-        self.col_widths_block_lag = [0, 0, 100, 50, 50, 70, 70]
-        self.col_widths_class_start = [0, 0, 100, 50, 0, 100, 100, 60, 50, 60, 65, 65, 70, 70]
 
         # Globale variable
         self.race_id = get_trekkeplan_race_id()
-        self.race_name = None
+        if self.race_id:
+            self.race = reload_race(ctx.conn_mgr, self.race_id)
+        else:
+            self.race = {
+                "id": None,
+                "day": "",
+                "name": "",
+                "first_start": None,
+                "bundle_id": None,
+            }
+
+        if not self.race_id: self.setWindowTitle("Brikkesys/SvR Trekkeplan")
+        else: self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
+        self.setWindowIcon(QIcon(self.ctx.icon_path))
+
+
+        self.col_widths_not_planned = [0, 120, 50, 100, 60]
+        self.col_widths_block_lag = [0, 0, 100, 50, 50, 70, 70]
+        self.col_widths_class_start = [0, 0, 100, 50, 0, 100, 100, 60, 50, 60, 65, 65, 70, 70]
 
         self.resize(1497, 780)
         self.move(0, 0)
@@ -230,17 +245,18 @@ class TrekkeplanMainWindow(QWidget):
         # Les fra MySQL initielt.
         #
         logging.debug("refresh 1: %s", self.race_id)
-        self.refresh_race(self.race_id)
+#        self.refresh_race(self.race_id)
 
-        if not self.race_name: self.setWindowTitle("Brikkesys/SvR Trekkeplan - ")
-        else: self.setWindowTitle("Brikkesys/SvR Trekkeplan - " + self.race_name + "   " + self.race_date_db.isoformat() )
+
         table_font = self.table_not_planned.font()
         self.setFont(table_font)
 
-        self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         self.field_first_start.editingFinished.connect(self.first_start_edited)
 
+        self.set_first_start_field()
+
+        # Oppfrisk tabeller.
         control.refresh_table(self, self.table_not_planned)
         self.after_plan_changed(None)
 
@@ -313,6 +329,15 @@ class TrekkeplanMainWindow(QWidget):
         self.action_rem_classstart.triggered.connect(lambda: self.delete_class_start_row())
         self.action_rem_bl_start.triggered.connect(lambda: self.delete_class_start_block_lag())
         self.action_rem_all_start.triggered.connect(lambda: self.delete_class_start_all())
+
+    def set_first_start_field(self):
+        # Fyll inn første start.
+        if self.race['first_start']:
+            q_time = QTime(self.race['first_start'].hour, self.race['first_start'].minute,
+                           self.race['first_start'].second)
+        else:
+            q_time = QTime(0, 0)
+        self.field_first_start.setTime(q_time)
 
     def make_layout(self, title_block_lag: QLabel | QLabel, title_class_start: QLabel | QLabel,
                     title_first_start: QLabel | QLabel, title_last_start: QLabel | QLabel, title_duration: QLabel | QLabel, title_utilization: QLabel | QLabel, title_non_planned: QLabel | QLabel):
@@ -425,24 +450,6 @@ class TrekkeplanMainWindow(QWidget):
 
         self.setLayout(main_layout)
 
-    def refresh_race(self, raceid):
-        logging.debug("refresh_race")
-        rows0, columns0 = common.sql.read_race(self.ctx.conn_mgr, raceid)
-        if not rows0: return
-        race = rows0[0]
-        self.race_name = race[1]
-        self.race_date_db: datetime.date = race[2]
-        self.race_first_start: datetime.datetime = race[3]
-        self.drawplan_changed: datetime.datetime = race[4]
-        self.draw_time: datetime.datetime = race[5]
-
-        logging.debug("datetime type: %s", type(self.race_date_db))
-
-        if self.race_first_start:
-            q_time = QTime(self.race_first_start.hour, self.race_first_start.minute,
-                                self.race_first_start.second)
-        else: q_time = QTime(0,0)
-        self.field_first_start.setTime(q_time)
 
     def map_draw_row(self, row_data):
         return [CommonTableItem.from_value(v, time_only=True) for v in row_data]
@@ -472,7 +479,7 @@ class TrekkeplanMainWindow(QWidget):
         logging.info("first_start_edited")
         # Update first start-time, then rebuild redundant in class_starts, and reread.
 
-        new_first_datetime = datetime.datetime.combine(self.race_date_db, self.field_first_start.time().toPyTime())
+        new_first_datetime = datetime.datetime.combine(self.race['day'], self.field_first_start.time().toPyTime())
         logging.debug("first_start_edited new_first_datetime: %s", new_first_datetime)
 
         # Ta vare på seletert rad, for reselekt.
@@ -584,9 +591,9 @@ class TrekkeplanMainWindow(QWidget):
     def rebuild_blocklag_idle(self, table, race_nexttime):
         logging.debug("rebuild_blocklag_idle: %s", race_nexttime)
 
-        if race_nexttime is None or self.race_first_start is None:
+        if race_nexttime is None or self.race['first_start'] is None:
             return
-        duration = race_nexttime - self.race_first_start
+        duration = race_nexttime - self.race['first_start']
         logging.debug("duration: %s", duration)
 
         sum_idletime = datetime.timedelta(0)
@@ -812,13 +819,16 @@ class TrekkeplanMainWindow(QWidget):
         logging.info("select_race 2")
 
         if dialog.exec_() == QDialog.Accepted:
-            valgt_id = dialog.race["id"]
-
-            self.race_id = valgt_id
-            control.refresh_table(self, self.table_not_planned)
-            self.refresh_race(self.race_id)
-            self.setWindowTitle("Brikkesys/SvR Trekkeplan - " + self.race_name + "   " + self.race_date_db.isoformat())
+            self.race = dialog.race
+            self.race_id = dialog.race["id"]
+            if not self.race_id:
+                self.setWindowTitle("Brikkesys/SvR Trekkeplan")
+            else:
+                self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
             put_trekkeplan_race_id(self.race_id)
+
+            self.set_first_start_field()
+            control.refresh_table(self, self.table_not_planned)
             self.after_plan_changed(None)
         else:
             logging.debug("Brukeren avbrøt")
@@ -919,10 +929,10 @@ class TrekkeplanMainWindow(QWidget):
     def set_last_start_time(self, max_next_datetime: datetime.datetime | None, utilization: float):
         logging.info("set_last_start_time: %s", max_next_datetime)
         q_time_duration = None
-        if max_next_datetime is not None and self.race_first_start is not None:
+        if max_next_datetime is not None and self.race['first_start'] is not None:
             q_time_last = QTime(max_next_datetime.hour, max_next_datetime.minute,
                                 max_next_datetime.second)
-            q_time_duration = max_next_datetime - self.race_first_start
+            q_time_duration = max_next_datetime - self.race['first_start']
             logging.debug("q_time_duration: %s", q_time_duration)
         else: q_time_last = QTime(0, 0)
 
