@@ -506,10 +506,10 @@ class FakturaMainWindow(QWidget):
         self.load_lines(self.selected_order_id)
 
     def put_apikey_in_registry(self, api_key: str):
-        self.ctx.registry.set("API-key", api_key)
+        self.ctx.registry.set_str("API-key", api_key)
 
     def get_apikey_from_registry(self) -> str | None:
-        value = self.ctx.registry.get("API-key")
+        value = self.ctx.registry.get_str("API-key")
         return str(value) if value is not None else ""
 
     def reload_customers_with_key(self):

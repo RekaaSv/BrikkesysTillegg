@@ -1,3 +1,52 @@
+# -------------------------
+# Direkteresultater styles
+# -------------------------
+
+GREEN_BTN = """
+QPushButton {
+    background-color: #5cb85c;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #3e8e41;
+    border-radius: 4px;
+    padding: 4px 10px;
+}
+QPushButton:hover {
+    background-color: #4cae4c;
+}
+QPushButton:pressed {
+    background-color: #449d44;
+}
+QToolTip {
+    color: black;
+    background-color: #ffffe1;
+    border: 1px solid #a0a0a0;
+}
+"""
+
+RED_BTN = """
+QPushButton {
+    background-color: #d9534f;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #b52b27;
+    border-radius: 4px;
+    padding: 4px 10px;
+}
+QPushButton:hover {
+    background-color: #c9302c;
+}
+QPushButton:pressed {
+    background-color: #ac2925;
+}
+QToolTip {
+    color: black;
+    background-color: #ffffe1;
+    border: 1px solid #a0a0a0;
+}
+"""
+
+
 def apply_global_style(app):
     app.setStyleSheet("""
         QPushButton {
@@ -46,5 +95,15 @@ def apply_global_style(app):
             font-weight: bold;
             font-size: 16px;
             margin: 10px 0;
+        }
+        QToolTip {
+            color: black;
+            background-color: #ffffe1;   /* standard lys gul tooltip */
+            border: 1px solid #a0a0a0;
+        }
+        QLabel.formlabel {
+            font-size: 11px;
+            font-weight: normal;
+            margin: 2px 0;
         }
     """)

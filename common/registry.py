@@ -5,7 +5,7 @@ class Registry:
         self.settings = QSettings(organization, application)
 
     # ---------- GETTERS ----------
-    def get(self, key, default=""):
+    def get_str(self, key, default=""):
         return self.settings.value(key, default, type=str)
 
     def get_int(self, key, default=0):
@@ -15,7 +15,7 @@ class Registry:
         return self.settings.value(key, default, type=bool)
 
     # ---------- SETTERS ----------
-    def set(self, key, value):
+    def set_str(self, key, value):
         self.settings.setValue(key, str(value))
 
     def set_int(self, key, value):
