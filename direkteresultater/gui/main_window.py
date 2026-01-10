@@ -2,8 +2,9 @@ import datetime
 import logging
 import webbrowser
 
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog, QHBoxLayout, QFrame, \
-    QLineEdit, QFormLayout, QApplication, QMessageBox
+    QLineEdit, QFormLayout, QApplication, QMessageBox, QGroupBox
 
 import common.sql
 from common.gui.common_table_item import CommonTableItem
@@ -50,6 +51,7 @@ class DirekteMainWindow(QWidget):
 
         self.copy_url_btn = QPushButton("Kopier URL")
         self.open_url_btn = QPushButton("Åpne URL i nettleser")
+        self.open_url_btn.setEnabled(False)
 
         # Redigere parametere.
         self.ip_edit = QLineEdit(self.ip)
@@ -60,9 +62,14 @@ class DirekteMainWindow(QWidget):
         self.px_edit = QLineEdit(str(self.px))
 
         # Server info.
-        self.server_header = QLabel("Serveropplysninger")
-        self.server_header.setProperty("class", "sectionheader")
-        self.status_label = self.form_label("Status: Stoppet")
+        self.server_status_label = self.form_label("Status: Stoppet")
+        self.server_status_label.setStyleSheet("color: red; font-weight: bold;")
+        self.server_status_label.setProperty("class", "sectionheader")
+
+        # Feltvalidering info.
+        self.validation_label = self.form_label("Status: OK")
+        self.validation_label.setStyleSheet("color: green; font-weight: bold;")
+        self.validation_label.setProperty("class", "sectionheader")
 
         self.url_label = self.form_label("Lytter på: -")
         self.request_count_label = self.form_label("Forespørsler mottatt: 0")
@@ -141,6 +148,8 @@ class DirekteMainWindow(QWidget):
         center_left_layout = QVBoxLayout()
         center_right_layout = QVBoxLayout()
         bottom_layout = QHBoxLayout()
+#        left_group_layout = QVBoxLayout()
+#        right_group_layout = QVBoxLayout()
 
         center_frame = QFrame()
         center_frame.setFrameShape(QFrame.StyledPanel)
@@ -151,6 +160,16 @@ class DirekteMainWindow(QWidget):
         bottom_frame.setFrameShadow(QFrame.Plain)
         bottom_frame.setLayout(bottom_layout)
 
+        left_group = QGroupBox("URL Innstillinger")
+#        left_group.setFont(QFont("Segoe UI", 14)) # Dummy
+        right_group = QGroupBox("Serverstatus")
+#        right_group.setFont(QFont("Segoe UI", 14))
+        left_group.setLayout(center_left_layout)
+        right_group.setLayout(center_right_layout)
+
+        center_layout.addWidget(left_group)
+        center_layout.addWidget(right_group)
+
         center_layout.addLayout(center_left_layout)
         center_layout.addLayout(center_right_layout)
 
@@ -158,7 +177,7 @@ class DirekteMainWindow(QWidget):
         main_layout.addWidget(center_frame)
         main_layout.addWidget(bottom_frame)
 
-
+#        left_group_layout.addLayout(form_layout)
 
         # Plasser komponenter
         top_layout.addWidget(self.select_race_btn)
@@ -166,11 +185,10 @@ class DirekteMainWindow(QWidget):
         top_layout.addStretch()
         top_layout.addWidget(self.http_start_btn)
 
-#        center_left_layout.addWidget(self.status_label)
+        center_left_layout.addWidget(self.validation_label)
         center_left_layout.addStretch()
 
-        center_right_layout.addWidget(self.server_header)
-        center_right_layout.addWidget(self.status_label)
+        center_right_layout.addWidget(self.server_status_label)
         center_right_layout.addStretch()
 
         bottom_layout.addStretch()
@@ -261,7 +279,7 @@ class DirekteMainWindow(QWidget):
         race_id = self.race["id"]
 
         return (
-            f"http://{ip}:{port}/infoskjerm?"
+            f"http://{ip}:{port}/results?"
             f"race={race_id}&cl_from={cl_from}&cl_to={cl_to}&scroll={scroll}&px={px}"
 
         )
@@ -372,11 +390,11 @@ class DirekteMainWindow(QWidget):
 
         # Statuslabel
         if errors:
-            self.status_label.setText("Status: Ugyldige felter")
-            self.status_label.setStyleSheet("color: red; font-weight: bold;")
+            self.validation_label.setText("Status: Ugyldige felter")
+            self.validation_label.setStyleSheet("color: red; font-weight: bold;")
         else:
-            self.status_label.setText("Status: OK")
-            self.status_label.setStyleSheet("color: green; font-weight: bold;")
+            self.validation_label.setText("Status: OK")
+            self.validation_label.setStyleSheet("color: green; font-weight: bold;")
 
         # Fargekode feltene
         self.set_error(self.ip_edit, "ip" in errors)

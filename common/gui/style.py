@@ -110,7 +110,7 @@ def apply_global_style(app):
         }
         QLabel.formlabel {
             font-size: 11px;
-            font-weight: normal;
+            font-weight: bold;
             margin: 2px 0;
         }
         QLabel.sectionheader {

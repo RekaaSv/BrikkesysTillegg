@@ -27,7 +27,7 @@ class InfoHandler(BaseHTTPRequestHandler):
 
 
 
-        if parsed.path == "/infoskjerm":
+        if parsed.path == "/results":
             params = parse_qs(parsed.query)
             race = int(params.get("race", [0])[0])
             cl_from = int(params.get("cl_from", [1])[0])

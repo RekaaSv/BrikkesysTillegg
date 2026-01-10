@@ -1,4 +1,5 @@
 import logging
+import socket
 import threading
 
 from PyQt5.QtWidgets import QMessageBox
@@ -59,6 +60,9 @@ class ServerControl:
         port = int(self.parent.port_edit.text())
         self.parent.url_label.setText(f"Lytter på: http://{bind_ip}:{port}/")
 
+        lan_ip = socket.gethostbyname(socket.gethostname())
+        self.parent.url_label.setText(f"Lytter lokalt nettverk: http://{lan_ip}:{port}/")
+
         self.server_running = True
         self.update_button()
 
@@ -85,8 +89,10 @@ class ServerControl:
             self.parent.http_start_btn.setText("Stopp HTTP server")
             self.parent.http_start_btn.setStyleSheet(RED_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører nå. Trykk for å stoppe den.")
-            self.parent.status_label.setText("Status: Kjører")
+            self.parent.server_status_label.setText("Status: Kjører")
+            self.parent.server_status_label.setStyleSheet("color: green; font-weight: bold;")
             self.parent.reset_btn.setEnabled(False)
+            self.parent.open_url_btn.setEnabled(True)
         else:
             self.parent.port_edit.setReadOnly(False)
             self.parent.port_edit.setProperty("readOnly", False)
@@ -95,5 +101,8 @@ class ServerControl:
             self.parent.http_start_btn.setText("Start HTTP server")
             self.parent.http_start_btn.setStyleSheet(GREEN_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører ikke. Trykk for å starte den.")
-            self.parent.status_label.setText("Status: Stoppet")
+            self.parent.server_status_label.setText("Status: Stoppet")
+            self.parent.server_status_label.setStyleSheet("color: red; font-weight: bold;")
             self.parent.reset_btn.setEnabled(True)
+            self.parent.open_url_btn.setEnabled(False)
+
