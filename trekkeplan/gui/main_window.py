@@ -39,8 +39,8 @@ class TrekkeplanMainWindow(QWidget):
                 "bundle_id": None,
             }
 
-        if not self.race_id: self.setWindowTitle("Brikkesys/SvR Trekkeplan")
-        else: self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
+        if not self.race_id: self.setWindowTitle("Trekkeplan")
+        else: self.setWindowTitle(f"Trekkeplan - {self.race['name']}    {self.race['day']}")
 
         self.setWindowIcon(QIcon(self.ctx.icon_path))
 
@@ -812,9 +812,9 @@ class TrekkeplanMainWindow(QWidget):
             self.race = dialog.race
             self.race_id = dialog.race["id"]
             if not self.race_id:
-                self.setWindowTitle("Brikkesys/SvR Trekkeplan")
+                self.setWindowTitle("Trekkeplan")
             else:
-                self.setWindowTitle(f"Brikkesys/SvR Trekkeplan - {self.race['name']}    {self.race['day']}")
+                self.setWindowTitle(f"Trekkeplan - {self.race['name']}    {self.race['day']}")
             self.ctx.registry.set_int("trekkeplan_race_id", self.race_id)
 
             self.set_first_start_field()

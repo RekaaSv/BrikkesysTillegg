@@ -81,9 +81,9 @@ class DirekteMainWindow(QWidget):
             }
 
         if not self.race_id:
-            self.setWindowTitle("Brikkesys/SvR Direkteresultater")
+            self.setWindowTitle("Direkteresultater")
         else:
-            self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race['name']}    {self.race['day']}")
+            self.setWindowTitle(f"Direkteresultater - {self.race['name']}    {self.race['day']}")
 
         self.make_connections()
 
@@ -272,9 +272,9 @@ class DirekteMainWindow(QWidget):
             self.race = dialog.race
             self.race_id = dialog.race["id"]
             if not self.race_id:
-                self.setWindowTitle("Brikkesys/SvR Direktereultater")
+                self.setWindowTitle("Direktereultater")
             else:
-                self.setWindowTitle(f"Brikkesys/SvR Direktereultater - {self.race['name']}    {self.race['day']}")
+                self.setWindowTitle(f"Direktereultater - {self.race['name']}    {self.race['day']}")
                 self.ctx.registry.set_int("direkte_race_id", self.race_id)
                 self.update_url()
 
