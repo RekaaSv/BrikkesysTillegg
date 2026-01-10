@@ -7,13 +7,25 @@ from urllib.parse import urlparse, parse_qs
 # from fakturagrunnlag.db import sql
 from common.connection import ConnectionManager
 from direkteresultater.db import sql
+from direkteresultater.server.server_control import ServerControl
 
 
 class InfoHandler(BaseHTTPRequestHandler):
-    conn_mgr: ConnectionManager = None
+    #        conn_mgr: ConnectionManager = None
 
     def do_GET(self):
         parsed = urlparse(self.path)
+
+        server_control = self.server.server_control
+        server_control.request_count += 1
+        server_control.parent.request_count_label.setText(
+            f"Forespørsler mottatt: {server_control.request_count}"
+        )
+        server_control.parent.last_request_label.setText(
+            f"Siste forespørsel: {self.path} kl. {datetime.datetime.now().strftime('%H:%M:%S')}"
+        )
+
+
 
         if parsed.path == "/infoskjerm":
             params = parse_qs(parsed.query)

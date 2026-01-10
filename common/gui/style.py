@@ -113,6 +113,11 @@ def apply_global_style(app):
             font-weight: normal;
             margin: 2px 0;
         }
+        QLabel.sectionheader {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
         
         QFormLayout > QWidget {
             background: transparent;

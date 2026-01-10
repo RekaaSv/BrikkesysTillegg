@@ -19,8 +19,6 @@ class DirekteMainWindow(QWidget):
 
         self.resize(750, 400)
 
-        self.status_label = QLabel("Status: Stoppet")
-
         cfg = self.ctx.config["direkteresultater"]
         self.default_ip = cfg.get("ip", "127.0.0.1")
         self.default_port = cfg.getint("port", 8080)
@@ -51,15 +49,24 @@ class DirekteMainWindow(QWidget):
         self.url_edit.setStyleSheet("font-family: Consolas, monospace;")
 
         self.copy_url_btn = QPushButton("Kopier URL")
-        self.open_url_btn = QPushButton("Åpne i nettleser")
+        self.open_url_btn = QPushButton("Åpne URL i nettleser")
 
-        # Komponenter som skal nåes fra utsiden.
+        # Redigere parametere.
         self.ip_edit = QLineEdit(self.ip)
         self.port_edit = QLineEdit(str(self.port))
         self.cl_from_edit = QLineEdit(str(self.cl_from))
         self.cl_to_edit = QLineEdit(str(self.cl_to))
         self.scroll_edit = QLineEdit(str(self.scroll))
         self.px_edit = QLineEdit(str(self.px))
+
+        # Server info.
+        self.server_header = QLabel("Serveropplysninger")
+        self.server_header.setProperty("class", "sectionheader")
+        self.status_label = self.form_label("Status: Stoppet")
+
+        self.url_label = self.form_label("Lytter på: -")
+        self.request_count_label = self.form_label("Forespørsler mottatt: 0")
+        self.last_request_label = self.form_label("Siste forespørsel: -")
 
         #        self.init_ui()
         self.server_control = ServerControl(self)
@@ -155,13 +162,14 @@ class DirekteMainWindow(QWidget):
 
         # Plasser komponenter
         top_layout.addWidget(self.select_race_btn)
-        top_layout.addWidget(self.http_start_btn)
         top_layout.addWidget(self.reset_btn)
         top_layout.addStretch()
+        top_layout.addWidget(self.http_start_btn)
 
 #        center_left_layout.addWidget(self.status_label)
         center_left_layout.addStretch()
 
+        center_right_layout.addWidget(self.server_header)
         center_right_layout.addWidget(self.status_label)
         center_right_layout.addStretch()
 
@@ -187,6 +195,11 @@ class DirekteMainWindow(QWidget):
         url_btns.addWidget(self.open_url_btn)
 
         center_left_layout.addLayout(url_btns)
+
+        center_right_layout.addWidget(self.url_label)
+        center_right_layout.addWidget(self.request_count_label)
+        center_right_layout.addWidget(self.last_request_label)
+        center_right_layout.addStretch()
 
         self.setLayout(main_layout)
 

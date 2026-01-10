@@ -4,7 +4,6 @@ import threading
 from PyQt5.QtWidgets import QMessageBox
 
 from common.gui.style import RED_BTN, GREEN_BTN
-from direkteresultater.server.http_server import InfoHandler
 
 
 class ServerControl:
@@ -14,6 +13,7 @@ class ServerControl:
         self.parent = parent
         self.server_running = False
         self.httpd = None
+        self.request_count = 0
 
 #        self.button = QPushButton("Start server")
 #        self.button.clicked.connect(self.toggle_server)
@@ -47,10 +47,17 @@ class ServerControl:
 
         port = int(self.parent.port_edit.text())
 
+        from direkteresultater.server.http_server import InfoHandler
         self.httpd = HTTPServer(("0.0.0.0", port), InfoHandler)
+        self.httpd.server_control = self # for at httpd skal kunne finne server_control.
+
         self.httpd.timeout = 1
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self.thread.start()
+
+        bind_ip = self.parent.ip_edit.text().strip()
+        port = int(self.parent.port_edit.text())
+        self.parent.url_label.setText(f"Lytter på: http://{bind_ip}:{port}/")
 
         self.server_running = True
         self.update_button()
