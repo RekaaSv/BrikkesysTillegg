@@ -79,6 +79,7 @@ class ServerControl:
             self.parent.http_start_btn.setStyleSheet(RED_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører nå. Trykk for å stoppe den.")
             self.parent.status_label.setText("Status: Kjører")
+            self.parent.reset_btn.setEnabled(False)
         else:
             self.parent.port_edit.setReadOnly(False)
             self.parent.port_edit.setProperty("readOnly", False)
@@ -88,3 +89,4 @@ class ServerControl:
             self.parent.http_start_btn.setStyleSheet(GREEN_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører ikke. Trykk for å starte den.")
             self.parent.status_label.setText("Status: Stoppet")
+            self.parent.reset_btn.setEnabled(True)

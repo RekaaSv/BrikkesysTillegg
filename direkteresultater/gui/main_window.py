@@ -17,7 +17,7 @@ class DirekteMainWindow(QWidget):
         super().__init__()
         self.ctx = ctx
 
-        self.resize(500, 400)
+        self.resize(750, 400)
 
         self.status_label = QLabel("Status: Stoppet")
 
@@ -130,7 +130,9 @@ class DirekteMainWindow(QWidget):
         #
         main_layout = QVBoxLayout()
         top_layout = QHBoxLayout()
-        center_layout = QVBoxLayout()
+        center_layout = QHBoxLayout()
+        center_left_layout = QVBoxLayout()
+        center_right_layout = QVBoxLayout()
         bottom_layout = QHBoxLayout()
 
         center_frame = QFrame()
@@ -142,10 +144,14 @@ class DirekteMainWindow(QWidget):
         bottom_frame.setFrameShadow(QFrame.Plain)
         bottom_frame.setLayout(bottom_layout)
 
+        center_layout.addLayout(center_left_layout)
+        center_layout.addLayout(center_right_layout)
+
         main_layout.addLayout(top_layout)
         main_layout.addWidget(center_frame)
-        #        main_layout.addLayout(center_layout)
         main_layout.addWidget(bottom_frame)
+
+
 
         # Plasser komponenter
         top_layout.addWidget(self.select_race_btn)
@@ -153,8 +159,11 @@ class DirekteMainWindow(QWidget):
         top_layout.addWidget(self.reset_btn)
         top_layout.addStretch()
 
-        center_layout.addWidget(self.status_label)
-        center_layout.addStretch()
+#        center_left_layout.addWidget(self.status_label)
+        center_left_layout.addStretch()
+
+        center_right_layout.addWidget(self.status_label)
+        center_right_layout.addStretch()
 
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.close_button)
@@ -170,14 +179,14 @@ class DirekteMainWindow(QWidget):
         form.addRow(self.form_label("Scroll:"), self.scroll_edit)
         form.addRow(self.form_label("Pixcels pr scroll:"), self.px_edit)
 
-        center_layout.addLayout(form)
-        center_layout.addWidget(self.url_edit)
+        center_left_layout.addLayout(form)
+        center_left_layout.addWidget(self.url_edit)
 
         url_btns = QHBoxLayout()
         url_btns.addWidget(self.copy_url_btn)
         url_btns.addWidget(self.open_url_btn)
 
-        center_layout.addLayout(url_btns)
+        center_left_layout.addLayout(url_btns)
 
         self.setLayout(main_layout)
 
