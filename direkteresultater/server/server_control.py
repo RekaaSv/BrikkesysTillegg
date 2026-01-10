@@ -69,11 +69,21 @@ class ServerControl:
 
     def update_button(self):
         if self.server_running:
+            # port readOnly, og sett stil deretter.
+            self.parent.port_edit.setReadOnly(True)
+            self.parent.port_edit.setProperty("readOnly", True)
+            self.parent.port_edit.style().unpolish(self.parent.port_edit)
+            self.parent.port_edit.style().polish(self.parent.port_edit)
+            # Endre text og stil på knappen.
             self.parent.http_start_btn.setText("Stopp HTTP server")
             self.parent.http_start_btn.setStyleSheet(RED_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører nå. Trykk for å stoppe den.")
             self.parent.status_label.setText("Status: Kjører")
         else:
+            self.parent.port_edit.setReadOnly(False)
+            self.parent.port_edit.setProperty("readOnly", False)
+            self.parent.port_edit.style().unpolish(self.parent.port_edit)
+            self.parent.port_edit.style().polish(self.parent.port_edit)
             self.parent.http_start_btn.setText("Start HTTP server")
             self.parent.http_start_btn.setStyleSheet(GREEN_BTN)
             self.parent.http_start_btn.setToolTip("HTTP server kjører ikke. Trykk for å starte den.")

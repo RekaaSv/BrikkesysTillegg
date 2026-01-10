@@ -65,6 +65,13 @@ def apply_global_style(app):
         QLineEdit {
             background-color: rgb(255, 250, 205);  /* svak gul */
         }
+        QLineEdit[readOnly="true"] {
+            background-color: #eee;
+            color: #555;
+        }
+        QLineEdit.error {
+            background-color: #fdd;
+        }
 
         QHeaderView::section {
             background-color: #e0e0e0;
@@ -105,5 +112,9 @@ def apply_global_style(app):
             font-size: 11px;
             font-weight: normal;
             margin: 2px 0;
+        }
+        
+        QFormLayout > QWidget {
+            background: transparent;
         }
     """)

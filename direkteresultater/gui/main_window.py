@@ -21,13 +21,6 @@ class DirekteMainWindow(QWidget):
 
         self.status_label = QLabel("Status: Stoppet")
 
-        self.server_control = ServerControl(self)
-        self.http_start_btn = QPushButton("")
-        self.server_control.server_running = False
-        self.server_control.update_button()
-        self.http_start_btn.setToolTip("Start HTTP server for reultatliste.")
-        self.http_start_btn.clicked.connect(self.server_control.toggle_server)
-
         cfg = self.ctx.config["direkteresultater"]
         self.default_ip = cfg.get("ip", "127.0.0.1")
         self.default_port = cfg.getint("port", 8080)
@@ -48,8 +41,30 @@ class DirekteMainWindow(QWidget):
         # Gjør connection manager tilgjengelig for HTTP-serveren
         InfoHandler.conn_mgr = self.ctx.conn_mgr
 
-        self.init_ui()
-        self.make_layout()
+        self.select_race_btn = QPushButton("Velg løp")
+        self.reset_btn = QPushButton("Tilbakestill parametere")
+        self.reset_btn.setToolTip("Slett lagrede Direkteresultater-innstillinger og bruk standardverdier fra konfig.")
+        self.close_button = QPushButton("Avslutt")
+
+        self.url_edit = QLineEdit()
+        self.url_edit.setReadOnly(True)
+        self.url_edit.setStyleSheet("font-family: Consolas, monospace;")
+
+        self.copy_url_btn = QPushButton("Kopier URL")
+        self.open_url_btn = QPushButton("Åpne i nettleser")
+
+        # Komponenter som skal nåes fra utsiden.
+        self.ip_edit = QLineEdit(self.ip)
+        self.port_edit = QLineEdit(str(self.port))
+        self.cl_from_edit = QLineEdit(str(self.cl_from))
+        self.cl_to_edit = QLineEdit(str(self.cl_to))
+        self.scroll_edit = QLineEdit(str(self.scroll))
+        self.px_edit = QLineEdit(str(self.px))
+
+        #        self.init_ui()
+        self.server_control = ServerControl(self)
+        self.http_start_btn = QPushButton("")
+        self.http_start_btn.setToolTip("Start HTTP server for reultatliste.")
 
         # Globale variable
         self.race_id = self.ctx.registry.get_int("direkte_race_id")
@@ -65,30 +80,26 @@ class DirekteMainWindow(QWidget):
                 "bundle_id": None,
             }
 
-        if not self.race_id: self.setWindowTitle("Brikkesys/SvR Direkteresultater")
-        else: self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race['name']}    {self.race['day']}")
+        if not self.race_id:
+            self.setWindowTitle("Brikkesys/SvR Direkteresultater")
+        else:
+            self.setWindowTitle(f"Brikkesys/SvR Direkteresultater - {self.race['name']}    {self.race['day']}")
+
+        self.make_connections()
+
+        self.server_control.server_running = False
+        self.server_control.update_button()
+
+        self.make_layout()
 
 
 
+    def make_connections(self):
+        self.http_start_btn.clicked.connect(self.server_control.toggle_server)
 
-    def init_ui(self):
-        self.select_race_btn = QPushButton("Velg løp")
         self.select_race_btn.clicked.connect(self.select_race)
-
-        self.reset_btn = QPushButton("Tilbakestill parametere")
-        self.reset_btn.setToolTip("Slett lagrede Direkteresultater-innstillinger og bruk standardverdier fra konfig.")
         self.reset_btn.clicked.connect(self.reset_settings)
-
-        self.close_button = QPushButton("Avslutt")
         self.close_button.clicked.connect(self.close)
-
-        self.ip_edit = QLineEdit(self.ip)
-        self.port_edit = QLineEdit(str(self.port))
-        self.cl_from_edit = QLineEdit(str(self.cl_from))
-        self.cl_to_edit = QLineEdit(str(self.cl_to))
-        self.scroll_edit = QLineEdit(str(self.scroll))
-        self.px_edit = QLineEdit(str(self.px))
-
         self.ip_edit.editingFinished.connect(self.save_settings)
         self.port_edit.editingFinished.connect(self.save_settings)
         self.cl_from_edit.editingFinished.connect(self.save_settings)
@@ -107,15 +118,9 @@ class DirekteMainWindow(QWidget):
             edit.textChanged.connect(self.update_validation_status)
             edit.textChanged.connect(self.update_url)
 
-        self.url_edit = QLineEdit()
-        self.url_edit.setReadOnly(True)
-        self.url_edit.setStyleSheet("font-family: Consolas, monospace;")
-
-        self.copy_url_btn = QPushButton("Kopier URL")
         self.copy_url_btn.clicked.connect(self.copy_url)
-
-        self.open_url_btn = QPushButton("Åpne i nettleser")
         self.open_url_btn.clicked.connect(self.open_url)
+
 
 
 
@@ -352,10 +357,15 @@ class DirekteMainWindow(QWidget):
             self.status_label.setStyleSheet("color: green; font-weight: bold;")
 
         # Fargekode feltene
-        self.ip_edit.setStyleSheet("background-color: #fdd;" if "ip" in errors else "")
-        self.port_edit.setStyleSheet("background-color: #fdd;" if "port" in errors else "")
-        self.cl_from_edit.setStyleSheet("background-color: #fdd;" if "cl_from" in errors else "")
-        self.cl_to_edit.setStyleSheet("background-color: #fdd;" if "cl_to" in errors else "")
-        self.scroll_edit.setStyleSheet("background-color: #fdd;" if "scroll" in errors else "")
-        self.px_edit.setStyleSheet("background-color: #fdd;" if "px" in errors else "")
+        self.set_error(self.ip_edit, "ip" in errors)
+        self.set_error(self.port_edit, "port" in errors)
+        self.set_error(self.cl_from_edit, "cl_from" in errors)
+        self.set_error(self.cl_to_edit, "cl_to" in errors)
+        self.set_error(self.scroll_edit, "scroll" in errors)
+        self.set_error(self.px_edit, "px" in errors)
 
+
+    def set_error(self, widget, has_error):
+        widget.setProperty("class", "error" if has_error else "")
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
