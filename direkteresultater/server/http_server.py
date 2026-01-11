@@ -18,13 +18,16 @@ class InfoHandler(BaseHTTPRequestHandler):
 
         server_control = self.server.server_control
         server_control.request_count += 1
-        server_control.parent.request_count_label.setText(
-            f"Forespørsler mottatt: {server_control.request_count}"
-        )
-        server_control.parent.last_request_label.setText(
-            f"Siste forespørsel: {self.path} kl. {datetime.datetime.now().strftime('%H:%M:%S')}"
-        )
 
+        # Oppdater GUI-feltene
+        client_ip, client_port = self.client_address
+        path = self.path
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+
+        server_control.parent.request_count_value.setText(f"{server_control.request_count}")
+        server_control.parent.last_req_ip_value.setText(f"{client_ip}")
+        server_control.parent.last_req_path_value.setText(path)
+        server_control.parent.last_req_time_value.setText(timestamp)
 
 
         if parsed.path == "/results":

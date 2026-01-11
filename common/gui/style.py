@@ -67,7 +67,8 @@ def apply_global_style(app):
         }
         QLineEdit[readOnly="true"] {
             background-color: #eee;
-            color: #555;
+            color: #222;
+            font-family: Consolas, monospace;
         }
         QLineEdit.error {
             background-color: #fdd;

@@ -1,6 +1,7 @@
 import logging
 import socket
 import threading
+import time
 
 from PyQt5.QtWidgets import QMessageBox
 
@@ -56,14 +57,23 @@ class ServerControl:
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self.thread.start()
 
-        bind_ip = self.parent.ip_edit.text().strip()
-        port = int(self.parent.port_edit.text())
-        self.parent.url_label.setText(f"Lytter på: http://{bind_ip}:{port}/")
+        count = 0
+        for _ in range(40):
+            if self.is_port_open(port):
+                self.server_running = True
+                break
+            time.sleep(0.05)
+            count += 1
+        logging.info(f"Ventet på server {count*50} ms.")
 
-        lan_ip = socket.gethostbyname(socket.gethostname())
-        self.parent.url_label.setText(f"Lytter lokalt nettverk: http://{lan_ip}:{port}/")
+        if self.server_running:
+            bind_ip = self.parent.ip_edit.text().strip()
+            port = int(self.parent.port_edit.text())
+            self.parent.local_url_value.setText(f"http://{bind_ip}:{port}/")
 
-        self.server_running = True
+            lan_ip = socket.gethostbyname(socket.gethostname())
+            self.parent.network_url_value.setText(f"http://{lan_ip}:{port}/")
+
         self.update_button()
 
     def stop_server(self):
@@ -106,3 +116,11 @@ class ServerControl:
             self.parent.reset_btn.setEnabled(True)
             self.parent.open_url_btn.setEnabled(False)
 
+    def is_port_open(self, port):
+        s = socket.socket()
+        try:
+            s.connect(("127.0.0.1", port))
+            s.close()
+            return True
+        except:
+            return False

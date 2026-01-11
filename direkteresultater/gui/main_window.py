@@ -18,7 +18,7 @@ class DirekteMainWindow(QWidget):
         super().__init__()
         self.ctx = ctx
 
-        self.resize(750, 400)
+        self.resize(850, 400)
 
         cfg = self.ctx.config["direkteresultater"]
         self.default_ip = cfg.get("ip", "127.0.0.1")
@@ -71,9 +71,22 @@ class DirekteMainWindow(QWidget):
         self.validation_label.setStyleSheet("color: green; font-weight: bold;")
         self.validation_label.setProperty("class", "sectionheader")
 
-        self.url_label = self.form_label("Lytter på: -")
-        self.request_count_label = self.form_label("Forespørsler mottatt: 0")
-        self.last_request_label = self.form_label("Siste forespørsel: -")
+
+
+        # Server tilstand.
+        self.local_url_value = QLineEdit()
+        self.local_url_value.setReadOnly(True)
+        self.network_url_value = (QLineEdit())
+        self.network_url_value.setReadOnly(True)
+        self.request_count_value = QLineEdit()
+        self.request_count_value.setReadOnly(True)
+        self.last_req_ip_value = QLineEdit()
+        self.last_req_ip_value.setReadOnly(True)
+        self.last_req_path_value = QLineEdit()
+        self.last_req_path_value.setReadOnly(True)
+        self.last_req_time_value = QLineEdit()
+        self.last_req_time_value.setReadOnly(True)
+        self.last_req_ip_value.setStyleSheet("font-family: Consolas, monospace;")
 
         #        self.init_ui()
         self.server_control = ServerControl(self)
@@ -208,15 +221,25 @@ class DirekteMainWindow(QWidget):
         center_left_layout.addLayout(form)
         center_left_layout.addWidget(self.url_edit)
 
+
+        server_form = QFormLayout()
+        server_form.addRow(self.form_label("Lokal URL:"), self.local_url_value)
+        server_form.addRow(self.form_label("Nettverks‑URL:"), self.network_url_value)
+        server_form.addRow(self.form_label("Forespørsler:"), QLineEdit().setReadOnly(True))
+        server_form.addRow(self.form_label("   Antall:"), self.request_count_value)
+        server_form.addRow(self.form_label("   Siste req.:"), self.last_req_path_value)
+        server_form.addRow(self.form_label("   Fra IP:"), self.last_req_ip_value)
+        server_form.addRow(self.form_label("   Tidspunkt:"), self.last_req_time_value)
+
+        center_right_layout.addLayout(server_form)
+
         url_btns = QHBoxLayout()
         url_btns.addWidget(self.copy_url_btn)
         url_btns.addWidget(self.open_url_btn)
 
         center_left_layout.addLayout(url_btns)
 
-        center_right_layout.addWidget(self.url_label)
-        center_right_layout.addWidget(self.request_count_label)
-        center_right_layout.addWidget(self.last_request_label)
+#        center_right_layout.addWidget(self.url_label)
         center_right_layout.addStretch()
 
         self.setLayout(main_layout)
