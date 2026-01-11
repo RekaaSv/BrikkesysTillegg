@@ -2,9 +2,7 @@ import logging
 import socket
 import threading
 import time
-
 from PyQt5.QtWidgets import QMessageBox
-
 from common.gui.style import RED_BTN, GREEN_BTN
 
 
@@ -16,13 +14,6 @@ class ServerControl:
         self.server_running = False
         self.httpd = None
         self.request_count = 0
-
-#        self.button = QPushButton("Start server")
-#        self.button.clicked.connect(self.toggle_server)
-
-#        layout = QVBoxLayout()
-#        layout.addWidget(self.button)
-#        self.setLayout(layout)
 
     def toggle_server(self):
         logging.info("toggle_server")

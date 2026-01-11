@@ -33,7 +33,6 @@ class SelectRaceDialog(QDialog):
         self.table_race.setSelectionMode(QTableWidget.SingleSelection)
         self.table_race.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table_race.verticalHeader().setVisible(False)
-#        parent.table_race.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
         # Knapper
         layout_buttons = QHBoxLayout()
@@ -54,10 +53,8 @@ class SelectRaceDialog(QDialog):
 
     def refresh(self):
         logging.info("common.SelectRaceDialog.refresh")
-        rows, columns = None, None
         rows, columns = sql.read_race_list(self.ctx.conn_mgr)
         self.parent.populate_my_table(self.table_race, columns, rows)
-#        self.table_race.setColumnHidden(3, True)
 
         set_table_sizes(self.table_race, self.col_widths_races, 300)
 

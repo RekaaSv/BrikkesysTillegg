@@ -89,11 +89,6 @@ def apply_global_style(app):
         QTableView::viewport {
             background-color: #f0f0f0; /* bak radene */
         }
-        /*
-        QTableView::item {
-            background-color: white;
-        }
-        */
         QTableView::item:selected {
             background-color: #3399ff;  /* klassisk blå */
             color: white;

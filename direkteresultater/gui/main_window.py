@@ -1,12 +1,9 @@
-import datetime
 import logging
 import webbrowser
 
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMainWindow, QDialog, QHBoxLayout, QFrame, \
-    QLineEdit, QFormLayout, QApplication, QMessageBox, QGroupBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QDialog, QHBoxLayout, QFrame, \
+    QLineEdit, QFormLayout, QApplication, QGroupBox
 
-import common.sql
 from common.gui.common_table_item import CommonTableItem
 from common.gui.utils import populate_table
 from common.select_race_dialog import reload_race, SelectRaceDialog

@@ -2,8 +2,6 @@ from PyQt5 import sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
 
-from trekkeplan.gui.main_window import TrekkeplanMainWindow
-
 
 class MainWindow(QMainWindow):
     def __init__(self, ctx):

@@ -2,12 +2,9 @@ import os
 import configparser
 import logging
 
-from PyQt5.QtCore import QSettings
-
 from common.connection import ConnectionManager
 import common.sql
 from common.error_handling import install_global_exception_hook
-from common.gui.utils import show_message
 from common.logging_setup import setup_logging
 from common.paths import resource_path
 from common.registry import Registry
@@ -51,36 +48,3 @@ class AppContext:
 
         self.registry = Registry("Brikkesys", "BrikkesysTillegg")
 
-    """
-
-    def get_setting(self, key, default=None):
-        return self.registry.value(key, default)
-        
-    def set_setting(self, key, value):
-        self.registry.setValue(key, value)
-
-
-    
-    def get_trekkeplan_race_id(self):
-        return self.get_setting("trekkeplan_race_id")
-    
-    
-    def put_trekkeplan_race_id(self, id):
-        self.set_setting("trekkeplan_race_id", id)
-    
-    
-    def get_direkte_race_id(self):
-        return self.get_setting("direkte_race_id")
-    
-    
-    def put_direkte_race_id(self, id):
-        self.set_setting("direkte_race_id", id)
-    
-    
-    def get_eventor_api_key(self):
-        return self.get_setting("faktura_race_id")
-    
-    
-    def put_eventor_api_key(self, id):
-        self.set_setting("faktura_race_id", id)
-"""

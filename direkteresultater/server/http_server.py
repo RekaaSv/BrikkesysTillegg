@@ -3,11 +3,7 @@ import logging
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-
-# from fakturagrunnlag.db import sql
-from common.connection import ConnectionManager
 from direkteresultater.db import sql
-from direkteresultater.server.server_control import ServerControl
 
 
 class InfoHandler(BaseHTTPRequestHandler):
