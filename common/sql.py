@@ -212,7 +212,7 @@ def read_race(conn_mgr, raceid):
 
     cursor = conn.cursor()
     sql = """
-SELECT r.id, r.name, r.racedate, r.svr_first_start, r.svr_drawplan_changed, r.svr_draw_time
+SELECT r.id, r.name, r.racedate, r.svr_first_start, r.svr_drawplan_changed, r.svr_draw_time, r.svr_bundle_id
 FROM races r 
 WHERE r.id = %s
 """

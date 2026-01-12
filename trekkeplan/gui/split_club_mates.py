@@ -22,6 +22,7 @@ class SplitClubMates(QDialog):
         # Tabeller
         self.left_columns = [0, 0, 0, 80, 200, 250, 70]
         self.table_club_mates = QTableWidget()
+        self.table_club_mates.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table_club_mates.setSelectionBehavior(QTableWidget.SelectRows)
         self.table_club_mates.setSelectionMode(QTableWidget.SingleSelection)
         self.table_club_mates.verticalHeader().setVisible(False)
@@ -32,6 +33,7 @@ class SplitClubMates(QDialog):
 
         self.right_columns = [0, 0, 80, 200, 250, 70]
         self.table_class_startlist = QTableWidget()
+        self.table_class_startlist.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table_class_startlist.setSelectionBehavior(QTableWidget.SelectRows)
         self.table_class_startlist.verticalHeader().setVisible(False)
         self.table_class_startlist.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -240,7 +242,7 @@ class SplitClubMates(QDialog):
 
     def draw_start_times_class(self):
         logging.info("draw_start_times_class")
-        if self.parent.draw_time & (self.parent.drawplan_changed > self.parent.draw_time):
+        if (self.parent.race['draw_time'] is not None) & (self.parent.race['drawplan_changed'] > self.parent.race['draw_time']):
             show_message("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre table.")
             return
 

@@ -7,12 +7,10 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLab
 from PyQt5.QtCore import Qt, QTime, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
-import common.sql
 from common.gui.utils import show_message, populate_table
 from common.select_race_dialog import SelectRaceDialog, reload_race
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
-from trekkeplan.db import sql
 from trekkeplan.gui.about_dialog import AboutDialog
 from trekkeplan.gui.block_line_edit import BlockLineEdit
 from common.gui.common_table_item import CommonTableItem
@@ -36,6 +34,8 @@ class TrekkeplanMainWindow(QWidget):
                 "day": "",
                 "name": "",
                 "first_start": None,
+                "drawplan_changed": None,
+                "draw_time": None,
                 "bundle_id": None,
             }
 

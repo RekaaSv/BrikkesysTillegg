@@ -89,6 +89,8 @@ def reload_race(conn_mgr, raceid):
         "day": race_row[2],
         "name": race_row[1],
         "first_start": race_row[3] if race_row[3] else None,
-        "bundle_id": race_row[4] if race_row[4] else None,
+        "drawplan_changed": race_row[4] if race_row[4] else None,
+        "draw_time": race_row[5] if race_row[5] else None,
+        "bundle_id": race_row[6] if race_row[6] else None,
     }
 

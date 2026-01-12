@@ -101,6 +101,8 @@ class DirekteMainWindow(QWidget):
                 "day": "",
                 "name": "",
                 "first_start": None,
+                "drawplan_changed": None,
+                "draw_time": None,
                 "bundle_id": None,
             }
 
