@@ -628,13 +628,27 @@ class TrekkeplanMainWindow(QWidget):
         return utilization
 
     def color_idle_time(self, idle_ratsio):
-        # Juster intensitet (lav = lys rosa, høy = mørk rød)
-        r = int(255)
-        g = int(200 * (1 - idle_ratsio))  # fra 200 ned mot 0
-        b = int(200 * (1 - idle_ratsio))  # fra 200 ned mot 0
+        # Clamp for sikkerhets skyld
+        idle_ratsio = max(0.0, min(1.0, idle_ratsio))
+
+        # Ikke-lineær funksjon:  idle_ratsio = 1 - (1-idle_ratsio)**2
+        # idle_ratsio = 0,3 -> 0,51
+        utilization = 1 - idle_ratsio
+        utilization = utilization * utilization
+        idle_ratsio = 1 - utilization
+
+        if idle_ratsio < 0.5:
+            # Grønn → Gul
+            r = int(255 * (idle_ratsio / 0.5))  # 0 → 255
+            g = 255
+            b = 0
+        else:
+            # Gul → Rød
+            r = 255
+            g = int(255 * (1 - (idle_ratsio - 0.5) / 0.5))  # 255 → 0
+            b = 0
 
         return QColor(r, g, b)
-
     #
     # Slett classStart rader som tilhører valgt bås/slep
     #

@@ -4,7 +4,6 @@ import logging
 from common.html_builder import HtmlBuilder
 from common.gui.utils import show_message, set_table_sizes
 from trekkeplan.db import sql
-#from trekkeplan.html.html_builder import HtmlBuilder
 
 
 def first_start_edited(parent, race_id, new_first_start_datetime):
@@ -12,7 +11,7 @@ def first_start_edited(parent, race_id, new_first_start_datetime):
     # Update first start-time, then rebuild redundant columns in class_starts.
     sql.upd_first_start(parent.ctx.conn_mgr, race_id, new_first_start_datetime)
     logging.debug("control.first_start_edited new_first_start_datetime: %s", new_first_start_datetime)
-    parent.race_first_start = new_first_start_datetime
+    parent.race['first_start'] = new_first_start_datetime
 
     rebuild_class_starts(parent, race_id)
 
@@ -161,7 +160,7 @@ def draw_start_times(parent, race_id):
     now = datetime.datetime.now()
     # Sett tidsstempel på at det er trukket, både i basen og global variabel.
     sql.upd_draw_time(parent.ctx.conn_mgr, race_id, now)
-    parent.draw_time = now
+    parent.race['draw_time'] = now
 
     show_message("Trekking foretatt, se Startliste!")
 
@@ -175,4 +174,4 @@ def rebuild_class_starts(parent, race_id):
     # Sett tidsstempel på at planen er endret, både i basen og global variabel.
     now = datetime.datetime.now()
     sql.upd_drawplan_changed(parent.ctx.conn_mgr, race_id, now)
-    parent.drawplan_changed = now
+    parent.race['drawplan_changed'] = now
