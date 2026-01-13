@@ -1,6 +1,7 @@
 import logging
 import webbrowser
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QDialog, QHBoxLayout, QFrame, \
     QLineEdit, QFormLayout, QApplication, QGroupBox
 
@@ -16,6 +17,7 @@ class DirekteMainWindow(QWidget):
         self.ctx = ctx
 
         self.resize(850, 400)
+        self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         cfg = self.ctx.config["direkteresultater"]
         self.default_ip = cfg.get("ip", "127.0.0.1")

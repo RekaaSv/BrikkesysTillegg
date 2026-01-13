@@ -1,5 +1,6 @@
 from PyQt5 import sip
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
 
 
@@ -11,6 +12,7 @@ class MainWindow(QMainWindow):
         self.open_modules = []
         self.setWindowTitle("BrikkesysTillegg")
         self.setMinimumSize(900, 600)
+        self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         central = QWidget()
         self.setCentralWidget(central)

@@ -27,7 +27,7 @@ class AppContext:
         self.log_config = self.config["logging"]
 
         # Ressurser
-        self.icon_path = resource_path("terning.ico")
+        self.icon_path = resource_path("reshot-icon-running-JUSXPBMDTN.ico")
         self.help_pdf_path = resource_path("hjelp_trekkeplan.pdf")
 
         # Database

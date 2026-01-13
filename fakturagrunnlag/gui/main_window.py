@@ -1,5 +1,6 @@
 import logging
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox, QLineEdit,
     QProgressDialog, QApplication, QFrame
@@ -27,6 +28,7 @@ class FakturaMainWindow(QWidget):
 
         self.setWindowTitle("Fakturagrunnlag")
         self.resize(1500, 750)
+        self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         self.selected_bundle_id = None
         self.selected_order_id = None
