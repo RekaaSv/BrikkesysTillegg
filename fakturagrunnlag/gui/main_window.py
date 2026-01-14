@@ -2,14 +2,15 @@ import logging
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox, QLineEdit,
-    QProgressDialog, QApplication, QFrame
+    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox,
+    QLineEdit,
+    QProgressDialog, QApplication, QFrame, QSplitter
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
-from common.gui.utils import show_message, populate_table, set_table_sizes
+from common.gui.utils import show_message, populate_table, set_table_sizes, set_table_widths
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
@@ -37,6 +38,8 @@ class FakturaMainWindow(QWidget):
 
         self.make_layout()
 
+        # Må forsinke load_bundles() for å få radene til å få riktig høyde initielt.
+        QTimer.singleShot(0, lambda: self.load_bundles())
 
     def init_ui(self):
 
@@ -111,10 +114,6 @@ class FakturaMainWindow(QWidget):
 
         self.bundle_table.setMouseTracking(True)
 
-#        self.make_layout()
-
-        self.load_bundles()
-
     def make_layout(self):
         #
         # Layout
@@ -143,23 +142,14 @@ class FakturaMainWindow(QWidget):
         top_layout.addWidget(self.new_bundle_btn)
         top_layout.addStretch()
 
-        bundle_layout = QVBoxLayout()
-        order_layout = QVBoxLayout()
-        line_layout = QVBoxLayout()
+        splitter = QSplitter(Qt.Vertical)
+        splitter.addWidget(self.bundle_table)
+        splitter.addWidget(self.order_table)
+        splitter.addWidget(self.line_table)
 
-        center_layout.addLayout(bundle_layout)
-        center_layout.addLayout(order_layout)
-        center_layout.addLayout(line_layout)
+        splitter.setSizes([150, 400, 300])
 
-
-        bundle_layout.addWidget(self.bundle_table)
-        bundle_layout.addStretch()
-
-        order_layout.addWidget(self.order_table)
-        order_layout.addStretch()
-
-        line_layout.addWidget(self.line_table)
-        line_layout.addStretch()
+        center_layout.addWidget(splitter)
 
         bottom_layout.addWidget(self.amountPerClubButton)
         bottom_layout.addWidget(self.amountPerClubProductButton)
@@ -173,25 +163,10 @@ class FakturaMainWindow(QWidget):
 
         self.setLayout(main_layout)
 
-        """
-        top_bar = QHBoxLayout()
-        top_bar.addWidget(self.reload_btn)
-        top_bar.addStretch()
-        layout = QVBoxLayout(self)
-        layout.addLayout(top_bar)
-
-
-        splitter = QSplitter(Qt.Vertical)
-
-        splitter.addWidget(self.bundle_table)
-        splitter.addWidget(self.order_table)
-        splitter.addWidget(self.line_table)
-        """
     def load_bundles(self):
         logging.info("load_bundles")
         rows, columns = sql.select_bundles(self.ctx.conn_mgr)
         self.populate_my_table(self.bundle_table, columns, rows)
-#        self.bundle_table.setColumnHidden(2, True)
         set_table_sizes(self.bundle_table, self.col_widths_bundles, 150)
 
     def load_orders(self, bundle_id):
@@ -216,7 +191,11 @@ class FakturaMainWindow(QWidget):
         self.line_table.setColumnHidden(2, True)
         self.line_table.setColumnHidden(6, True)
         self.line_table.setColumnHidden(8, True)
-        set_table_sizes(self.line_table, self.col_widths_lines, 300)
+#        set_table_sizes(self.line_table, self.col_widths_lines, 300)
+        # set_table_sizes setter fast høyde, og det skapte problemer med
+        # ved at ledig plass line_table ble fordelt i topp og bunn.
+        # Med set_table_widths forble ledig plass i bunnen.
+        set_table_widths(self.line_table, self.col_widths_lines)
 
     def bundle_menu(self, pos):
         menu = QMenu()
@@ -291,8 +270,8 @@ class FakturaMainWindow(QWidget):
             if not raceid:
                 QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
                 return
-            if dlg.selected_bundle != None:
-                QMessageBox.warning(self, "Løp allerede valgt", f"Løp {raceid} er allerede med i bunt {str(dlg.selected_bundle)}")
+            if dlg.race["bundle_id"] != None:
+                QMessageBox.warning(self, "Løp allerede valgt", f"Løp {raceid} er allerede med i bunt {str(dlg.race["bundle_id"])}")
                 return
 
             # 3. Utfør legg-løp-til-bunten.

@@ -70,3 +70,9 @@ def set_table_sizes(table, col_sizes, max_height=600):
     table.resizeRowsToContents()
     adjust_table_hight(table, max_height)
     adjust_table_width(table)
+
+def set_table_widths(table, col_sizes):
+    set_fixed_widths(table, col_sizes)
+    table.resizeRowsToContents()
+#    adjust_table_hight(table, max_height)
+    adjust_table_width(table)
