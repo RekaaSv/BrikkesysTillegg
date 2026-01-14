@@ -14,6 +14,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
+from common.gui.utils import show_message
 from fakturagrunnlag.brreg import brreg
 from fakturagrunnlag.db import sql
 from fakturagrunnlag.eventor import eventor
@@ -279,10 +280,12 @@ def write_manual_invoice_word(parent, invoice_config, rows, columns, download_pa
     # Venstre: mottaker
     left = hdr_cells[0].paragraphs[0]
     left.add_run(f"{felt['Klubb']}\n")
-    left.add_run(f"{felt['Adresse']}\n")
+    if felt['Adresse']:
+        left.add_run(f"{felt['Adresse']}\n")
     if felt['E_post']:  # ledetekst fjernet, men viser e-post hvis den finnes
         left.add_run(f"{felt['E_post']}\n")
-    left.add_run(f"Tlf: {felt['Telefonnr']}")
+    if felt['Telefonnr']:
+        left.add_run(f"Tlf: {felt['Telefonnr']}")
 
     # Høyre: utsteder + fakturainfo
     right = hdr_cells[1].paragraphs[0]
@@ -342,6 +345,7 @@ def write_manual_invoice_word(parent, invoice_config, rows, columns, download_pa
         full_path = os.path.join(download_path, file_name)
 
         doc.save(full_path)
+        show_message("Ordre lastet ned til 'Downloads'-mappen.")
     except PermissionError:
         QMessageBox.warning(
             parent,
@@ -399,7 +403,8 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
         c.drawString(x_left, y, felt["Adresse"]); y -= 12
     if felt["E_post"]:
         c.drawString(x_left, y, felt["E_post"]); y -= 12
-    c.drawString(x_left, y, f"Tlf: {felt['Telefonnr']}")
+    if felt["Telefonnr"]:
+        c.drawString(x_left, y, f"Tlf: {felt['Telefonnr']}")
 
     # Høyre: utsteder + betalingsinfo
     y = y_start - 40
@@ -465,6 +470,7 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
 
     try:
         c.save()
+        show_message("Ordre lastet ned til 'Downloads'-mappen.")
     except PermissionError:
         QMessageBox.warning(
             parent,
