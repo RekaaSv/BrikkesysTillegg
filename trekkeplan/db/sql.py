@@ -584,7 +584,7 @@ def sql_starter_list(conn_mgr, raceid):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT n.startnr , n.name navn, n.club, n.ecardno brikke, cl.name klasse
+SELECT n.startnr , n.name navn, n.club, cast(n.ecardno as char) brikke, cl.name klasse
      , concat("_____________________________________________________________________", substring(cast(n.starttime as char),12,8)) starttid
      ,'&#x25A1;' html_kvadrat
 FROM names n

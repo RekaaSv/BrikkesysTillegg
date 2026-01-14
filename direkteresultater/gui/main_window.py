@@ -361,6 +361,9 @@ class DirekteMainWindow(QWidget):
 
 
     def closeEvent(self, event):
+        size = self.size()
+        logging.info(f"Resultat vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
+
         # Stopp serveren hvis den kjører
         if self.server_control.server_running:
             self.server_control.stop_server()

@@ -915,7 +915,7 @@ class TrekkeplanMainWindow(QWidget):
     # Override closeEvent.
     def closeEvent(self, event):
         size = self.size()
-        logging.debug(f"Vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
+        logging.info(f"Trekkeplan vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
         super().closeEvent(event)
 
     def select_by_id(self, table, id, col=0):
@@ -928,7 +928,7 @@ class TrekkeplanMainWindow(QWidget):
                 logging.info("select_by_id: item found %s", item)
                 table.selectRow(row_idx)
                 return
-        logging.error("Table row not found, id=%s", id)
+        logging.info("Table row not found, id=%s", id) # Kan være normalt etter refresh.
 
     def set_last_start_time(self, max_next_datetime: datetime.datetime | None, utilization: float):
         logging.info("set_last_start_time: %s", max_next_datetime)

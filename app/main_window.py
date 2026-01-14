@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5 import sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -11,7 +13,7 @@ class MainWindow(QMainWindow):
 
         self.open_modules = []
         self.setWindowTitle("BrikkesysTillegg")
-        self.setMinimumSize(900, 600)
+        self.setMinimumSize(300, 150)
         self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         central = QWidget()
@@ -26,7 +28,6 @@ class MainWindow(QMainWindow):
         # Rekkefølge etter faktisk bruk
         btn_tp = QPushButton("Trekkeplan")
         btn_tp.clicked.connect(self.open_trekkeplan)
-        layout.addWidget(btn_tp)
 
         btn_dr = QPushButton("Direkteresultater")
         btn_dr.clicked.connect(self.open_direkteresultater)
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow):
         title = QLabel("Brikkesys tilleggsmoduler")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
+        layout.addStretch()
 
         layout.addWidget(btn_tp)
         layout.addWidget(btn_dr)
@@ -117,5 +119,7 @@ class MainWindow(QMainWindow):
 
         # Hvis ingen moduler er åpne → lukk hovedvinduet
         if not self.open_modules:
+            size = self.size()
+            logging.info(f"Hovedvinduet avsluttes med størrelse: {size.width()} x {size.height()}")
             self.close()
 

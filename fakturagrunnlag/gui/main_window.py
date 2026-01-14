@@ -645,3 +645,7 @@ class FakturaMainWindow(QWidget):
         if bundle_id:
             control.make_amount_per_race_product(self, bundle_id)
 
+    def closeEvent(self, event):
+        size = self.size()
+        logging.info(f"Fakturagrunnlag vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
+        super().closeEvent(event)

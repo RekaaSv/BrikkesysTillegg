@@ -184,7 +184,7 @@ class SplitClubMates(QDialog):
             QTimer.singleShot(0, lambda: self.table_class_startlist.scrollToItem(self.table_class_startlist.item(first_found_row_inx, 3)))
             logging.info("scrollToItem, row_inx: %s", first_found_row_inx)
         else:
-            logging.info("ERROR: first_found_row_inx is None!")
+            logging.info("first_found_row_inx is None!")
 
 
     def mark_row(self, row_inx, match):
@@ -243,7 +243,7 @@ class SplitClubMates(QDialog):
     def draw_start_times_class(self):
         logging.info("draw_start_times_class")
         if (self.parent.race['draw_time'] is not None) & (self.parent.race['drawplan_changed'] > self.parent.race['draw_time']):
-            show_message("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre table.")
+            show_message("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre tabell.")
             return
 
         model_indexes = self.table_club_mates.selectionModel().selectedRows()
