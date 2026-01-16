@@ -483,7 +483,7 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
 def make_amount_per_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.table(rows, columns, 0, sum_columns=[2], sum_position="above")
+    html = HtmlBuilder.table(rows, columns, sum_columns=[2], sum_position="above")
     HtmlBuilder.download(html, "BeløpPrKlubb.html")
 
 def make_amount_per_club_product(parent, bundle_id, order_no_base, customer_no_base):
@@ -495,7 +495,7 @@ def make_amount_per_club_product(parent, bundle_id, order_no_base, customer_no_b
 def make_amount_per_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.table(rows, columns, 0, [1], "above")
+    html = HtmlBuilder.table(rows, columns, [1], "above")
     HtmlBuilder.download(html, "BeløpPrProduct.html")
 
 def make_amount_per_product_club(parent, bundle_id, order_no_base, customer_no_base):

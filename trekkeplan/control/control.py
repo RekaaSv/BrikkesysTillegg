@@ -119,29 +119,15 @@ def class_start_free_updated(parent, race_id, classstartid, blocklagid, new_valu
 def make_startlist(parent, race_id):
     logging.info("control.make_startlist")
     rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id)
+
     report_header = f"{parent.race['day']}  {parent.race['name']}    -   Startliste"
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header)
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header, css=css)
+    html = HtmlBuilder.build_report_html(css, html)
 
     downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-    path = os.path.join(downloads_path, "startliste.pdf")
-    css = CSS(string="""
-        @font-face {
-            font-family: Arial;
-            src: local("Arial");
-        }
-        body {
-            font-family: Arial;
-            font-size: 12pt;
-        }
-        .gruppe {
-            break-inside: avoid-page;
-            page-break-before: auto;
-            min-height: 6rem; /* juster etter behov */
-        }
-    """)
+    path = os.path.join(downloads_path, "Startliste.pdf")
 
-
-#    HTML(string=html).write_pdf(path, stylesheets=[css])
     HTML(string=html).write_pdf(path)
 
     HtmlBuilder.download(html, "Startlist.html")
@@ -156,28 +142,43 @@ def make_starterlist(parent, race_id):
 def make_noof_in_cource(parent, race_id):
     logging.info("control.make_noof_in_cource")
     rows, columns = sql.sql_noof_in_cource(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
+#    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
+    report_header = f"{parent.race['day']}  {parent.race['name']} - Antall pr. løype"
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header, css=css)
+    html = HtmlBuilder.build_report_html(css, html)
 
     HtmlBuilder.download(html, "Løypeliste.html")
 
 def make_noof_in_control1(parent, race_id):
     logging.info("control.make_noof_in_control1")
     rows, columns = sql.sql_noof_in_control1(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
+
+    report_header = f"{parent.race['day']}  {parent.race['name']} - Antall pr. post 1"
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header, css=css)
+    html = HtmlBuilder.build_report_html(css, html)
 
     HtmlBuilder.download(html, "Post1list.html")
 
 def make_same_time_cource(parent, race_id):
     logging.info("control.make_same_time_cource")
     rows, columns = sql.sql_same_time_cource(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.table(rows, columns, 1)
+    report_header = f"{parent.race['day']}  {parent.race['name']} - Samtidige i løype"
+    css = HtmlBuilder.report_table_css()
+#    css = ""
+    html = HtmlBuilder.table(rows, columns, report_header)
+    html = HtmlBuilder.build_report_html(css, html)
 
     HtmlBuilder.download(html, "SamtidigeILøype.html")
 
 def make_same_time_control1(parent, race_id):
     logging.info("control.make_same_time_control1")
     rows, columns = sql.sql_same_time_control1(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.table(rows, columns, 1)
+    report_header = f"{parent.race['day']}  {parent.race['name']} - Samtidige post 1"
+    css = HtmlBuilder.report_table_css()
+    html = HtmlBuilder.table(rows, columns, report_header)
+    html = HtmlBuilder.build_report_html(css, html)
 
     HtmlBuilder.download(html, "SamtidigeTilPost1.html")
 

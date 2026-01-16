@@ -23,7 +23,7 @@ class HtmlBuilder:
         return html
 
     @staticmethod
-    def table(rows, columns, border=1, sum_columns=None, sum_position="below"):
+    def table(rows, columns, report_header="", sum_columns=None, sum_position="below"):
         logging.info("html_report.table")
 
         # fetchall() gir tuple → gjør om til liste
@@ -40,26 +40,21 @@ class HtmlBuilder:
                 rows.append(total_row)
 
         # --- HTML-start ---
-        html = """
-        <style>
-            td.num {
-                text-align: right;
-                white-space: nowrap;
-            }
-            tr.totalrow td {
-                font-weight: bold;
-                border-top: 2px solid black;
-                border-bottom: 2px solid black;
-            }
-        </style>
-        """
+        html = ""
 
-        html += f"<table border='{border}'>\n  <tr>"
+        # Header-div (samme som i grouped_rows_in_single_table)
+        if report_header:
+            html += f"<div class='html-header'>{report_header}</div>\n"
+
+        html += "<table>\n  <tr>"
+        html += "<thead>\n  <tr>"
 
         # Kolonneoverskrifter
         for col in columns:
             html += f"<th>{col}</th>"
         html += "</tr>\n"
+        html += "</thead>\n"
+        html += "<tbody>\n"
 
         # Rader
         for row in rows:
@@ -76,6 +71,7 @@ class HtmlBuilder:
 
             html += "</tr>\n"
 
+        html += "</tbody>\n"
         html += "</table>"
         return html
 
@@ -93,71 +89,13 @@ class HtmlBuilder:
     @staticmethod
     def grouped_rows_in_single_table(
             rows, columns, group_by_index: int,
-            report_header: str = ""):
+            report_header: str = "",
+            css: str = ""):
 
         visningsindekser = [i for i in range(len(columns)) if i != group_by_index]
 
         html = f"""
-        <style>
-            /* PDF-toptekst som gjentas på hver side */
-            @page {{
-                margin: 10mm;
-                margin-top: 20mm;
-                @top-center {{
-                    content: "{report_header}";
-                    font-size: 24px;
-                    font-weight: bold;
-                }}
-            }}
-            @media print {{
-                .html-header {{
-                    display: none;
-                }}
-            }}
-
-            /* HTML-header (vises kun i HTML-visning) */
-            .html-header {{
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }}
-
-            thead {{
-                display: table-header-group;
-            }}
-            thead tr {{
-                background-color: #e6e6e6;
-            }}
-            thead th {{
-                font-size: 13pt;      /* eller 14pt hvis du vil ha det tydelig */
-                font-weight: 600;     /* litt kraftigere enn normal bold */
-                padding: 4px 3px;     /* litt mer luft rundt teksten */
-            }}
-
-            tbody.gruppe > tr:first-child > td {{
-                padding-top: 0.8rem;
-                font-weight: bold;
-                font-size: 13pt;
-            }}
-
-            tr {{
-                page-break-inside: avoid;
-                line-height: 1.1;      /* tettere linjeavstand */
-            }}
-
-            td {{
-                font-family: "Segoe UI", Arial, sans-serif;
-                font-size: 12pt;
-                padding: 1px 3px;      /* mindre luft rundt cellene */
-            }}
-            td.num {{
-                text-align: right;
-                white-space: nowrap;
-            }}
-        </style>
-
         <div class="html-header">{report_header}</div>
-
         <table>
             <thead>
                 <tr>
@@ -205,6 +143,119 @@ class HtmlBuilder:
             f.write(html)
         # Open file.
         os.startfile(path)
+
+
+    @staticmethod
+    def build_report_html(css: str, body_html: str) -> str:
+        return f"""
+<html>
+<head>
+<style>
+{css}
+</style>
+</head>
+<body>
+{body_html}
+</body>
+</html>
+"""
+
+    @staticmethod
+    def report_css(report_header: str) -> str:
+        return f"""
+@page {{
+    margin: 10mm;
+    margin-top: 20mm;
+    @top-center {{
+        content: "{report_header}";
+        font-size: 24px;
+        font-weight: bold;
+    }}
+}}
+
+.html-header {{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}}
+
+@media print {{
+    .html-header {{
+        display: none;
+    }}
+}}
+
+thead {{
+    display: table-header-group;
+}}
+
+thead tr {{
+    background-color: #e6e6e6;
+}}
+
+thead th {{
+    font-size: 13pt;
+    font-weight: 600;
+    padding: 4px 3px;
+}}
+
+tr {{
+    page-break-inside: avoid;
+    line-height: 1.1;
+}}
+
+td {{
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12pt;
+    padding: 1px 3px;
+}}
+
+tbody.gruppe > tr:first-child > td {{
+    padding-top: 0.8rem;
+    font-weight: bold;
+    font-size: 13pt;
+}}
+
+td.num {{
+    text-align: right;
+    white-space: nowrap;
+}}
+"""
+
+    @staticmethod
+    def report_table_css() -> str:
+        return f"""
+.html-header {{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}}
+
+thead tr {{
+    background-color: #e6e6e6;
+}}
+
+thead th {{
+    font-size: 13pt;
+    font-weight: 600;
+    padding: 4px 3px;
+}}
+     
+td.num {{
+    text-align: right;
+    white-space: nowrap;
+}}
+td, th {{
+    padding: 1px 10px;   /* øk til 12px eller 14px hvis du vil ha enda mer luft */
+}}
+
+tr.totalrow td {{
+    font-weight: bold;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}}
+"""
+
 
 def format_cell(value):
     # Tall med tusenskilletegn (norsk stil)

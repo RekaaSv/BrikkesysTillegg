@@ -611,7 +611,7 @@ def sql_noof_in_cource(conn_mgr, raceid):
     cursor = conn.cursor()
     sql = """
 SELECT distinct
-  concat(r.name, ", totalt: ", COUNT(n.NAME) OVER (PARTITION BY r.id), "<br>Løype______________________Antall")
+  concat(r.name, ", totalt: ", COUNT(n.NAME) OVER (PARTITION BY r.id))
  ,co.name Løype
  ,COUNT(n.NAME) OVER (PARTITION BY co.name) Antall 
 FROM names n 
@@ -639,8 +639,8 @@ def sql_noof_in_control1(conn_mgr, raceid):
     cursor = conn.cursor()
     sql = """
 SELECT distinct
-  concat(r.name, ", totalt: ", COUNT(n.NAME) OVER (PARTITION BY r.id), "<br>Post1__Antall____Løype__________Antall")
- ,SUBSTRING_INDEX(co.codes,' ',1) Post1
+  concat(r.name, ", totalt: ", COUNT(n.NAME) OVER (PARTITION BY r.id))
+ ,cast(SUBSTRING_INDEX(co.codes,' ',1) as UNSIGNED) Post1
  ,COUNT(n.NAME) OVER (PARTITION BY SUBSTRING_INDEX(co.codes,' ',1)) Ant_post1
  ,co.name Løype
  ,COUNT(n.NAME) OVER (PARTITION BY co.name) Ant_løype
