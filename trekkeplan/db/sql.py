@@ -561,7 +561,7 @@ def sql_start_list(conn_mgr, raceid):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT cl.name klasse, n.startnr , n.name navn, n.club, n.ecardno brikke, concat("&nbsp;&nbsp;&nbsp;&nbsp;", substring(cast(n.starttime as char),12,8)) starttid
+SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, concat("&nbsp;&nbsp;&nbsp;&nbsp;", substring(cast(n.starttime as char),12,8)) '&nbsp;&nbsp;&nbsp;Starttid'
 FROM names n
 JOIN classes cl on cl.id = n.classid
 JOIN races r on r.id = cl.raceid
@@ -584,7 +584,7 @@ def sql_starter_list(conn_mgr, raceid):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT n.startnr , n.name navn, n.club, cast(n.ecardno as char) brikke, cl.name klasse
+SELECT n.startnr Startnr , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, cl.name Klasse
      , concat("_____________________________________________________________________", substring(cast(n.starttime as char),12,8)) starttid
      ,'&#x25A1;' html_kvadrat
 FROM names n

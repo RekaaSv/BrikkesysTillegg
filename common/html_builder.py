@@ -91,46 +91,111 @@ class HtmlBuilder:
         return html
 
     @staticmethod
-    def grouped_rows_in_single_table(rows, columns, group_by_index: int, heading_tag="strong", border=1):
-        grupper = {}
+    def grouped_rows_in_single_table(
+            rows, columns, group_by_index: int,
+            report_header: str = ""):
+
         visningsindekser = [i for i in range(len(columns)) if i != group_by_index]
-        html = """
+
+        html = f"""
         <style>
-            td.num {
+            /* PDF-toptekst som gjentas på hver side */
+            @page {{
+                margin: 10mm;
+                margin-top: 20mm;
+                @top-center {{
+                    content: "{report_header}";
+                    font-size: 24px;
+                    font-weight: bold;
+                }}
+            }}
+            @media print {{
+                .html-header {{
+                    display: none;
+                }}
+            }}
+
+            /* HTML-header (vises kun i HTML-visning) */
+            .html-header {{
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }}
+
+            thead {{
+                display: table-header-group;
+            }}
+            thead tr {{
+                background-color: #e6e6e6;
+            }}
+            thead th {{
+                font-size: 13pt;      /* eller 14pt hvis du vil ha det tydelig */
+                font-weight: 600;     /* litt kraftigere enn normal bold */
+                padding: 4px 3px;     /* litt mer luft rundt teksten */
+            }}
+
+            tbody.gruppe > tr:first-child > td {{
+                padding-top: 0.8rem;
+                font-weight: bold;
+                font-size: 13pt;
+            }}
+
+            tr {{
+                page-break-inside: avoid;
+                line-height: 1.1;      /* tettere linjeavstand */
+            }}
+
+            td {{
+                font-family: "Segoe UI", Arial, sans-serif;
+                font-size: 12pt;
+                padding: 1px 3px;      /* mindre luft rundt cellene */
+            }}
+            td.num {{
                 text-align: right;
                 white-space: nowrap;
-            }
+            }}
         </style>
+
+        <div class="html-header">{report_header}</div>
+
+        <table>
+            <thead>
+                <tr>
         """
-        html += f"<table border='{border}'>\n"
+
+        # Kolonneheader
+        for i in visningsindekser:
+            html += f"<th>{columns[i]}</th>"
+        html += "</tr></thead>\n"
+
+        # Gruppering
+        grupper = {}
         for row in rows:
             nøkkel = row[group_by_index]
+            grupper.setdefault(nøkkel, []).append(row)
 
-            if nøkkel not in grupper:
-                grupper[nøkkel] = []
-                # legg inn overskrift som egen rad
-                html += (
-                    f"  <tr><td colspan='{len(visningsindekser)}'>"
-                    f"<{heading_tag}>{nøkkel}</{heading_tag}></td></tr>\n"
-                )
+        # Generer grupper
+        for nøkkel, group_rows in grupper.items():
+            html += f'<tbody class="gruppe">\n'
+#            html += f'  <tr><td colspan="{len(visningsindekser)}"><{heading_tag}>{nøkkel}</{heading_tag}></td></tr>\n'
+            html += f'  <tr><td colspan="{len(visningsindekser)}">{nøkkel}</td></tr>\n'
 
-            grupper[nøkkel].append(row)
+            for row in group_rows:
+                celler = []
+                for i in visningsindekser:
+                    verdi = row[i]
+                    if isinstance(verdi, (Decimal, float, int)):
+                        form = format_cell(verdi)
+                        celler.append(f"<td class='num'>{form}</td>")
+                    else:
+                        celler.append(f"<td>{verdi}</td>")
+                html += "  <tr>" + "".join(celler) + "</tr>\n"
 
-            # bygg dataraden
-            celler = []
-            for i in visningsindekser:
-                verdi = row[i]
+            html += "</tbody>\n"
 
-                # sjekk om tall
-                if isinstance(verdi, (Decimal, float, int)):
-                    form = format_cell(verdi)
-                    celler.append(f"<td class='num'>{form}</td>")
-                else:
-                    celler.append(f"<td>{verdi}</td>")
-
-            html += "  <tr>" + "".join(celler) + "</tr>\n"
         html += "</table>"
         return html
+
 
     @staticmethod
     def download(html, file_name):

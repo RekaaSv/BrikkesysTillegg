@@ -489,7 +489,7 @@ def make_amount_per_club(parent, bundle_id, order_no_base, customer_no_base):
 def make_amount_per_club_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club_product")
     rows, columns = sql.make_amount_per_club_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 1, "strong", 0)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 1)
     HtmlBuilder.download(html, "BeløpPrKlubbProdukt.html")
 
 def make_amount_per_product(parent, bundle_id, order_no_base, customer_no_base):
@@ -501,11 +501,11 @@ def make_amount_per_product(parent, bundle_id, order_no_base, customer_no_base):
 def make_amount_per_product_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_product_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 2, "strong", 0)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 2)
     HtmlBuilder.download(html, "BeløpPrProduktKlubb.html")
 
 def make_amount_per_race_product(parent, bundle_id):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_race_product(parent.ctx.conn_mgr, bundle_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, "strong", 1)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
     HtmlBuilder.download(html, "BeløpPrLøpProdukt.html")

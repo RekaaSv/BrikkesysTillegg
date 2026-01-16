@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QTime, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
 from common.gui.utils import show_message, populate_table
+from common.paths import lag_pdf
 from common.select_race_dialog import SelectRaceDialog, reload_race
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
@@ -886,7 +887,13 @@ class TrekkeplanMainWindow(QWidget):
 
     def make_startlist(self):
         logging.info("make_startlist")
+#        self.test_pdf()
         control.make_startlist(self, self.race_id)
+
+    def test_pdf(self):
+        html = "<h1>Hei Sveinung</h1><p>Dette er en test.</p>"
+        sti = lag_pdf(html, "min_test.pdf")
+        print("PDF lagret:", sti)
 
     def make_starterlist(self):
         logging.info("make_starterlist")

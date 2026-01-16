@@ -21,3 +21,30 @@ def module_path(*parts) -> Path:
     Eksempel: module_path("fakturagrunnlag", "html_report", "templates")
     """
     return ROOT.joinpath(*parts)
+
+from weasyprint import HTML, CSS
+import os
+
+def lag_pdf(html_streng, filnavn, mappe=None):
+    # Finn mappe å lagre i
+    if mappe is None:
+        mappe = os.getcwd()
+
+    sti = os.path.join(mappe, filnavn)
+
+    # Enkel standard-CSS for trygg fontbruk på Windows
+    css = CSS(string="""
+        @font-face {
+            font-family: Arial;
+            src: local("Arial");
+        }
+        body {
+            font-family: Arial;
+            font-size: 12pt;
+        }
+    """)
+
+    # Generer PDF
+    HTML(string=html_streng).write_pdf(sti, stylesheets=[css])
+
+    return sti

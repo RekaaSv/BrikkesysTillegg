@@ -1,10 +1,13 @@
 import datetime
 import logging
+import os
+
+from weasyprint import CSS
 
 from common.html_builder import HtmlBuilder
 from common.gui.utils import show_message, set_table_sizes
 from trekkeplan.db import sql
-
+from weasyprint import HTML
 
 def first_start_edited(parent, race_id, new_first_start_datetime):
     logging.info("control.first_start_edited")
@@ -116,28 +119,51 @@ def class_start_free_updated(parent, race_id, classstartid, blocklagid, new_valu
 def make_startlist(parent, race_id):
     logging.info("control.make_startlist")
     rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, "strong", 0)
+    report_header = f"{parent.race['day']}  {parent.race['name']}    -   Startliste"
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header)
+
+    downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+    path = os.path.join(downloads_path, "startliste.pdf")
+    css = CSS(string="""
+        @font-face {
+            font-family: Arial;
+            src: local("Arial");
+        }
+        body {
+            font-family: Arial;
+            font-size: 12pt;
+        }
+        .gruppe {
+            break-inside: avoid-page;
+            page-break-before: auto;
+            min-height: 6rem; /* juster etter behov */
+        }
+    """)
+
+
+#    HTML(string=html).write_pdf(path, stylesheets=[css])
+    HTML(string=html).write_pdf(path)
 
     HtmlBuilder.download(html, "Startlist.html")
 
 def make_starterlist(parent, race_id):
     logging.info("control.make_starterlist")
     rows, columns = sql.sql_starter_list(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 5, "strong", 0)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 5)
 
     HtmlBuilder.download(html, "Starterlist.html")
 
 def make_noof_in_cource(parent, race_id):
     logging.info("control.make_noof_in_cource")
     rows, columns = sql.sql_noof_in_cource(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, "strong", 0)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
 
     HtmlBuilder.download(html, "Løypeliste.html")
 
 def make_noof_in_control1(parent, race_id):
     logging.info("control.make_noof_in_control1")
     rows, columns = sql.sql_noof_in_control1(parent.ctx.conn_mgr, race_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, "strong", 0)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
 
     HtmlBuilder.download(html, "Post1list.html")
 
