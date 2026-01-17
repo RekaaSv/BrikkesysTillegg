@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLab
 from PyQt5.QtCore import Qt, QTime, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
+from common.gui.name_dialog import NameDialog
 from common.gui.utils import show_message, populate_table
 from common.paths import lag_pdf
 from common.select_race_dialog import SelectRaceDialog, reload_race
@@ -292,6 +293,8 @@ class TrekkeplanMainWindow(QWidget):
         self.menu_blocklag = QMenu(self)
         self.action_delete_blocklag = QAction("Slett rad", self)
         self.menu_blocklag.addAction(self.action_delete_blocklag)
+        self.action_rename_blocklag = QAction("Endre båsnavn", self)
+        self.menu_blocklag.addAction(self.action_rename_blocklag)
 
         self.menu_class_start = QMenu(self)
         self.action_move_up = QAction("Dytt klassen opp", self)
@@ -316,6 +319,8 @@ class TrekkeplanMainWindow(QWidget):
         self.action_nonplanned_hide.triggered.connect(lambda: self.hide_selected_rows())
         self.action_nonplanned_show.triggered.connect(lambda: self.show_hided_rows())
         self.action_delete_blocklag.triggered.connect(lambda: self.delete_blocklag_row())
+        self.action_rename_blocklag.triggered.connect(lambda: self.rename_block())
+
 
         self.action_move_up.triggered.connect(lambda: self.class_start_up())
         self.action_move_down.triggered.connect(lambda: self.class_start_down())
@@ -546,6 +551,23 @@ class TrekkeplanMainWindow(QWidget):
             show_message(returned)
         else:
             self.after_plan_changed(None)
+
+    def rename_block(self):
+        logging.info("rename_block")
+        selected = self.table_block_lag.selectionModel().selectedRows()
+        if not selected:
+            return
+        row_id = selected[0].row()
+
+        blockid = self.table_block_lag.model().index(row_id, 1).data()
+        block = self.table_block_lag.model().index(row_id, 2).data()
+
+        dlg = NameDialog(block, "Båsnavn", self)
+        if dlg.exec_():
+            new_name = dlg.get_new_name()
+            returned = control.rename_block(self, blockid, new_name)
+            self.after_plan_changed(None)
+
 
     def delete_class_start_row(self):
         logging.info("delete_class_start_row")

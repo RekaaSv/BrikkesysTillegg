@@ -890,3 +890,26 @@ set n2.starttime = n1.othertime
 # Sjekk om database objektene til Trekkeplan er installert.
 #
 
+def rename_block(conn_mgr, block_id, name):
+    try:
+        conn = conn_mgr.get_connection()
+        cursor = conn.cursor()
+        sql = """
+UPDATE svr_startblocks sb
+SET name = %s
+WHERE sb.id = %s
+"""
+        cursor.execute(sql, (name, block_id,))
+        if cursor.rowcount > 0:
+            to_return = True
+        else:
+            to_return = False
+        conn.commit()
+        conn.close()
+        return to_return
+    except pymysql.Error as err:
+        logging.error(f"MySQL-feil: {err}")
+        raise
+    except Exception as e:
+        logging.error(f"Uventet feil: {e}")
+        raise

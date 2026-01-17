@@ -49,6 +49,12 @@ def delete_blocklag(parent, race_id, blocklag_id, blockId):
     else:
         return "Fjern tilhørende klasser fra planen, og prøv igjen!"
 
+def rename_block(parent, block_id, name):
+    logging.info("control.rename_block")
+    returned = sql.rename_block(parent.ctx.conn_mgr, block_id, name)
+    return None if returned else returned
+
+
 def insert_class_start_nots(parent, race_id, classsIds):
     logging.info("control.insert_class_start_nots")
     for classid in classsIds:
