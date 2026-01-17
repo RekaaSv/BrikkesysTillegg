@@ -215,6 +215,13 @@ td {{
     padding: 1px 3px;
 }}
 
+tbody.gruppe {{
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-before: auto;
+    break-after: auto;
+}}
+
 tbody.gruppe > tr:first-child > td {{
     padding-top: 0.8rem;
     font-weight: bold;

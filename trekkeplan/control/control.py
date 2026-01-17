@@ -142,7 +142,7 @@ def make_starterlist(parent, race_id):
     html = HtmlBuilder.build_report_html(css, html)
 
     downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-    path = os.path.join(downloads_path, "startliste.pdf")
+    path = os.path.join(downloads_path, "starterliste.pdf")
     HTML(string=html).write_pdf(path)
     os.startfile(path)
 
