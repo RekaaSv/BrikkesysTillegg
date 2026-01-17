@@ -137,7 +137,7 @@ def make_starterlist(parent, race_id):
     logging.info("control.make_starterlist")
     rows, columns = sql.sql_starter_list(parent.ctx.conn_mgr, race_id)
     report_header = f"{parent.race['day']}  {parent.race['name']} - Starter-liste"
-    css = HtmlBuilder.report_css(report_header)
+    css = HtmlBuilder.report_css(report_header, True)
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 5, report_header, css=css)
     html = HtmlBuilder.build_report_html(css, html)
 

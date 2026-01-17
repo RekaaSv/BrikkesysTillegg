@@ -161,8 +161,8 @@ class HtmlBuilder:
 """
 
     @staticmethod
-    def report_css(report_header: str) -> str:
-        return f"""
+    def report_css(report_header: str, avoid_break_inside = False) -> str:
+        css = f"""
 @page {{
     margin: 10mm;
     margin-top: 20mm;
@@ -215,13 +215,6 @@ td {{
     padding: 1px 3px;
 }}
 
-tbody.gruppe {{
-    break-inside: avoid;
-    page-break-inside: avoid;
-    break-before: auto;
-    break-after: auto;
-}}
-
 tbody.gruppe > tr:first-child > td {{
     padding-top: 0.8rem;
     font-weight: bold;
@@ -232,7 +225,18 @@ td.num {{
     text-align: right;
     white-space: nowrap;
 }}
+
 """
+        if avoid_break_inside:
+            css += """
+tbody.gruppe {{
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-before: auto;
+    break-after: auto;
+}}
+"""
+        return css
 
     @staticmethod
     def report_table_css() -> str:
