@@ -5,6 +5,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
 
+from fakturagrunnlag.gui.main_window import FakturaMainWindow
+
 
 class MainWindow(QMainWindow):
     def __init__(self, ctx):
@@ -55,7 +57,6 @@ class MainWindow(QMainWindow):
                 return
 
         # Ellers opprett nytt vindu
-        from fakturagrunnlag.gui.main_window import FakturaMainWindow
         win = FakturaMainWindow(self.ctx)
         win.setAttribute(Qt.WA_DeleteOnClose)
 

@@ -173,16 +173,21 @@ class HtmlBuilder:
     }}
 }}
 
-.html-header {{
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}}
-
 @media print {{
     .html-header {{
         display: none;
     }}
+}}
+
+body {{
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12pt;   /* eller 14px hvis du vil */
+}}
+
+.html-header {{
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }}
 
 thead {{
@@ -225,8 +230,13 @@ td.num {{
     @staticmethod
     def report_table_css() -> str:
         return f"""
+body {{
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12pt;   /* eller 14px hvis du vil */
+}}
+
 .html-header {{
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
 }}

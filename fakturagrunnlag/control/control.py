@@ -483,29 +483,46 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
 def make_amount_per_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.table(rows, columns, sum_columns=[2], sum_position="above")
+    report_header = f"Bunt ID {bundle_id} - Beløp pr klubb"
+    css = HtmlBuilder.report_table_css()
+    html = HtmlBuilder.table(rows, columns, report_header, sum_columns=[2], sum_position="above")
+    html = HtmlBuilder.build_report_html(css, html)
+
     HtmlBuilder.download(html, "BeløpPrKlubb.html")
 
 def make_amount_per_club_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club_product")
     rows, columns = sql.make_amount_per_club_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 1)
+    report_header = f"Bunt ID {bundle_id} - Beløp pr klubb og produkt"
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 1, report_header)
+    html = HtmlBuilder.build_report_html(css, html)
+
     HtmlBuilder.download(html, "BeløpPrKlubbProdukt.html")
 
 def make_amount_per_product(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_product(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.table(rows, columns, [1], "above")
+    report_header = f"Bunt ID {bundle_id} - Beløp pr produkt"
+    css = HtmlBuilder.report_table_css()
+    html = HtmlBuilder.table(rows, columns, report_header, sum_columns=[1], sum_position="above")
+    html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, "BeløpPrProduct.html")
 
 def make_amount_per_product_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_product_club(parent.ctx.conn_mgr, bundle_id, order_no_base, customer_no_base)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 2)
+    report_header = f"Bunt ID {bundle_id} - Beløp pr produkt og klubb"
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 2, report_header)
+    html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, "BeløpPrProduktKlubb.html")
 
 def make_amount_per_race_product(parent, bundle_id):
     logging.info("control.make_amount_per_club")
     rows, columns = sql.make_amount_per_race_product(parent.ctx.conn_mgr, bundle_id)
-    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0)
+    report_header = f"Bunt ID {bundle_id} - Beløp pr løp og produkt"
+    css = HtmlBuilder.report_css(report_header)
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header)
+    html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, "BeløpPrLøpProdukt.html")

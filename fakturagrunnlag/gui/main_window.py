@@ -271,7 +271,7 @@ class FakturaMainWindow(QWidget):
                 QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
                 return
             if dlg.race["bundle_id"] != None:
-                QMessageBox.warning(self, "Løp allerede valgt", f"Løp {raceid} er allerede med i bunt {str(dlg.race["bundle_id"])}")
+                QMessageBox.warning(self, "Løp allerede valgt", f"Løp {raceid} er allerede med i bunt {str(dlg.race['bundle_id'])}")
                 return
 
             # 3. Utfør legg-løp-til-bunten.

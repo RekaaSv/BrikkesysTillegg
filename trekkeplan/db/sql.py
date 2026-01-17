@@ -586,7 +586,7 @@ def sql_starter_list(conn_mgr, raceid):
     sql = """
 SELECT n.startnr Startnr , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, cl.name Klasse
      , concat("_____________________________________________________________________", substring(cast(n.starttime as char),12,8)) starttid
-     ,'&#x25A1;' html_kvadrat
+     ,'&#x25A1;' Startet
 FROM names n
 JOIN classes cl on cl.id = n.classid
 JOIN races r on r.id = cl.raceid

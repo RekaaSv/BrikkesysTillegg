@@ -17,7 +17,7 @@ class SelectRaceDialog(QDialog):
         logging.info("commen.SelectRaceDialog")
         self.ctx = ctx
         self.parent = parent
-        self.race = None
+        self.race = {}
 
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowTitle("Velg et løp")

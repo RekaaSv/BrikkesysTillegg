@@ -736,7 +736,7 @@ def make_amount_per_club_product(conn_mgr, bundle_id, order_no_base, customer_no
     select 
          min({order_no_base} + o.order_id) Ordrenr
         ,o.org_name Klubb
-        ,lev.description
+        ,lev.description Produkt
         ,sum(lev.price) Beløp
     from svr_invoice_order_lines l
     join svr_invoice_orders o on o.order_id = l.order_id
