@@ -115,9 +115,7 @@ class HtmlBuilder:
         # Generer grupper
         for nøkkel, group_rows in grupper.items():
             html += f'<tbody class="gruppe">\n'
-#            html += f'  <tr><td colspan="{len(visningsindekser)}"><{heading_tag}>{nøkkel}</{heading_tag}></td></tr>\n'
-            html += f'  <tr><td colspan="{len(visningsindekser)}">{nøkkel}</td></tr>\n'
-
+            html += f'  <tr class="gruppeheader"><td colspan="{len(visningsindekser)}"><span class="gruppeheader-content">{nøkkel}</span></td></tr>\n'
             for row in group_rows:
                 celler = []
                 for i in visningsindekser:
@@ -229,12 +227,12 @@ td.num {{
 """
         if avoid_break_inside:
             css += """
-tbody.gruppe {{
+tbody.gruppe {
     break-inside: avoid;
     page-break-inside: avoid;
     break-before: auto;
     break-after: auto;
-}}
+}
 """
         return css
 

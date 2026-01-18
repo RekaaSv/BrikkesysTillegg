@@ -137,22 +137,28 @@ def make_startlist(parent, race_id):
     HTML(string=html).write_pdf(path)
     os.startfile(path)
 
-#    HtmlBuilder.download(html, "Startlist.html")
+    HtmlBuilder.download(html, "Startlist.html")
 
-def make_starterlist(parent, race_id):
+def make_starterlist(parent, race_id, startlocation):
     logging.info("control.make_starterlist")
-    rows, columns = sql.sql_starter_list(parent.ctx.conn_mgr, race_id)
-    report_header = f"{parent.race['day']}  {parent.race['name']} - Starter-liste"
+    rows, columns = sql.sql_starter_list(parent.ctx.conn_mgr, race_id, startlocation)
+    report_header_tail = startlocation if startlocation else "Starterliste"
+    report_header = f"{parent.race['day']}  {parent.race['name']} - {report_header_tail}"
     css = HtmlBuilder.report_css(report_header, True)
+    css += """
+.gruppeheader-content {
+    float: right;
+}
+"""
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 5, report_header, css=css)
     html = HtmlBuilder.build_report_html(css, html)
 
     downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-    path = os.path.join(downloads_path, "starterliste.pdf")
+    path = os.path.join(downloads_path, f"{report_header_tail}.pdf")
     HTML(string=html).write_pdf(path)
     os.startfile(path)
 
-    HtmlBuilder.download(html, "Starterlist.html")
+    HtmlBuilder.download(html, f"{report_header_tail}.html")
 
 def make_noof_in_cource(parent, race_id):
     logging.info("control.make_noof_in_cource")

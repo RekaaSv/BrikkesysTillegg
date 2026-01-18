@@ -919,7 +919,17 @@ class TrekkeplanMainWindow(QWidget):
 
     def make_starterlist(self):
         logging.info("make_starterlist")
-        control.make_starterlist(self, self.race_id)
+
+        # Første ord i selektert bås er start-lokasjon (Start1, Start2, ...)
+        start_lokasjon: str = None
+        selected = self.table_block_lag.selectionModel().selectedRows()
+        if selected:
+            row_id = selected[0].row()
+            block = self.table_block_lag.model().index(row_id, 2).data()
+            ordliste = block.split(" ")
+            if len(ordliste) > 1:
+                start_lokasjon = ordliste[0]
+        control.make_starterlist(self, self.race_id, start_lokasjon)
 
     def make_noof_in_cource(self):
         logging.info("make_noof_in_cource")

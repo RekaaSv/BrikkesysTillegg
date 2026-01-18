@@ -579,24 +579,28 @@ ORDER BY cl.sortorder, n.starttime
         logging.error(f"Uventet feil: {e}")
         raise
 
-def sql_starter_list(conn_mgr, raceid):
+def sql_starter_list(conn_mgr, raceid, startlocation=None):
     logging.info("sql.sql_starter_list, raceid: %s", raceid)
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
 SELECT n.startnr Startnr , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, cl.name Klasse
-     , concat("_________________________________________________________________________________________", substring(cast(n.starttime as char),12,8)) starttid
+     , substring(n.starttime,12,8) Starttid
      ,'&#x25A1;' Startet
 FROM names n
 JOIN classes cl on cl.id = n.classid
+JOIN svr_classstarts cls on cls.classid = n.classid
+JOIN svr_startblocklags sbl on sbl.id = cls.blocklagid
+JOIN svr_startblocks sb on sb.id = sbl.startblockid
 JOIN races r on r.id = cl.raceid
 WHERE r.id = %s
+  AND sb.name like %s
   AND n.status not in ('V','X')
   AND n.starttime is not null
 ORDER BY n.starttime, cl.sortorder
 """
     try:
-        cursor.execute(sql, (raceid,))
+        cursor.execute(sql, (raceid, f"{startlocation}%" if startlocation is not None else "%"))
         return cursor.fetchall(), [desc[0] for desc in cursor.description]
     except pymysql.Error as err:
         logging.error(f"MySQL-feil: {err}")
@@ -885,10 +889,6 @@ set n2.starttime = n1.othertime
         logging.error(f"Uventet feil: {e}")
         raise
 
-
-#
-# Sjekk om database objektene til Trekkeplan er installert.
-#
 
 def rename_block(conn_mgr, block_id, name):
     try:
