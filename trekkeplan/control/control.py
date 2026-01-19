@@ -122,22 +122,19 @@ def class_start_free_updated(parent, race_id, classstartid, blocklagid, new_valu
     parent.table_class_start.blockSignals(False)
     logging.debug("control.class_start_free_updated end")
 
-def make_startlist(parent, race_id):
+def make_startlist(parent, race_id, startlocation):
     logging.info("control.make_startlist")
-    rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id)
-
-    report_header = f"{parent.race['day']}  {parent.race['name']}    -   Startliste"
+    rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id, startlocation)
+    report_header_tail = startlocation if startlocation else "Starttider"
+    report_header = f"{parent.race['day']}  {parent.race['name']} - {report_header_tail}-tider"
     css = HtmlBuilder.report_css(report_header)
+
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 0, report_header, css=css)
     html = HtmlBuilder.build_report_html(css, html)
+    HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-    downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-    path = os.path.join(downloads_path, "startliste.pdf")
+    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}-tider.pdf")
 
-    HTML(string=html).write_pdf(path)
-    os.startfile(path)
-
-    HtmlBuilder.download(html, "Startlist.html")
 
 def make_starterlist(parent, race_id, startlocation):
     logging.info("control.make_starterlist")

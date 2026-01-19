@@ -3,7 +3,7 @@ import logging
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QTableWidget, \
     QTimeEdit, QMenu, QAction, QMessageBox, QLineEdit, QDialog, QFrame, \
-    QApplication, QShortcut
+    QApplication, QShortcut, QCheckBox
 from PyQt5.QtCore import Qt, QTime, QUrl
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
@@ -240,6 +240,14 @@ class TrekkeplanMainWindow(QWidget):
         self.btn_same_time_control1.setToolTip("Samtidig startende mot samme post 1.")
         self.btn_same_time_control1.clicked.connect(self.make_same_time_control1)
 
+        self.cb_one_startlocation = QCheckBox("Et startsted")
+        tooltip = """Startrapporeter kan begrenses til kun et av startstedene, ved å
+1) krysse av her.
+2) velge en av båsene i lista over.
+Første ord i båsnavnet representerer startsted navnet.
+"""
+        self.cb_one_startlocation.setToolTip(tooltip)
+
         self.make_layout(title_block_lag, title_class_start, title_first_start, title_last_start, title_duration, title_utilization, title_non_planned)
 
         table_font = self.table_not_planned.font()
@@ -420,10 +428,13 @@ class TrekkeplanMainWindow(QWidget):
 
         bottom_layout.addWidget(self.btn_noof_in_control1)
         bottom_layout.addWidget(self.btn_noof_in_cource)
-        bottom_layout.addWidget(self.startListButton)
-        bottom_layout.addWidget(self.starterListButton)
+        bottom_layout.addStretch()
         bottom_layout.addWidget(self.btn_same_time_cource)
         bottom_layout.addWidget(self.btn_same_time_control1)
+        bottom_layout.addStretch()
+        bottom_layout.addWidget(self.cb_one_startlocation)
+        bottom_layout.addWidget(self.startListButton)
+        bottom_layout.addWidget(self.starterListButton)
 
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.draw_start_times_button)
@@ -909,8 +920,19 @@ class TrekkeplanMainWindow(QWidget):
 
     def make_startlist(self):
         logging.info("make_startlist")
-#        self.test_pdf()
-        control.make_startlist(self, self.race_id)
+
+        # Første ord i selektert bås er start-lokasjon (Start1, Start2, ...)
+        start_lokasjon: str = None
+        one_startlocation = self.cb_one_startlocation.isChecked()
+
+        selected: list = self.table_block_lag.selectionModel().selectedRows()
+        if one_startlocation & len(selected) == 1:
+            row_id = selected[0].row()
+            block = self.table_block_lag.model().index(row_id, 2).data()
+            ordliste = block.split(" ")
+            if len(ordliste) > 1:
+                start_lokasjon = ordliste[0]
+        control.make_startlist(self, self.race_id, start_lokasjon)
 
     def test_pdf(self):
         html = "<h1>Hei Sveinung</h1><p>Dette er en test.</p>"
@@ -922,8 +944,10 @@ class TrekkeplanMainWindow(QWidget):
 
         # Første ord i selektert bås er start-lokasjon (Start1, Start2, ...)
         start_lokasjon: str = None
-        selected = self.table_block_lag.selectionModel().selectedRows()
-        if selected:
+        one_startlocation = self.cb_one_startlocation.isChecked()
+
+        selected: list = self.table_block_lag.selectionModel().selectedRows()
+        if one_startlocation & len(selected) == 1:
             row_id = selected[0].row()
             block = self.table_block_lag.model().index(row_id, 2).data()
             ordliste = block.split(" ")
