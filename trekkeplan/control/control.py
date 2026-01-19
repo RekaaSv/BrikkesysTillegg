@@ -152,13 +152,10 @@ def make_starterlist(parent, race_id, startlocation):
 """
     html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 5, report_header, css=css)
     html = HtmlBuilder.build_report_html(css, html)
-
-    downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-    path = os.path.join(downloads_path, f"{report_header_tail}.pdf")
-    HTML(string=html).write_pdf(path)
-    os.startfile(path)
-
     HtmlBuilder.download(html, f"{report_header_tail}.html")
+
+    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}.pdf")
+
 
 def make_noof_in_cource(parent, race_id):
     logging.info("control.make_noof_in_cource")
