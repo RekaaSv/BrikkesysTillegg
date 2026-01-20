@@ -7,7 +7,7 @@ def read_race_list(conn_mgr):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-    SELECT r.id Løps_Id, r.racedate Dag, r.name Løp, time(r.svr_first_start) Starttid, r.svr_bundle_id Bunt_ID
+    SELECT r.id Løps_Id, r.name Løp, r.racedate Dag, time(r.svr_first_start) Starttid, r.svr_drawplan_changed Planlagt, r.svr_draw_time Trekt, r.svr_bundle_id Bunt_ID
     FROM races r
     ORDER BY r.racedate DESC, r.created COLLATE utf8mb3_danish_ci DESC
     """

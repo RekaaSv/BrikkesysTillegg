@@ -3,8 +3,8 @@ import logging
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QTableWidget, \
     QTimeEdit, QMenu, QAction, QMessageBox, QLineEdit, QDialog, QFrame, \
-    QApplication, QShortcut, QCheckBox
-from PyQt5.QtCore import Qt, QTime, QUrl
+    QApplication, QShortcut, QCheckBox, QDateTimeEdit
+from PyQt5.QtCore import Qt, QTime, QUrl, QDateTime, QDate
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
 from common.gui.name_dialog import NameDialog
@@ -19,6 +19,10 @@ from common.gui.common_table_item import CommonTableItem
 
 from trekkeplan.gui.filtered_table import FilteredTable
 from trekkeplan.gui.split_club_mates import SplitClubMates
+
+
+NULL_TIME = q_time = QTime(0, 0, 0)
+NULL_DT = QDateTime(QDate(1, 1, 1), QTime(0, 0, 0))
 
 
 class TrekkeplanMainWindow(QWidget):
@@ -88,6 +92,16 @@ class TrekkeplanMainWindow(QWidget):
         self.field_last_start.setDisplayFormat("HH:mm:ss")
         self.field_last_start.setFixedWidth(80)
 
+        self.title_drawn = QLabel("Trekt:")
+        self.field_drawn = QDateTimeEdit()
+        self.field_drawn.setReadOnly(True)
+        self.field_drawn.setButtonSymbols(QDateTimeEdit.NoButtons)  # Skjuler opp/ned-piler
+        self.field_drawn.setStyleSheet(style_sheet_time_ro)
+        self.field_drawn.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        self.field_drawn.setFixedWidth(180)
+        self.field_drawn.setSpecialValueText("____-__-__ __:__:__")
+        self.field_drawn.setMinimumDateTime(NULL_DT)
+
         title_duration = QLabel("Varighet:")
         self.field_duration = QLabel()
         self.field_duration.setStyleSheet(style_sheet_time_ro)
@@ -100,6 +114,7 @@ class TrekkeplanMainWindow(QWidget):
         time_font.setPointSize(10)
         self.field_first_start.setFont(time_font)
         self.field_last_start.setFont(time_font)
+        self.field_drawn.setFont(time_font)
         self.field_duration.setFont(time_font)
         self.field_duration.setFixedHeight(30)
         self.field_utilization.setFont(time_font)
@@ -257,6 +272,7 @@ Første ord i båsnavnet representerer startsted navnet.
         self.field_first_start.editingFinished.connect(self.first_start_edited)
 
         self.set_first_start_field()
+        self.set_draw_time_field()
 
         # Oppfrisk tabeller.
         control.refresh_table(self, self.table_not_planned)
@@ -342,8 +358,16 @@ Første ord i båsnavnet representerer startsted navnet.
             q_time = QTime(self.race['first_start'].hour, self.race['first_start'].minute,
                            self.race['first_start'].second)
         else:
-            q_time = QTime(0, 0)
+            q_time = NULL_TIME
         self.field_first_start.setTime(q_time)
+
+    def set_draw_time_field(self):
+        # Fyll inn første start.
+        q_datetime = self.race['draw_time']
+        if q_datetime is None:
+            q_datetime = NULL_DT
+        self.field_drawn.setDateTime(q_datetime)
+        return
 
     def make_layout(self, title_block_lag: QLabel | QLabel, title_class_start: QLabel | QLabel,
                     title_first_start: QLabel | QLabel, title_last_start: QLabel | QLabel, title_duration: QLabel | QLabel, title_utilization: QLabel | QLabel, title_non_planned: QLabel | QLabel):
@@ -379,6 +403,8 @@ Første ord i båsnavnet representerer startsted navnet.
         top_layout.addWidget(self.field_duration)
         top_layout.addWidget(title_utilization)
         top_layout.addWidget(self.field_utilization)
+        top_layout.addWidget(self.title_drawn)
+        top_layout.addWidget(self.field_drawn)
         top_layout.addStretch()
 
         column1_layout = QVBoxLayout()
@@ -486,6 +512,13 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def first_start_edited(self):
         logging.info("first_start_edited")
+        if self.is_plan_locked():
+            self.field_first_start.blockSignals(True)
+            self.set_first_start_field()
+            self.field_first_start.blockSignals(False)
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         # Update first start-time, then rebuild redundant in class_starts, and reread.
 
         new_first_datetime = datetime.datetime.combine(self.race['day'], self.field_first_start.time().toPyTime())
@@ -582,6 +615,10 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def delete_class_start_row(self):
         logging.info("delete_class_start_row")
+        if self.is_plan_locked():
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
             show_message("Du må velge klassen som skal fjernes fra planen!")
@@ -688,6 +725,10 @@ Første ord i båsnavnet representerer startsted navnet.
     #
     def delete_class_start_block_lag(self):
         logging.info("delete_class_start_block_lag")
+        if self.is_plan_locked():
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
             return
@@ -708,6 +749,10 @@ Første ord i båsnavnet representerer startsted navnet.
     #
     def delete_class_start_all(self):
         logging.info("delete_class_start_all")
+        if self.is_plan_locked():
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         control.delete_class_start_all(self, self.race_id)
 
         control.refresh_table(self, self.table_not_planned)
@@ -736,6 +781,10 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def class_start_down_up(self, step):
         logging.info("class_start_down_up")
+        if self.is_plan_locked():
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
             show_message("Du må velge klassen som skal flyttes et hakk!")
@@ -793,6 +842,9 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def move_class_to_plan(self):
         logging.info("move_class_to_plan")
+        if self.is_plan_locked():
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
         selected_model_rows = self.table_not_planned.selectionModel().selectedRows()
         if not selected_model_rows:
             show_message("Du må velge ei klasse å flytte til Trekkeplanen!")
@@ -853,8 +905,11 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def select_race(self: QWidget):
         logging.info("select_race")
-        dialog = SelectRaceDialog(self.ctx, self)
+        dialog = SelectRaceDialog(self.ctx, self, [6,])
         dialog.setWindowIcon(QIcon(self.ctx.icon_path))
+#        dialog.table_race.setColumnHidden(6, True)
+#        dialog.col_widths_races[6] = 0
+#        dialog.refresh()
 
         if dialog.exec_() == QDialog.Accepted:
             self.race = dialog.race
@@ -866,6 +921,7 @@ Første ord i båsnavnet representerer startsted navnet.
             self.ctx.registry.set_int("trekkeplan_race_id", self.race_id)
 
             self.set_first_start_field()
+            self.set_draw_time_field()
             control.refresh_table(self, self.table_not_planned)
             self.after_plan_changed(None)
         else:
@@ -884,6 +940,14 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def class_start_item_changed(self, item):
         logging.info("class_start_item_changed")
+        if self.is_plan_locked():
+            original = item.data(Qt.UserRole)
+            self.table_class_start.blockSignals(True)
+            item.setText(str(original))
+            self.table_class_start.blockSignals(False)
+            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            return
+
         self.table_class_start.blockSignals(True)
         idx_col = item.column()
         idx_row = item.row()
@@ -905,6 +969,7 @@ Første ord i båsnavnet representerer startsted navnet.
         logging.info("draw_start_times")
         if self.ask_confirmation("Trekk starttider for klassene i planen?"):
             control.draw_start_times(self, self.race_id)
+            self.set_draw_time_field()
         else:
             logging.debug("Brukeren avbrøt")
 
@@ -914,6 +979,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
         if self.ask_confirmation("Slette alle starttider?"):
             control.clear_start_times(self, self.race_id)
+            self.set_draw_time_field()
         else:
             logging.debug("Brukeren avbrøt")
 
@@ -1045,3 +1111,6 @@ Første ord i båsnavnet representerer startsted navnet.
         )
         return reply == QMessageBox.Ok
 
+    def is_plan_locked(self):
+        draw_time = self.race['draw_time']
+        return draw_time is not None

@@ -264,7 +264,7 @@ class FakturaMainWindow(QWidget):
             return
 
         # 2. Åpne dialog for å velge løp
-        dlg = SelectRaceDialog(self.ctx, self)
+        dlg = SelectRaceDialog(self.ctx, self, [3, 4, 5])
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.race["id"]
             if not raceid:
@@ -302,7 +302,7 @@ class FakturaMainWindow(QWidget):
             return
 
         # 2. Åpne dialog for å velge løp
-        dlg = SelectRaceDialog(self.ctx, self)
+        dlg = SelectRaceDialog(self.ctx, self, [3, 4, 5])
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.race["id"]
             if not raceid:

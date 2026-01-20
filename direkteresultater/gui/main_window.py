@@ -329,7 +329,7 @@ class DirekteMainWindow(QWidget):
 
     def select_race(self: QWidget):
         logging.info("select_race")
-        dialog = SelectRaceDialog(self.ctx, self)
+        dialog = SelectRaceDialog(self.ctx, self, [3, 4, 5, 6])
 #        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
 
         if dialog.exec_() == QDialog.Accepted:

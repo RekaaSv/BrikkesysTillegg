@@ -202,11 +202,15 @@ def draw_start_times(parent, race_id):
     # Sett tidsstempel på at det er trukket, både i basen og global variabel.
     sql.upd_draw_time(parent.ctx.conn_mgr, race_id, now)
     parent.race['draw_time'] = now
+    parent.set_draw_time_field()
 
     show_message("Trekking foretatt, se Startliste!")
 
 def clear_start_times(parent, race_id):
     sql.clear_start_times(parent.ctx.conn_mgr, race_id)
+    sql.upd_draw_time(parent.ctx.conn_mgr, race_id, None)
+    parent.race['draw_time'] = None
+    parent.set_draw_time_field()
     show_message("Starttider fjernet, se Startliste!")
 
 def rebuild_class_starts(parent, race_id):
