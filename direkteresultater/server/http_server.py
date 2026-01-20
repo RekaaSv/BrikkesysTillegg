@@ -3,6 +3,8 @@ import logging
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
+
+from common.gui.utils import show_message
 from direkteresultater.db import sql
 
 
@@ -139,11 +141,22 @@ window.onload = function() {{
 </body>
 </html>
 """
-
             self.send_response(200)
             self.send_header("Content-type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(full_html.encode("utf-8"))
+
+            try:
+                self.wfile.write(full_html.encode("utf-8"))
+            except ConnectionAbortedError as e:
+                logging.error("Connection aborted by user.")
+                logging.error(e)
+                return
+            except BrokenPipeError as e:
+                # Samme type feil, annen variant
+                logging.error("Connection aborted by user.")
+                logging.error(e)
+                return
+
             return
 
         self.send_error(404, "Not Found")

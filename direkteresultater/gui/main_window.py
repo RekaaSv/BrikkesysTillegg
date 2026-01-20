@@ -41,7 +41,7 @@ class DirekteMainWindow(QWidget):
 
         self.select_race_btn = QPushButton("Velg løp")
         self.reset_btn = QPushButton("Tilbakestill parametere")
-        self.reset_btn.setToolTip("Slett lagrede Direkteresultater-innstillinger og bruk standardverdier fra konfig.")
+        self.reset_btn.setToolTip("Slett lagrede URL-innstillinger og bruk standardverdier fra konfig.")
         self.close_button = QPushButton("Avslutt")
 
         self.url_edit = QLineEdit()

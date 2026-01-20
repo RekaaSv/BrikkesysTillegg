@@ -61,9 +61,9 @@ class TrekkeplanMainWindow(QWidget):
         #
         # Komponenter
         #
-        title_non_planned = QLabel("Ikke-planlagte klasser")
-        title_block_lag = QLabel("Bås/tidsslep/gap")
-        title_class_start = QLabel("Trekkeplan")
+        self.title_non_planned = QLabel("Ikke-planlagte klasser")
+        self.title_block_lag = QLabel("Bås/tidsslep/gap")
+        self.title_class_start = QLabel("Trekkeplan")
 
         style_sheet_time = """
             background-color: rgb(255, 250, 205);  /* svak gul */
@@ -71,7 +71,7 @@ class TrekkeplanMainWindow(QWidget):
             padding: 2px;
             border-radius: 3px;
         """
-        title_first_start = QLabel("Første start:")
+        self.title_first_start = QLabel("Første start:")
         self.field_first_start = QTimeEdit()
         self.field_first_start.setButtonSymbols(QTimeEdit.NoButtons)  # Skjuler opp/ned-piler
         self.field_first_start.setStyleSheet(style_sheet_time)
@@ -84,7 +84,17 @@ class TrekkeplanMainWindow(QWidget):
             font-weight: normal;
             margin: 0;
         """
-        title_last_start = QLabel("Siste start:")
+        style_sheet_green = """
+            background-color: rgb(0, 255, 0);
+            border: 1px solid #aaa;
+            padding: 2px;
+            border-radius: 3px;
+            font-weight: normal;
+            margin: 0;
+        """
+
+
+        self.title_last_start = QLabel("Siste start:")
         self.field_last_start = QTimeEdit()
         self.field_last_start.setReadOnly(True)
         self.field_last_start.setButtonSymbols(QTimeEdit.NoButtons)  # Skjuler opp/ned-piler
@@ -96,17 +106,17 @@ class TrekkeplanMainWindow(QWidget):
         self.field_drawn = QDateTimeEdit()
         self.field_drawn.setReadOnly(True)
         self.field_drawn.setButtonSymbols(QDateTimeEdit.NoButtons)  # Skjuler opp/ned-piler
-        self.field_drawn.setStyleSheet(style_sheet_time_ro)
+        self.field_drawn.setStyleSheet(style_sheet_green)
         self.field_drawn.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         self.field_drawn.setFixedWidth(180)
         self.field_drawn.setSpecialValueText("____-__-__ __:__:__")
         self.field_drawn.setMinimumDateTime(NULL_DT)
 
-        title_duration = QLabel("Varighet:")
+        self.title_duration = QLabel("Varighet:")
         self.field_duration = QLabel()
         self.field_duration.setStyleSheet(style_sheet_time_ro)
 
-        title_utilization = QLabel("Utnyttelse (%):")
+        self.title_utilization = QLabel("Utnyttelse (%):")
         self.field_utilization = QLabel()
         self.field_utilization.setStyleSheet(style_sheet_time_ro)
 
@@ -263,7 +273,7 @@ Første ord i båsnavnet representerer startsted navnet.
 """
         self.cb_one_startlocation.setToolTip(tooltip)
 
-        self.make_layout(title_block_lag, title_class_start, title_first_start, title_last_start, title_duration, title_utilization, title_non_planned)
+        self.make_layout()
 
         table_font = self.table_not_planned.font()
         self.setFont(table_font)
@@ -369,8 +379,7 @@ Første ord i båsnavnet representerer startsted navnet.
         self.field_drawn.setDateTime(q_datetime)
         return
 
-    def make_layout(self, title_block_lag: QLabel | QLabel, title_class_start: QLabel | QLabel,
-                    title_first_start: QLabel | QLabel, title_last_start: QLabel | QLabel, title_duration: QLabel | QLabel, title_utilization: QLabel | QLabel, title_non_planned: QLabel | QLabel):
+    def make_layout(self):
         #
         # Layout
         #
@@ -395,13 +404,13 @@ Første ord i båsnavnet representerer startsted navnet.
         top_layout.addWidget(self.race_button)
         top_layout.addWidget(self.help_button)
         top_layout.addWidget(self.about_button)
-        top_layout.addWidget(title_first_start)
+        top_layout.addWidget(self.title_first_start)
         top_layout.addWidget(self.field_first_start)
-        top_layout.addWidget(title_last_start)
+        top_layout.addWidget(self.title_last_start)
         top_layout.addWidget(self.field_last_start)
-        top_layout.addWidget(title_duration)
+        top_layout.addWidget(self.title_duration)
         top_layout.addWidget(self.field_duration)
-        top_layout.addWidget(title_utilization)
+        top_layout.addWidget(self.title_utilization)
         top_layout.addWidget(self.field_utilization)
         top_layout.addWidget(self.title_drawn)
         top_layout.addWidget(self.field_drawn)
@@ -414,7 +423,7 @@ Første ord i båsnavnet representerer startsted navnet.
         column4_layout = QVBoxLayout()
 #        button_layout = QHBoxLayout()
 
-        column1_layout.addWidget(title_non_planned)
+        column1_layout.addWidget(self.title_non_planned)
         column1_layout.addWidget(self.table_not_planned)
         column1_layout.addStretch()
 
@@ -439,7 +448,7 @@ Første ord i båsnavnet representerer startsted navnet.
         button_row2_layout.addStretch()
 
 
-        column3_layout.addWidget(title_block_lag)
+        column3_layout.addWidget(self.title_block_lag)
         column3_layout.addLayout(new_blocklag_layout)
         column3_layout.addWidget(self.add_block_button)
         column3_layout.addWidget(self.table_block_lag)
@@ -471,7 +480,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
         header_class_start_layout = QHBoxLayout()
 #        header_class_start_layout.addWidget(self.move_button)
-        header_class_start_layout.addWidget(title_class_start)
+        header_class_start_layout.addWidget(self.title_class_start)
 
         column4_layout.addLayout(header_class_start_layout)
         column4_layout.addWidget(self.table_class_start)
@@ -907,9 +916,6 @@ Første ord i båsnavnet representerer startsted navnet.
         logging.info("select_race")
         dialog = SelectRaceDialog(self.ctx, self, [6,])
         dialog.setWindowIcon(QIcon(self.ctx.icon_path))
-#        dialog.table_race.setColumnHidden(6, True)
-#        dialog.col_widths_races[6] = 0
-#        dialog.refresh()
 
         if dialog.exec_() == QDialog.Accepted:
             self.race = dialog.race
