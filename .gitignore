@@ -39,3 +39,6 @@ infoskjerm/templates/generated/
 # Temporary files
 *.tmp
 *.bak
+
+# Ikke PDF-filer
+*.pdf
