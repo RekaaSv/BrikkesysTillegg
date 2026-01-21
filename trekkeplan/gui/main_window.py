@@ -1045,7 +1045,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
 
     def open_help(self):
-        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_pdf_path))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_trekkeplan_pdf))
 
     # Override closeEvent.
     def closeEvent(self, event):

@@ -1,7 +1,8 @@
 import logging
 import webbrowser
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QDialog, QHBoxLayout, QFrame, \
     QLineEdit, QFormLayout, QApplication, QGroupBox
 
@@ -43,6 +44,10 @@ class DirekteMainWindow(QWidget):
         self.reset_btn = QPushButton("Tilbakestill parametere")
         self.reset_btn.setToolTip("Slett lagrede URL-innstillinger og bruk standardverdier fra konfig.")
         self.close_button = QPushButton("Avslutt")
+
+        self.help_button = QPushButton("Hjelp")
+        self.help_button.setFixedWidth(150)
+        self.help_button.clicked.connect(self.open_help)
 
         self.url_edit = QLineEdit()
         self.url_edit.setReadOnly(True)
@@ -196,6 +201,7 @@ class DirekteMainWindow(QWidget):
         # Plasser komponenter
         top_layout.addWidget(self.select_race_btn)
         top_layout.addWidget(self.reset_btn)
+        top_layout.addWidget(self.help_button)
         top_layout.addStretch()
         top_layout.addWidget(self.http_start_btn)
 
@@ -436,3 +442,6 @@ class DirekteMainWindow(QWidget):
         widget.setProperty("class", "error" if has_error else "")
         widget.style().unpolish(widget)
         widget.style().polish(widget)
+
+    def open_help(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_direkteresultater_pdf))

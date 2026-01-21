@@ -1,12 +1,12 @@
 import logging
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QTimer, QUrl
+from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox,
     QLineEdit,
     QProgressDialog, QApplication, QFrame, QSplitter
 )
-from PyQt5.QtCore import Qt, QTimer
 
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
@@ -50,6 +50,10 @@ class FakturaMainWindow(QWidget):
         self.new_bundle_btn = QPushButton("Ny ordrebunt")
         self.new_bundle_btn.setToolTip("Lag en ny ordrebunt.")
         self.new_bundle_btn.clicked.connect(self.create_bundle)
+
+        self.help_button = QPushButton("Hjelp")
+        self.help_button.setFixedWidth(150)
+        self.help_button.clicked.connect(self.open_help)
 
         self.close_button = QPushButton("Avslutt")
         self.close_button.clicked.connect(self.close)
@@ -140,6 +144,7 @@ class FakturaMainWindow(QWidget):
 
         top_layout.addWidget(self.reload_btn)
         top_layout.addWidget(self.new_bundle_btn)
+        top_layout.addWidget(self.help_button)
         top_layout.addStretch()
 
         splitter = QSplitter(Qt.Vertical)
@@ -628,3 +633,6 @@ class FakturaMainWindow(QWidget):
         size = self.size()
         logging.info(f"Fakturagrunnlag vinduet avsluttes med størrelse: {size.width()} x {size.height()}")
         super().closeEvent(event)
+
+    def open_help(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_fakturagrunnlag_pdf))
