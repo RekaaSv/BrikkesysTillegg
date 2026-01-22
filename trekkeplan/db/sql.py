@@ -556,6 +556,35 @@ WHERE id = %s
         logging.error(f"Uventet feil: {e}")
         raise
 
+def sql_club_list(conn_mgr, raceid):
+    logging.info("sql.sql_club_list, raceid: %s", raceid)
+    conn = conn_mgr.get_connection()
+    cursor = conn.cursor()
+    sql = """
+SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, concat("&nbsp;&nbsp;&nbsp;&nbsp;", substring(cast(n.starttime as char),12,8)) '&nbsp;&nbsp;&nbsp;Starttid'
+FROM names n
+JOIN classes cl on cl.id = n.classid
+LEFT JOIN svr_classstarts cls on cls.classid = n.classid
+LEFT JOIN svr_startblocklags sbl on sbl.id = cls.blocklagid
+LEFT JOIN svr_startblocks sb on sb.id = sbl.startblockid
+JOIN races r on r.id = cl.raceid
+WHERE r.id = %s
+  AND n.status not in ('V','X')
+ORDER BY n.club COLLATE utf8mb3_danish_ci, n.starttime is null, n.starttime, n.name COLLATE utf8mb3_danish_ci
+"""
+    try:
+        cursor.execute(sql, (raceid,))
+        return cursor.fetchall(), [desc[0] for desc in cursor.description]
+    except pymysql.Error as err:
+        logging.error(f"MySQL-feil: {err}")
+        raise
+    except Exception as e:
+        logging.error(f"Uventet feil: {e}")
+        raise
+
+
+
+
 def sql_start_list(conn_mgr, raceid, startlocation=None):
     logging.info("sql.sql_start_list, raceid: %s", raceid)
     conn = conn_mgr.get_connection()

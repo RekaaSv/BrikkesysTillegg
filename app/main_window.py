@@ -1,10 +1,11 @@
 import logging
 
 from PyQt5 import sip
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QIcon, QDesktopServices
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout
 
+from common.gui.about_dialog import AboutDialog
 from fakturagrunnlag.gui.main_window import FakturaMainWindow
 
 
@@ -27,6 +28,13 @@ class MainWindow(QMainWindow):
     def build_ui(self, layout):
         layout.setSpacing(20)
 
+        help_button = QPushButton("Hjelp")
+        help_button.clicked.connect(self.open_help)
+
+        about_button = QPushButton("Om BrikkesysTillegg")
+        about_button.clicked.connect(self.show_about_dialog)
+
+
         # Rekkefølge etter faktisk bruk
         btn_tp = QPushButton("Trekkeplan")
         btn_tp.clicked.connect(self.open_trekkeplan)
@@ -39,6 +47,12 @@ class MainWindow(QMainWindow):
 
         title = QLabel("Brikkesys tilleggsmoduler")
         title.setAlignment(Qt.AlignCenter)
+
+        help_about_layout = QHBoxLayout()
+
+        help_about_layout.addWidget(help_button)
+        help_about_layout.addWidget(about_button)
+        layout.addLayout(help_about_layout)
         layout.addWidget(title)
         layout.addStretch()
 
@@ -47,6 +61,14 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_fg)
 
         self.setLayout(layout)
+
+    def open_help(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self.ctx.help_pdf))
+
+    def show_about_dialog(self):
+        dialog = AboutDialog()
+#        dialog.setWindowIcon(QIcon(self.icon_path))
+        dialog.exec_()
 
     def open_fakturagrunnlag(self):
         # Hvis vinduet finnes og ikke er slettet → bruk det

@@ -13,7 +13,6 @@ from common.paths import lag_pdf
 from common.select_race_dialog import SelectRaceDialog, reload_race
 from trekkeplan.control import control
 from trekkeplan.control.errors import MyCustomError
-from trekkeplan.gui.about_dialog import AboutDialog
 from trekkeplan.gui.block_line_edit import BlockLineEdit
 from common.gui.common_table_item import CommonTableItem
 
@@ -180,14 +179,6 @@ class TrekkeplanMainWindow(QWidget):
         self.help_button.setFixedWidth(150)
         self.help_button.clicked.connect(self.open_help)
 
-        layout = QVBoxLayout()
-        self.about_button = QPushButton("Om Trekkeplan")
-        self.about_button.setFixedWidth(150)
-        self.about_button.clicked.connect(self.show_about_dialog)
-        layout.addWidget(self.about_button)
-        central = QWidget()
-        central.setLayout(layout)
-
         self.close_button = QPushButton("Avslutt")
         self.close_button.clicked.connect(self.close)
 
@@ -244,6 +235,10 @@ class TrekkeplanMainWindow(QWidget):
  #       self.starterListButton.setFixedWidth(150)
         self.starterListButton.setToolTip("Lag startliste pr. starttid.")
         self.starterListButton.clicked.connect(self.make_starterlist)
+
+        self.clubListButton = QPushButton("Klubb-liste")
+        self.clubListButton.setToolTip("Lag startliste pr. klubb.")
+        self.clubListButton.clicked.connect(self.make_clublist)
 
         self.btn_noof_in_cource = QPushButton("# pr løype")
 #        self.btn_noof_in_cource.setFixedWidth(150)
@@ -403,7 +398,6 @@ Første ord i båsnavnet representerer startsted navnet.
 
         top_layout.addWidget(self.race_button)
         top_layout.addWidget(self.help_button)
-        top_layout.addWidget(self.about_button)
         top_layout.addWidget(self.title_first_start)
         top_layout.addWidget(self.field_first_start)
         top_layout.addWidget(self.title_last_start)
@@ -412,9 +406,9 @@ Første ord i båsnavnet representerer startsted navnet.
         top_layout.addWidget(self.field_duration)
         top_layout.addWidget(self.title_utilization)
         top_layout.addWidget(self.field_utilization)
+        top_layout.addStretch()
         top_layout.addWidget(self.title_drawn)
         top_layout.addWidget(self.field_drawn)
-        top_layout.addStretch()
 
         column1_layout = QVBoxLayout()
 #        column2_layout = QVBoxLayout()
@@ -470,6 +464,7 @@ Første ord i båsnavnet representerer startsted navnet.
         bottom_layout.addWidget(self.cb_one_startlocation)
         bottom_layout.addWidget(self.startListButton)
         bottom_layout.addWidget(self.starterListButton)
+        bottom_layout.addWidget(self.clubListButton)
 
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.draw_start_times_button)
@@ -906,12 +901,6 @@ Første ord i båsnavnet representerer startsted navnet.
         logging.error("System error: return row_idx=None")
         return None
 
-    def show_about_dialog(self):
-        dialog = AboutDialog()
-        dialog.setWindowIcon(QIcon(self.ctx.icon_path))
-        dialog.exec_()
-
-
     def select_race(self: QWidget):
         logging.info("select_race")
         dialog = SelectRaceDialog(self.ctx, self, [6,])
@@ -989,6 +978,9 @@ Første ord i båsnavnet representerer startsted navnet.
         else:
             logging.debug("Brukeren avbrøt")
 
+    def make_clublist(self):
+        logging.info("make_clublist")
+        control.make_clublist(self, self.race_id)
 
     def make_startlist(self):
         logging.info("make_startlist")

@@ -122,6 +122,24 @@ def class_start_free_updated(parent, race_id, classstartid, blocklagid, new_valu
     parent.table_class_start.blockSignals(False)
     logging.debug("control.class_start_free_updated end")
 
+def make_clublist(parent, race_id):
+    logging.info("control.make_startlist")
+    rows, columns = sql.sql_club_list(parent.ctx.conn_mgr, race_id)
+    report_header_tail = "Klubb"
+    report_header = f"{parent.race['day']}  {parent.race['name']} - {report_header_tail}-tider"
+    css = HtmlBuilder.report_css(report_header)
+    css += """
+tbody.gruppe {
+    page-break-before: always;
+}
+    """
+    html = HtmlBuilder.grouped_rows_in_single_table(rows, columns, 3, report_header, css=css)
+    html = HtmlBuilder.build_report_html(css, html)
+    HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
+
+    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}-tider.pdf")
+
+
 def make_startlist(parent, race_id, startlocation):
     logging.info("control.make_startlist")
     rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id, startlocation)

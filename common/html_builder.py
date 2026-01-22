@@ -67,6 +67,8 @@ class HtmlBuilder:
             html += f"<tr{tr_class}>"
 
             for cell in row:
+                if cell is None:
+                    cell = "____"
                 if isinstance(cell, (Decimal, float, int)):
                     form = format_cell(cell)
                     html += f"<td class='num'>{form}</td>\n"
@@ -114,6 +116,8 @@ class HtmlBuilder:
         grupper = {}
         for row in rows:
             nøkkel = row[group_by_index]
+            if nøkkel is None:
+                nøkkel = "____"
             grupper.setdefault(nøkkel, []).append(row)
 
         # Generer grupper
@@ -124,6 +128,8 @@ class HtmlBuilder:
                 celler = []
                 for i in visningsindekser:
                     verdi = row[i]
+                    if verdi is None:
+                        verdi = "____"
                     if isinstance(verdi, (Decimal, float, int)):
                         form = format_cell(verdi)
                         celler.append(f"<td class='num'>{form}</td>")
