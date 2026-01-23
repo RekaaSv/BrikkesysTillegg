@@ -36,12 +36,17 @@ class ServerControl:
 
         # 2. Nå er vi trygge – porten kan parses
         import threading
-        from http.server import HTTPServer
+        from http.server import ThreadingHTTPServer
 
         port = int(self.parent.port_edit.text())
 
         from direkteresultater.server.http_server import InfoHandler
-        self.httpd = HTTPServer(("0.0.0.0", port), InfoHandler)
+        try:
+            self.httpd = ThreadingHTTPServer(("0.0.0.0", port), InfoHandler)
+        except Exception as e:
+            logging.error("Klarte ikke starte serveren")
+            logging.exception(e)
+
         self.httpd.server_control = self # for at httpd skal kunne finne server_control.
 
         self.httpd.timeout = 1

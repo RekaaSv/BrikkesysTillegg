@@ -9,9 +9,17 @@ from direkteresultater.db import sql
 
 
 class InfoHandler(BaseHTTPRequestHandler):
-    #        conn_mgr: ConnectionManager = None
+
+    # Override fordi default er logging til sys.stderr (som er None i exe)
+    def log_message(self, format, *args):
+        try:
+            logging.debug("%s - - %s" % (self.client_address[0], format % args))
+        except Exception as e:
+            logging.error("Feil i log_message")
+            logging.exception(e)
 
     def do_GET(self):
+        logging.info("do_GET")
         parsed = urlparse(self.path)
 
         server_control = self.server.server_control
@@ -37,7 +45,7 @@ class InfoHandler(BaseHTTPRequestHandler):
             step_px = int(params.get("px", [1])[0])
 
             pause = 2500 # min(max(20 / scroll, 1),8)*1000
-            logging.info(f"pause (ms) = {pause}")
+            logging.debug(f"pause (ms) = {pause}")
 
             rows, columns = sql.make_result(InfoHandler.conn_mgr, race, cl_from, cl_to)
             html = result_html_table(rows, columns, 1, "strong", 1)
@@ -47,6 +55,7 @@ class InfoHandler(BaseHTTPRequestHandler):
             else:
                 race_name = "Løp"
 
+            logging.debug("Starter bygging av full_html")
             full_html = f"""
 <!DOCTYPE html>
 <html lang="no">
@@ -141,27 +150,58 @@ window.onload = function() {{
 </body>
 </html>
 """
-            self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
-            self.end_headers()
+            try:
+                logging.debug("do_GET send_response(200)")
+#                logging.debug(f"self.connection = {self.connection}")
+#                logging.debug(f"self.rfile = {self.rfile}")
+#                logging.debug(f"self.wfile = {self.wfile}")
+#                logging.debug(f"client_address = {self.client_address}")
+#                logging.debug(f"server = {self.server}")
+                self.send_response(200)
+            except Exception as e:
+                logging.error("do_GET send_response(200)")
+                logging.exception(e)
+                return
+            try:
+                logging.debug("do_GET send_header")
+                self.send_header("Content-type", "text/html; charset=utf-8")
+            except Exception as e:
+                logging.error("do_GET send_header")
+                logging.exception(e)
+                return
+            try:
+                logging.debug("do_GET end_headers")
+                self.end_headers()
+            except Exception as e:
+                logging.error("do_GET end_headers")
+                logging.exception(e)
+                return
 
             try:
+                logging.debug("do_GET wfile.write(full_html...")
                 self.wfile.write(full_html.encode("utf-8"))
             except ConnectionAbortedError as e:
                 logging.error("Connection aborted by user.")
-                logging.error(e)
+                logging.exception(e)
                 return
             except BrokenPipeError as e:
                 # Samme type feil, annen variant
                 logging.error("Connection aborted by user.")
-                logging.error(e)
+                logging.exception(e)
+                return
+            except Exception as e:
+                logging.error("do_GET Ukjent feil.")
+                logging.exception(e)
                 return
 
+            logging.debug("do_GET return")
             return
 
+        logging.error("do_GET /results not found")
         self.send_error(404, "Not Found")
 
 def result_html_table(rows, columns, group_by_index: int, heading_tag="strong", border=1):
+    logging.info("result_html_table")
     grupper = {}
     visningsindekser = [2,3,4,5,6,7,8]
     html = f"<table border='{border}'>\n"

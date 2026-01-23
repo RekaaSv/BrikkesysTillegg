@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
 
         self.open_modules = []
         self.setWindowTitle("BrikkesysTillegg")
-        self.setMinimumSize(300, 150)
+        self.setMinimumSize(300, 300)
         self.setWindowIcon(QIcon(self.ctx.icon_path))
 
         central = QWidget()

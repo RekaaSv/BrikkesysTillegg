@@ -1,6 +1,7 @@
 import os
 import configparser
 import logging
+import sys
 
 from common.connection import ConnectionManager
 import common.sql
@@ -13,8 +14,8 @@ from common.registry import Registry
 class AppContext:
     def __init__(self):
         # Finn configfil
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.abspath(os.path.join(base_dir, "..", "brikkesystillegg.cfg"))
+        base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        config_path = os.path.join(base_dir, "brikkesystillegg.cfg")
 
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
