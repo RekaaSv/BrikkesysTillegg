@@ -2,7 +2,7 @@ import logging
 import csv
 import os
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtWidgets import QApplication
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Cm, Pt
@@ -14,7 +14,6 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
-from common.gui.utils import show_message
 from fakturagrunnlag.brreg import brreg
 from fakturagrunnlag.db import sql
 from fakturagrunnlag.eventor import eventor
@@ -141,14 +140,7 @@ def write_tripletex_excel(parent, rows, columns, full_path):
     try:
         wb.save(full_path)
     except PermissionError:
-        QMessageBox.warning(
-            parent,
-            "Feil ved lagring",
-            f"Kunne ikke lagre filen:\n{full_path}\n\n"
-            "Sannsynligvis er den allerede åpen i Excel.\n"
-            "Lukk filen og prøv igjen."
-        )
-
+        parent.msg.error(f"Kunne ikke lagre filen:\n{full_path}\nSannsynligvis er den allerede åpen i Excel.\nLukk filen og prøv igjen.")
 
 def get_download_path():
     return os.path.join(os.path.expanduser("~"), "Downloads")
@@ -345,15 +337,9 @@ def write_manual_invoice_word(parent, invoice_config, rows, columns, download_pa
         full_path = os.path.join(download_path, file_name)
 
         doc.save(full_path)
-        show_message("Ordre lastet ned til 'Downloads'-mappen.")
+        parent.msg.success("Ordre lastet ned til 'Downloads'-mappen.")
     except PermissionError:
-        QMessageBox.warning(
-            parent,
-            "Feil ved lagring",
-            f"Kunne ikke lagre filen:\n{full_path}\n\n"
-            "Sannsynligvis er den allerede åpen i Word.\n"
-            "Lukk filen og prøv igjen."
-        )
+        parent.msg.error(f"Kunne ikke lagre filen:\n{full_path}\nSannsynligvis er den allerede åpen i Word.\nLukk filen og prøv igjen.")
 
 """
 def set_col_width(cell, cm_value):
@@ -470,15 +456,9 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
 
     try:
         c.save()
-        show_message("Ordre lastet ned til 'Downloads'-mappen.")
+        parent.msg.success("Ordre lastet ned til 'Downloads'-mappen.")
     except PermissionError:
-        QMessageBox.warning(
-            parent,
-            "Feil ved lagring",
-            f"Kunne ikke lagre filen:\n{full_path}\n\n"
-            "Sannsynligvis er den allerede åpen.\n"
-            "Lukk filen og prøv igjen."
-        )
+        parent.msg.error(f"Kunne ikke lagre filen:\n{full_path}\nSannsynligvis er den allerede åpen.\nLukk filen og prøv igjen.")
 
 def make_amount_per_club(parent, bundle_id, order_no_base, customer_no_base):
     logging.info("control.make_amount_per_club")

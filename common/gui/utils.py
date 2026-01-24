@@ -3,14 +3,6 @@ import logging
 from PyQt5.QtWidgets import QMessageBox, QSizePolicy
 
 
-def show_message(tekst):
-    logging.info("show_message")
-    msg = QMessageBox()
-    msg.setIcon(QMessageBox.Warning)
-    msg.setWindowTitle("Info")
-    msg.setText(tekst)
-    msg.exec_()
-
 def populate_table(table, columns, rows, row_mapper, cell_postprocessor=None):
     logging.debug("populate_table")
 
@@ -76,3 +68,13 @@ def set_table_widths(table, col_sizes):
     table.resizeRowsToContents()
 #    adjust_table_hight(table, max_height)
     adjust_table_width(table)
+
+def ask_confirmation(self, message: str) -> bool:
+    reply = QMessageBox.question(
+        self,
+        "Bekreft handling",
+        message,
+        QMessageBox.Ok | QMessageBox.Cancel,
+        QMessageBox.Cancel
+    )
+    return reply == QMessageBox.Ok

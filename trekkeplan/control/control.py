@@ -1,13 +1,9 @@
 import datetime
 import logging
-import os
-
-from weasyprint import CSS
 
 from common.html_builder import HtmlBuilder
-from common.gui.utils import show_message, set_table_sizes
+from common.gui.utils import set_table_sizes
 from trekkeplan.db import sql
-from weasyprint import HTML
 
 def first_start_edited(parent, race_id, new_first_start_datetime):
     logging.info("control.first_start_edited")
@@ -137,7 +133,7 @@ tbody.gruppe {
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}-tider.pdf")
+    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
 
 
 def make_startlist(parent, race_id, startlocation):
@@ -151,7 +147,7 @@ def make_startlist(parent, race_id, startlocation):
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}-tider.pdf")
+    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
 
 
 def make_starterlist(parent, race_id, startlocation):
@@ -169,7 +165,7 @@ def make_starterlist(parent, race_id, startlocation):
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}.html")
 
-    HtmlBuilder.build_and_download_pdf(html, f"{report_header_tail}.pdf")
+    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}.pdf")
 
 
 def make_noof_in_cource(parent, race_id):
@@ -222,14 +218,14 @@ def draw_start_times(parent, race_id):
     parent.race['draw_time'] = now
     parent.set_draw_time_field()
 
-    show_message("Trekking foretatt, se Startliste!")
+    parent.msg.success("Trekking foretatt, se Startliste!")
 
 def clear_start_times(parent, race_id):
     sql.clear_start_times(parent.ctx.conn_mgr, race_id)
     sql.upd_draw_time(parent.ctx.conn_mgr, race_id, None)
     parent.race['draw_time'] = None
     parent.set_draw_time_field()
-    show_message("Starttider fjernet, se Startliste!")
+    parent.msg.success("Starttider fjernet, se Startliste!")
 
 def rebuild_class_starts(parent, race_id):
     sql.rebuild_class_starts(parent.ctx.conn_mgr, race_id)

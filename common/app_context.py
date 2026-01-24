@@ -13,6 +13,8 @@ from common.registry import Registry
 
 class AppContext:
     def __init__(self):
+        self.message_bar = None   # settes av hovedvinduet
+
         # Finn configfil
         base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
         config_path = os.path.join(base_dir, "brikkesystillegg.cfg")
@@ -51,4 +53,3 @@ class AppContext:
                 raise
 
         self.registry = Registry("Brikkesys", "BrikkesysTillegg")
-

@@ -2,7 +2,6 @@ import logging
 import socket
 import threading
 import time
-from PyQt5.QtWidgets import QMessageBox
 from common.gui.style import RED_BTN, GREEN_BTN
 
 
@@ -27,11 +26,7 @@ class ServerControl:
 
         # 1. Sjekk om GUI-feltene er gyldige
         if not self.parent.is_valid():
-            QMessageBox.warning(
-                self.parent,
-                "Feil",
-                "Kan ikke starte server: Ugyldige felter."
-            )
+            self.parent.msg.error("Kan ikke starte server: Ugyldige felter.")
             return
 
         # 2. Nå er vi trygge – porten kan parses

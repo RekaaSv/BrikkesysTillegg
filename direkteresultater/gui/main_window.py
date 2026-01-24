@@ -7,7 +7,9 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QDialog, 
     QLineEdit, QFormLayout, QApplication, QGroupBox
 
 from common.gui.common_table_item import CommonTableItem
+from common.gui.message_bar import MessageBar
 from common.gui.utils import populate_table
+from common.message_handler import MessageHandler
 from common.select_race_dialog import reload_race, SelectRaceDialog
 from direkteresultater.server.http_server import InfoHandler
 from direkteresultater.server.server_control import ServerControl
@@ -16,6 +18,11 @@ class DirekteMainWindow(QWidget):
     def __init__(self, ctx):
         super().__init__()
         self.ctx = ctx
+
+        self.message_bar = MessageBar()
+        self.msg = MessageHandler(self.message_bar)
+
+#        self.ctx.set_message_bar(self.message_bar)
 
         self.resize(850, 400)
         self.setWindowIcon(QIcon(self.ctx.icon_path))
@@ -195,6 +202,7 @@ class DirekteMainWindow(QWidget):
         main_layout.addLayout(top_layout)
         main_layout.addWidget(center_frame)
         main_layout.addWidget(bottom_frame)
+        main_layout.addWidget(self.message_bar)
 
 #        left_group_layout.addLayout(form_layout)
 

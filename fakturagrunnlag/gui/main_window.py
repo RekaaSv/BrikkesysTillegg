@@ -3,17 +3,19 @@ import logging
 from PyQt5.QtCore import Qt, QTimer, QUrl
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog, QMessageBox,
+    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QMenu, QAction, QPushButton, QLabel, QDialog,
     QLineEdit,
     QProgressDialog, QApplication, QFrame, QSplitter
 )
 
+from common.gui.message_bar import MessageBar
 from fakturagrunnlag.control import control
 from fakturagrunnlag.db import sql
-from common.gui.utils import show_message, populate_table, set_table_sizes, set_table_widths
+from common.gui.utils import populate_table, set_table_sizes, set_table_widths, ask_confirmation
 from fakturagrunnlag.gui.create_bundle_dialog import CreateBundleDialog
 from common.gui.common_table_item import CommonTableItem
 from common.select_race_dialog import SelectRaceDialog
+from common.message_handler import MessageHandler
 
 
 class FakturaMainWindow(QWidget):
@@ -30,6 +32,9 @@ class FakturaMainWindow(QWidget):
         self.setWindowTitle("Fakturagrunnlag")
         self.resize(1500, 750)
         self.setWindowIcon(QIcon(self.ctx.icon_path))
+
+        self.message_bar = MessageBar()
+        self.msg = MessageHandler(self.message_bar)
 
         self.selected_bundle_id = None
         self.selected_order_id = None
@@ -141,6 +146,7 @@ class FakturaMainWindow(QWidget):
         main_layout.addWidget(center_frame)
 #        main_layout.addLayout(center_layout)
         main_layout.addWidget(bottom_frame)
+        main_layout.addWidget(self.message_bar)
 
         top_layout.addWidget(self.reload_btn)
         top_layout.addWidget(self.new_bundle_btn)
@@ -257,10 +263,10 @@ class FakturaMainWindow(QWidget):
                     values["remark"],
                     values["currency"]
                 )
-                QMessageBox.information(self, "Ordrebunt", "Ordrebunt ble opprettet.")
+                self.msg.success("Ordrebunt ble opprettet.")
                 self.load_bundles()
             except Exception as e:
-                QMessageBox.critical(self, "Feil", f"Kunne ikke opprette ordrebunt:\n{e}")
+                self.msg.error(f"Kunne ikke opprette ordrebunt:\n{e}")
                 raise
 
     def add_race_to_bundle(self):
@@ -273,22 +279,22 @@ class FakturaMainWindow(QWidget):
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.race["id"]
             if not raceid:
-                QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
+                self.msg.warning("Du må velge et løp.")
                 return
             if dlg.race["bundle_id"] != None:
-                QMessageBox.warning(self, "Løp allerede valgt", f"Løp {raceid} er allerede med i bunt {str(dlg.race['bundle_id'])}")
+                self.msg.warning(f"Løp {raceid} er allerede med i bunt {str(dlg.race['bundle_id'])}")
                 return
 
             # 3. Utfør legg-løp-til-bunten.
             try:
                 count_orders, count_lines = control.add_race_to_bundle(self, bundle_id, raceid)
 
-                show_message(f"Løp {raceid} lagt til bunt {bundle_id} med {count_orders} nye ordrer og {count_lines} nye ordrelinjer")
+                self.msg.success(f"Løp {raceid} lagt til bunt {bundle_id} med {count_orders} nye ordrer og {count_lines} nye ordrelinjer")
 
                 self.load_bundles()
                 self.select_bundle_by_id(bundle_id)
             except Exception as e:
-                QMessageBox.critical(self, "Feil", f"Klarte ikke legge til løp:\n{e}")
+                self.msg.error(f"Klarte ikke legge til løp:\n{e}")
                 raise
 
     def select_bundle_by_id(self, bundle_id):
@@ -311,24 +317,23 @@ class FakturaMainWindow(QWidget):
         if dlg.exec_() == QDialog.Accepted:
             raceid = dlg.race["id"]
             if not raceid:
-                QMessageBox.warning(self, "Ingen løp valgt", "Du må velge et løp.")
+                self.msg.warning("Du må velge et løp.")
                 return
 
             if dlg.race["bundle_id"] != int(bundle_id):
-                QMessageBox.warning(self, "Feil løp valgt",
-                                    f"Løp {raceid} er ikke med i bunt {bundle_id}")
+                self.msg.warning(f"Løp {raceid} er ikke med i bunt {bundle_id}")
                 return
 
             # 3. Utfør fjern-løp-fra-bunten.
             try:
                 count_orders, count_lines = control.remove_race_from_bundle(self, bundle_id, raceid)
-                show_message(f"Løp {raceid} fjernet fra bunt {bundle_id}. {count_orders} ordrer fjernet, {count_lines} ordrelinjer fjernet")
+                self.msg.success(f"Løp {raceid} fjernet fra bunt {bundle_id}. {count_orders} ordrer fjernet, {count_lines} ordrelinjer fjernet")
 
                 self.load_bundles()
                 self.select_bundle_by_id(bundle_id)
 
             except Exception as e:
-                QMessageBox.critical(self, "Feil", f"Klarte ikke fjerne løp:\n{e}")
+                self.msg.error(f"Klarte ikke fjerne løp:\n{e}")
                 raise
 
 
@@ -338,15 +343,7 @@ class FakturaMainWindow(QWidget):
         if bundle_id is None:
             return
 
-        reply = QMessageBox.question(
-            self,
-            "Bekreft sletting",
-            f"Er du sikker på at du vil slette bunt {bundle_id}?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-
-        if reply == QMessageBox.Yes:
+        if ask_confirmation(self, f"Er du sikker på at du vil slette bunt {bundle_id}?"):
             control.delete_bundle(self, bundle_id)
         else:
             # Avbryt
@@ -379,13 +376,13 @@ class FakturaMainWindow(QWidget):
                 no_of_orgnr = control.add_org_no(self, bundle_id, progress)
             except ValueError as ve:
                 progress.close()
-                show_message(str(ve))
+                self.msg.error(str(ve))
             except Exception as e:
                 progress.close()
-                show_message(str(e))
+                self.msg.error(str(e))
             else:
                 progress.close()
-                show_message("Antall org.nr importert: " + str(no_of_orgnr))
+                self.msg.info("Antall org.nr importert: " + str(no_of_orgnr))
 
         confirm_btn.clicked.connect(start_org_import)
         dlg.exec_()
@@ -396,20 +393,20 @@ class FakturaMainWindow(QWidget):
         if bundle_id is None:
             return
         noof_rows = control.export_tripletex_csv(self, bundle_id)
-        show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
 
     def export_bundle_excel(self):
         bundle_id = self.get_selected_bundle_id()
         if bundle_id is None:
             return
         noof_rows = control.export_tripletex_excel(self, bundle_id)
-        show_message(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
 
     def dont_export_on_off(self):
         logging.info("dont_export_on_off")
         selected_model_rows = self.order_table.selectionModel().selectedRows()
         if not selected_model_rows:
-            show_message("Du må velge minst en rad!")
+            self.msg.warning("Du må velge minst en rad!")
             return
         for index in selected_model_rows:
             row_ix = index.row()
@@ -517,7 +514,7 @@ class FakturaMainWindow(QWidget):
         def start_import():
             new_key = api_input.text().strip()
             if not new_key:
-                show_message("Du må angi Eventor sin API-key. Prøv igjen!")
+                self.msg.warning("Du må angi Eventor sin API-key. Prøv igjen!")
                 return
             dlg.accept()
 
@@ -533,17 +530,17 @@ class FakturaMainWindow(QWidget):
                 no_of_clubs = control.import_eventor_clubs(self, new_key, progress)
             except ValueError as ve:
                 progress.close()
-                show_message(str(ve))
+                self.msg.error(str(ve))
             except Exception as e:
                 progress.close()
-                show_message(str(e))
+                self.msg.error(str(e))
             else:
                 if new_key != self.eventor_apikey:
                     self.eventor_apikey = new_key
                     self.put_apikey_in_registry(self.eventor_apikey)
 
                 progress.close()
-                show_message("Antall klubber importert: " + str(no_of_clubs))
+                self.msg.success("Antall klubber importert: " + str(no_of_clubs))
 
         confirm_btn.clicked.connect(start_import)
         dlg.exec_()
@@ -551,23 +548,23 @@ class FakturaMainWindow(QWidget):
     def get_selected_bundle_id(self):
         selected = self.bundle_table.selectionModel().selectedRows()
         if not selected:
-            QMessageBox.warning(self, "Ingen bunt valgt", "Velg en bunt først.")
+            self.msg.warning("Velg en bunt først.")
             return
         index = selected[0]  # antar én valgt rad, celle 0.
         bundle_id = self.bundle_table.model().data(index)
         if not bundle_id:
-            QMessageBox.warning(self, "Ugyldig valg", "Klarte ikke hente bunt-ID.")
+            self.msg.warning("Klarte ikke hente bunt-ID.")
         return bundle_id
 
     def get_selected_order_id(self):
         selected = self.order_table.selectionModel().selectedRows()
         if not selected:
-            QMessageBox.warning(self, "Ingen ordre valgt", "Velg en ordre først.")
+            self.msg.warning("Velg en ordre først.")
             return
         index = selected[0]  # antar én valgt rad
         order_id = self.order_table.model().data(index)
         if not order_id:
-            QMessageBox.warning(self, "Ugyldig valg", "Klarte ikke hente ordrenr.")
+            self.msg.warning("Klarte ikke hente ordrenr.")
         return order_id
 
     def adjust_table_width(self, table, extra_margin=2):

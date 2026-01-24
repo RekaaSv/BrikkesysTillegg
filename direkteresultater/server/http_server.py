@@ -4,7 +4,6 @@ from decimal import Decimal
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
-from common.gui.utils import show_message
 from direkteresultater.db import sql
 
 

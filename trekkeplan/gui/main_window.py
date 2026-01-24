@@ -2,13 +2,15 @@ import datetime
 import logging
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QTableWidget, \
-    QTimeEdit, QMenu, QAction, QMessageBox, QLineEdit, QDialog, QFrame, \
+    QTimeEdit, QMenu, QAction, QLineEdit, QDialog, QFrame, \
     QApplication, QShortcut, QCheckBox, QDateTimeEdit
 from PyQt5.QtCore import Qt, QTime, QUrl, QDateTime, QDate
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices, QKeySequence, QFont
 
+from common.gui.message_bar import MessageBar
 from common.gui.name_dialog import NameDialog
-from common.gui.utils import show_message, populate_table
+from common.gui.utils import populate_table, ask_confirmation
+from common.message_handler import MessageHandler
 from common.paths import lag_pdf
 from common.select_race_dialog import SelectRaceDialog, reload_race
 from trekkeplan.control import control
@@ -49,6 +51,8 @@ class TrekkeplanMainWindow(QWidget):
 
         self.setWindowIcon(QIcon(self.ctx.icon_path))
 
+        self.message_bar = MessageBar()
+        self.msg = MessageHandler(self.message_bar)
 
         self.col_widths_not_planned = [0, 120, 50, 100, 60]
         self.col_widths_block_lag = [0, 0, 100, 50, 50, 70, 70]
@@ -395,6 +399,7 @@ Første ord i båsnavnet representerer startsted navnet.
         main_layout.addLayout(top_layout)
         main_layout.addWidget(center_frame)
         main_layout.addWidget(bottom_frame)
+        main_layout.addWidget(self.message_bar)
 
         top_layout.addWidget(self.race_button)
         top_layout.addWidget(self.help_button)
@@ -520,7 +525,7 @@ Første ord i båsnavnet representerer startsted navnet.
             self.field_first_start.blockSignals(True)
             self.set_first_start_field()
             self.field_first_start.blockSignals(False)
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         # Update first start-time, then rebuild redundant in class_starts, and reread.
@@ -596,7 +601,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
         returned = control.delete_blocklag(self, self.race_id, blocklagid, blockid)
         if returned:
-            show_message(returned)
+            self.msg.warning(returned)
         else:
             self.after_plan_changed(None)
 
@@ -620,12 +625,12 @@ Første ord i båsnavnet representerer startsted navnet.
     def delete_class_start_row(self):
         logging.info("delete_class_start_row")
         if self.is_plan_locked():
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
-            show_message("Du må velge klassen som skal fjernes fra planen!")
+            self.msg.warning("Du må velge klassen som skal fjernes fra planen!")
             return
         row_id = selected[0].row()
 
@@ -730,7 +735,7 @@ Første ord i båsnavnet representerer startsted navnet.
     def delete_class_start_block_lag(self):
         logging.info("delete_class_start_block_lag")
         if self.is_plan_locked():
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         selected = self.table_class_start.selectionModel().selectedRows()
@@ -754,7 +759,7 @@ Første ord i båsnavnet representerer startsted navnet.
     def delete_class_start_all(self):
         logging.info("delete_class_start_all")
         if self.is_plan_locked():
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         control.delete_class_start_all(self, self.race_id)
@@ -786,12 +791,12 @@ Første ord i båsnavnet representerer startsted navnet.
     def class_start_down_up(self, step):
         logging.info("class_start_down_up")
         if self.is_plan_locked():
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         selected = self.table_class_start.selectionModel().selectedRows()
         if not selected:
-            show_message("Du må velge klassen som skal flyttes et hakk!")
+            self.msg.warning("Du må velge klassen som skal flyttes et hakk!")
             return
         row_id = selected[0].row()
 
@@ -815,7 +820,7 @@ Første ord i båsnavnet representerer startsted navnet.
     def add_block_lag(self):
         logging.info("add_block_lag")
         if self.race_id == 0:
-            show_message("Må velge et løp først!")
+            self.msg.warning("Må velge et løp først!")
             return
         model_indexes = self.table_block_lag.selectionModel().selectedRows()
         if model_indexes:
@@ -826,11 +831,11 @@ Første ord i båsnavnet representerer startsted navnet.
             try:
                 control.add_lag(self, blockid, lag, gap)
             except MyCustomError as e:
-                show_message(e.message)
+                self.msg.error(e.message)
         else:
             block = self.field_block.text()
             if not block:
-                show_message("Du må fylle inn navnet på båsen, \neller velge en rad fra tabellen under!")
+                self.msg.warning("Du må fylle inn navnet på båsen, eller velge en rad fra tabellen under!")
                 return
             lag = self.field_lag.text()
             if not lag: lag = 0
@@ -839,7 +844,7 @@ Første ord i båsnavnet representerer startsted navnet.
             try:
                 control.add_block_lag(self, self.race_id, block, lag, gap)
             except MyCustomError as e:
-                show_message(e.message)
+                self.msg.error(e.message)
 
         self.after_plan_changed(None)
 
@@ -847,20 +852,20 @@ Første ord i båsnavnet representerer startsted navnet.
     def move_class_to_plan(self):
         logging.info("move_class_to_plan")
         if self.is_plan_locked():
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
         selected_model_rows = self.table_not_planned.selectionModel().selectedRows()
         if not selected_model_rows:
-            show_message("Du må velge ei klasse å flytte til Trekkeplanen!")
+            self.msg.warning("Du må velge ei klasse å flytte til Trekkeplanen!")
             return
         elif (selected_model_rows.__len__() > 9):
-            show_message("Du kan ikke flytte flere enn 9 klasser til Trekkeplanen i en runde!")
+            self.msg.warning("Du kan ikke flytte flere enn 9 klasser til Trekkeplanen i en runde!")
             return
 
         # Bås/slep
         block_lag_rows = self.table_block_lag.selectionModel().selectedRows()
         if not block_lag_rows:
-            show_message("Du må velge et bås/tidsslep å flytte til!")
+            self.msg.warning("Du må velge et bås/tidsslep å flytte til!")
             return
 
         # Hvilken bås/slep skal klassen inn i?
@@ -940,7 +945,7 @@ Første ord i båsnavnet representerer startsted navnet.
             self.table_class_start.blockSignals(True)
             item.setText(str(original))
             self.table_class_start.blockSignals(False)
-            show_message("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
+            self.msg.warning("Starttider er trukket. Kun bytting av tider innenfor klassen er lov, eller fjern starttider.")
             return
 
         self.table_class_start.blockSignals(True)
@@ -962,7 +967,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def draw_start_times(self):
         logging.info("draw_start_times")
-        if self.ask_confirmation("Trekk starttider for klassene i planen?"):
+        if ask_confirmation(self, "Trekk starttider for klassene i planen?"):
             control.draw_start_times(self, self.race_id)
             self.set_draw_time_field()
         else:
@@ -972,7 +977,7 @@ Første ord i båsnavnet representerer startsted navnet.
     def clear_start_times(self):
         logging.info("clear_start_times")
 
-        if self.ask_confirmation("Slette alle starttider?"):
+        if ask_confirmation(self, "Slette alle starttider?"):
             control.clear_start_times(self, self.race_id)
             self.set_draw_time_field()
         else:
@@ -1098,16 +1103,6 @@ Første ord i båsnavnet representerer startsted navnet.
         # Når bruker entrer Bås-feltet, så deselekterer vi valgt rad.
         # Hvis ikke så er det båsen i valgt rad som gjelder når man trykker +.
         self.table_block_lag.clearSelection()
-
-    def ask_confirmation(self, message: str) -> bool:
-        reply = QMessageBox.question(
-            self,
-            "Bekreft handling",
-            message,
-            QMessageBox.Ok | QMessageBox.Cancel,
-            QMessageBox.Cancel
-        )
-        return reply == QMessageBox.Ok
 
     def is_plan_locked(self):
         draw_time = self.race['draw_time']

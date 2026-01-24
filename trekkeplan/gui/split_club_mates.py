@@ -5,7 +5,9 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QDialog, QTableWidget, QHBoxLayout, QMenu, QAction, QLabel, QPushButton, \
     QVBoxLayout
 
-from common.gui.utils import show_message, set_table_sizes
+from common.gui.message_bar import MessageBar
+from common.gui.utils import set_table_sizes
+from common.message_handler import MessageHandler
 from trekkeplan.db import sql
 
 
@@ -16,6 +18,10 @@ class SplitClubMates(QDialog):
         self.ctx = ctx
         self.parent = parent
         self.setWindowTitle("Splitt klubbkamerater")
+
+        self.message_bar = MessageBar()
+        self.msg = MessageHandler(self.message_bar)
+
 #        parent.resize(1000, 700)
         self.resize(1287, 707)
 
@@ -91,6 +97,7 @@ class SplitClubMates(QDialog):
         # Sett sammen
         layout_main.addLayout(layout_center)
         layout_main.addLayout(layout_bottom)
+        layout_main.addWidget(self.message_bar)
         self.setLayout(layout_main)
 
         self.table_club_mates.setColumnHidden(0, True)
@@ -226,7 +233,7 @@ class SplitClubMates(QDialog):
         model_indexes = self.table_class_startlist.selectionModel().selectedRows()
 
         if len(model_indexes) != 2:
-            show_message("Du må velge de to løperne som skal bytte starttider!")
+            self.msg.warning("Du må velge de to løperne som skal bytte starttider!")
             return
         inx1 = model_indexes[0].row()
         inx2 = model_indexes[1].row()
@@ -243,12 +250,12 @@ class SplitClubMates(QDialog):
     def draw_start_times_class(self):
         logging.info("draw_start_times_class")
         if (self.parent.race['draw_time'] is not None) & (self.parent.race['drawplan_changed'] > self.parent.race['draw_time']):
-            show_message("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre tabell.")
+            self.msg.warning("Trekkeplanen er endret etter siste trekking. Da kan du ikke trekke klassen om igjen. Du må enten gjøre hovedtrekkingen på nytt, eller bruke metoden med bytting av starttider i høyre tabell.")
             return
 
         model_indexes = self.table_club_mates.selectionModel().selectedRows()
         if len(model_indexes) != 1:
-            show_message("Du må velge en rad å omtrekke starttider for!")
+            self.msg.warning("Du må velge en rad å omtrekke starttider for!")
             return
         inx = model_indexes[0].row()
         class_id = self.table_club_mates.item(inx, 2).text()
