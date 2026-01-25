@@ -40,6 +40,7 @@ infoskjerm/templates/generated/
 *.tmp
 *.bak
 *.spec
+*.zip
 
 # Ikke PDF-filer
 *.pdf
