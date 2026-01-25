@@ -66,7 +66,7 @@ def apply_global_style(app):
             background-color: rgb(255, 250, 205);  /* svak gul */
         }
         QLineEdit[readOnly="true"] {
-            background-color: #eee;
+            background-color: rgb(170, 200, 230);
             color: #222;
             font-family: Consolas, monospace;
         }

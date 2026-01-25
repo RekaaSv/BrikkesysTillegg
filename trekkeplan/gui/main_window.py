@@ -10,7 +10,7 @@ from PyQt5.QtGui import QPalette, QColor, QIntValidator, QIcon, QDesktopServices
 from common.gui.message_bar import MessageBar
 from common.gui.name_dialog import NameDialog
 from common.gui.utils import populate_table, ask_confirmation
-from common.message_handler import MessageHandler
+from common.message_handler import MessageHandler, MESSAGE_INFO_BG
 from common.paths import lag_pdf
 from common.select_race_dialog import SelectRaceDialog, reload_race
 from trekkeplan.control import control
@@ -79,8 +79,8 @@ class TrekkeplanMainWindow(QWidget):
         self.field_first_start.setButtonSymbols(QTimeEdit.NoButtons)  # Skjuler opp/ned-piler
         self.field_first_start.setStyleSheet(style_sheet_time)
 
-        style_sheet_time_ro = """
-            background-color: rgb(255, 200, 200);
+        style_sheet_time_ro = f"""
+            background-color: {MESSAGE_INFO_BG};
             border: 1px solid #aaa;
             padding: 2px;
             border-radius: 3px;
@@ -251,7 +251,7 @@ class TrekkeplanMainWindow(QWidget):
 
         self.btn_noof_in_control1 = QPushButton("# pr post1")
 #        self.btn_noof_in_control1.setFixedWidth(150)
-        self.btn_noof_in_control1.setToolTip("Antall løpere pr løype.")
+        self.btn_noof_in_control1.setToolTip("Antall løpere pr post 1.")
         self.btn_noof_in_control1.clicked.connect(self.make_noof_in_control1)
 
         self.btn_same_time_cource = QPushButton("Samtidige løype")
