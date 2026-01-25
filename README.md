@@ -5,6 +5,9 @@ Utvidelse av Brikkesys funksjonalitet. Eget program som består av disse modulen
 - Direkteresultater. Rullende resultater på skjerm, uten nettverk.
 - Fakturagrunnlag. Integrasjon med regnskapssystem
 
+NB: Forutsetter at Brikkesys sin MySQL database er oppgradert til minst versjon 8.0, ref: 
+https://brikkesys.no/usermanual/installasjon/mysql80
+
 ## Utvikler/Support: 
 Sveinung Rekaa, 906 53 811, sveinung@rekaa.name
 
