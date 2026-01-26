@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
-from app import __version_trekkeplan__, __version_direkteresultater__, __version_fakturagrunnlag__
+from app import __version__
 
 
 class AboutDialog(QDialog):
@@ -23,11 +23,11 @@ class AboutDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("BrikkesysTillegg"))
-        layout.addWidget(QLabel(f"\tTrekkeplan      \tVersjon: {__version_trekkeplan__}"))
-        layout.addWidget(QLabel(f"\tDirekteresultater\tVersjon: {__version_direkteresultater__}"))
-        layout.addWidget(QLabel(f"\tFakturagrunnlag \tVersjon: {__version_fakturagrunnlag__}"))
-        layout.addWidget(QLabel("Utviklet av Brikkesys/SvR"))
+#        layout.addWidget(QLabel("BrikkesysTillegg"))
+        layout.addWidget(QLabel(f"Versjon: {__version__}"))
+        layout.addWidget(QLabel("Kildekode og oppdateringer:"))
+        layout.addWidget(QLabel("https://github.com/RekaaSv/BrikkesysTillegg"))
+
         close_btn = QPushButton("Lukk")
         close_btn.clicked.connect(self.close)
         layout.addWidget(close_btn)

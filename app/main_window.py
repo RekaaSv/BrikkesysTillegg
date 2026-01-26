@@ -3,11 +3,11 @@ import logging
 from PyQt5 import sip
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QMessageBox
 
 from common.gui.about_dialog import AboutDialog
 from fakturagrunnlag.gui.main_window import FakturaMainWindow
-
+from app import __version__
 
 class MainWindow(QMainWindow):
     def __init__(self, ctx):
@@ -67,7 +67,6 @@ class MainWindow(QMainWindow):
 
     def show_about_dialog(self):
         dialog = AboutDialog()
-#        dialog.setWindowIcon(QIcon(self.icon_path))
         dialog.exec_()
 
     def open_fakturagrunnlag(self):
@@ -146,3 +145,17 @@ class MainWindow(QMainWindow):
             logging.info(f"Hovedvinduet avsluttes med størrelse: {size.width()} x {size.height()}")
             self.close()
 
+    def show_update_dialog(parent, latest_version, download_url):
+        msg = QMessageBox(parent)
+        msg.setWindowTitle("Oppdatering tilgjengelig")
+        msg.setText(f"En ny versjon ({latest_version}) er tilgjengelig.")
+        msg.setInformativeText("Vil du åpne nedlastingssiden?")
+        msg.setIcon(QMessageBox.Information)
+
+        open_button = msg.addButton("Last ned", QMessageBox.AcceptRole)
+        msg.addButton("Lukk", QMessageBox.RejectRole)
+
+        msg.exec_()
+
+        if msg.clickedButton() == open_button:
+            QDesktopServices.openUrl(QUrl(download_url))
