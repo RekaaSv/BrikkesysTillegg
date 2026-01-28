@@ -32,8 +32,6 @@ pyinstaller ^
 Installasjonen bygger en spec fil i rotkatalogen.
 Etter at .spec-filene er generert, kan du bygge med den:
 
-python -m PyInstaller brikkesystillegg.spec
-eller
 pyinstaller brikkesystillegg.spec
 
 Opprydding etter bygging

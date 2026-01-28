@@ -5,9 +5,9 @@ from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QMessageBox
 
+from app.update_downloader import download_and_start_update
 from common.gui.about_dialog import AboutDialog
 from fakturagrunnlag.gui.main_window import FakturaMainWindow
-from app import __version__
 
 class MainWindow(QMainWindow):
     def __init__(self, ctx):
@@ -145,17 +145,22 @@ class MainWindow(QMainWindow):
             logging.info(f"Hovedvinduet avsluttes med størrelse: {size.width()} x {size.height()}")
             self.close()
 
-    def show_update_dialog(parent, latest_version, download_url):
-        msg = QMessageBox(parent)
+    def show_update_dialog(self, latest_version, download_url):
+        msg = QMessageBox(self)
         msg.setWindowTitle("Oppdatering tilgjengelig")
         msg.setText(f"En ny versjon ({latest_version}) er tilgjengelig.")
-        msg.setInformativeText("Vil du åpne nedlastingssiden?")
+        info_text = """
+Vil du laste ned og installere oppdateringen automatisk?\n"
+"NB: En bat-fil sluttfører oppdateringen.
+"""
+        msg.setInformativeText(info_text)
         msg.setIcon(QMessageBox.Information)
 
-        open_button = msg.addButton("Last ned", QMessageBox.AcceptRole)
-        msg.addButton("Lukk", QMessageBox.RejectRole)
+        update_button = msg.addButton("Oppdater nå", QMessageBox.AcceptRole)
+        msg.addButton("Senere", QMessageBox.RejectRole)
 
         msg.exec_()
 
-        if msg.clickedButton() == open_button:
-            QDesktopServices.openUrl(QUrl(download_url))
+        if msg.clickedButton() == update_button:
+#            from update_downloader import download_and_start_update
+            download_and_start_update(download_url)

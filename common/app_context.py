@@ -23,11 +23,17 @@ class AppContext:
         self.config.read(config_path)
 
         install_global_exception_hook()
-        setup_logging()
 
         # Lagre config-seksjoner
         self.db_config = self.config["mysql"]
         self.log_config = self.config["logging"]
+
+        setup_logging(
+            log_file=self.log_config.get("file", "BrikkesysTillegg.log"),
+            level=self.log_config.get("level", "INFO"),
+            max_bytes=self.log_config.getint("max_bytes", 500_000),
+            backup_count=self.log_config.getint("backup_count", 5)
+        )
 
         # Ressurser
         self.icon_path = resource_path("reshot-icon-running-JUSXPBMDTN.ico")
