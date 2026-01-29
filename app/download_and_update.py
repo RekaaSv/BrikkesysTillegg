@@ -122,10 +122,11 @@ def run_update_bat(app_dir: Path, ctx):
     log_file = ctx.log_config.get("file", "BrikkesysTillegg.log")
     logging.debug(f"log_file: {log_file}")
 
+    # Start update.bat som gjør exe -> exe.bak, exe.new -> exe
+    # Logger til samme fil (får loggfil som parameter)
     subprocess.Popen(
-      f'start "" "{bat_dst}"',
-        cwd=str(app_dir),
-        shell=True
+        ["cmd", "/c", "start", "", bat_dst, log_file],
+        cwd=str(app_dir)
     )
 
     time.sleep(0.2)

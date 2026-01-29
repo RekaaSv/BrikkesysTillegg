@@ -11,7 +11,7 @@ class UpdatingDialog(QDialog):
         layout = QVBoxLayout()
         layout.addWidget(QLabel(
             "Oppdateringen pågår...\n"
-            "Vennligst vent til den avsluttende bat-filen er ferdig.\n"
+            "Vent til dette vinduet stenger.\n"
             "Da kan du starte BrikkesysTillegg igjen."
         ))
         self.setLayout(layout)

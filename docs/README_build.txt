@@ -34,6 +34,8 @@ Installasjonen bygger en spec fil i rotkatalogen.
 Etter at .spec-filene er generert, kan du bygge med den:
 
 pyinstaller brikkesystillegg.spec
+eller
+pyinstaller --clean BrikkesysTillegg.spec
 
 Opprydding etter bygging
 -------------------------
@@ -57,6 +59,15 @@ brikkesystillegg.zip
 
 Laste ZIP-fil opp til ny release på GitHub.
 -------------------------------------------
+
+
+GitHub
+======
+Ny versjon:
+git tag v1.1.0
+git push --tags
+
+
 
 
 Sist oppdatert: 25.01.2026
