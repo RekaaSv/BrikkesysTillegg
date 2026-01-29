@@ -26,6 +26,7 @@ pyinstaller ^
   --add-data "hjelp_trekkeplan.pdf;." ^
   --add-data "hjelp_direkteresultater.pdf;." ^
   --add-data "hjelp_fakturagrunnlag.pdf;." ^
+  --add-data "update.bat;." ^
   main.py
 
 

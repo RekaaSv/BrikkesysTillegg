@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from PyQt5 import sip
 from PyQt5.QtCore import Qt, QUrl
@@ -6,7 +7,7 @@ from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QMessageBox, \
     QApplication
 
-from app.update_downloader import download_and_start_update
+from app.download_and_update import download_and_update, UpdateWorker
 from app.updating_dialog import UpdatingDialog
 from common.gui.about_dialog import AboutDialog
 from fakturagrunnlag.gui.main_window import FakturaMainWindow
@@ -161,13 +162,21 @@ class MainWindow(QMainWindow):
         msg.exec_()
 
         if msg.clickedButton() == update_button:
-            # 1. Vis modal "Oppdaterer..."-dialog
-            updating = UpdatingDialog(self)
-            updating.show()
-            QApplication.processEvents()  # tving GUI til å oppdatere
-            updating.repaint()
+            self.updating = UpdatingDialog(self)
+            self.updating.show()
 
-            # 2. Kjør oppdateringen
-            download_and_start_update(download_url)
+            self.worker = UpdateWorker(download_url, self.ctx)
+            self.worker.finished.connect(self.update_finished)
+            self.worker.start()
 
-            # 3. (Programmet avslutter seg selv i download_and_start_update)
+    def update_finished(self):
+        logging.warning("update_finished")
+        # 1. Lukk dialogen
+        if hasattr(self, "updating") and self.updating:
+            self.updating.close()
+
+        # 2. Lukk hovedvinduet
+        self.close()
+
+        # 3. Avslutt Qt-eventloop
+        QApplication.quit()

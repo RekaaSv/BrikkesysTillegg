@@ -41,6 +41,7 @@ class AppContext:
         self.help_trekkeplan_pdf = resource_path("hjelp_trekkeplan.pdf")
         self.help_fakturagrunnlag_pdf = resource_path("hjelp_fakturagrunnlag.pdf")
         self.help_direkteresultater_pdf = resource_path("hjelp_direkteresultater.pdf")
+        self.update_bat = resource_path("update.bat")
 
         # Database
         self.conn_mgr = ConnectionManager(self.db_config)

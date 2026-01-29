@@ -1,17 +1,37 @@
 @echo off
-pause
-echo Oppdatering av BrikkesysTillegg...
+set LOGFILE=%1
 
-REM Vent litt for å sikre at EXE-en er lukket
-timeout /t 2 >nul
+echo %date% %time% [UPDATE.BAT] Oppdatering starter >> "%LOGFILE%"
+echo %date% %time% Oppdatering starter
 
-pause
-REM Sikkerhetskopier gammel versjon
-del brikkesystillegg.exe.bak
-rename brikkesystillegg.exe brikkesystillegg.exe.bak
+REM echo Innhold i %cd%:
+REM dir
 
-REM Bytt inn ny versjon
-rename brikkesystillegg.exe.new brikkesystillegg.exe
+REM 1: Slett gammel .bak
+echo %date% %time% [UPDATE.BAT] Sletter gammel .bak hvis den finnes >> "%LOGFILE%"
 
-echo Oppdateringen er fullført.
-pause
+:delete_bak
+if exist "brikkesystillegg.exe.bak" (
+    del /f /q "brikkesystillegg.exe.bak"
+    if exist "brikkesystillegg.exe.bak" (
+        timeout /t 1 >nul
+        goto delete_bak
+    )
+)
+
+REM 2: Vent til EXE er frigitt
+echo %date% %time% [UPDATE.BAT] Gammel exe til exe.bak >> "%LOGFILE%"
+
+:wait_exe
+rename "brikkesystillegg.exe" "brikkesystillegg.exe.bak"
+if errorlevel 1 (
+    timeout /t 1 >nul
+    goto wait_exe
+)
+
+REM 3: Bytt inn ny EXE
+echo %date% %time% [UPDATE.BAT] Bytt inn ny EXE >> "%LOGFILE%"
+rename "brikkesystillegg.exe.new" "brikkesystillegg.exe"
+
+echo %date% %time% [UPDATE.BAT] Oppdatering fullført! >> "%LOGFILE%"
+exit
