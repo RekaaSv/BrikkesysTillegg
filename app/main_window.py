@@ -3,9 +3,11 @@ import logging
 from PyQt5 import sip
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QMessageBox, \
+    QApplication
 
 from app.update_downloader import download_and_start_update
+from app.updating_dialog import UpdatingDialog
 from common.gui.about_dialog import AboutDialog
 from fakturagrunnlag.gui.main_window import FakturaMainWindow
 
@@ -149,10 +151,7 @@ class MainWindow(QMainWindow):
         msg = QMessageBox(self)
         msg.setWindowTitle("Oppdatering tilgjengelig")
         msg.setText(f"En ny versjon ({latest_version}) er tilgjengelig.")
-        info_text = """
-Vil du laste ned og installere oppdateringen automatisk?\n"
-"NB: En bat-fil sluttfører oppdateringen.
-"""
+        info_text = "Vil du laste ned og installere oppdateringen automatisk?"
         msg.setInformativeText(info_text)
         msg.setIcon(QMessageBox.Information)
 
@@ -162,5 +161,13 @@ Vil du laste ned og installere oppdateringen automatisk?\n"
         msg.exec_()
 
         if msg.clickedButton() == update_button:
-#            from update_downloader import download_and_start_update
+            # 1. Vis modal "Oppdaterer..."-dialog
+            updating = UpdatingDialog(self)
+            updating.show()
+            QApplication.processEvents()  # tving GUI til å oppdatere
+            updating.repaint()
+
+            # 2. Kjør oppdateringen
             download_and_start_update(download_url)
+
+            # 3. (Programmet avslutter seg selv i download_and_start_update)
