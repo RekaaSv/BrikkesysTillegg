@@ -715,6 +715,7 @@ JOIN races r ON r.id = n.raceid
 JOIN classes cl ON cl.id = n.classid
 JOIN classcource cc ON cc.raceid = r.id AND cc.classid = cl.id AND cc.auto_cource_recognition = 0
 JOIN classes co2 ON co2.id = cc.courceid AND co2.cource = 1
+JOIN svr_classstarts cls on cls.classid = cl.id
 WHERE r.id = %s
   AND n.starttime IS NOT null
 GROUP BY Starttid, Post_1
@@ -747,6 +748,7 @@ JOIN races r ON r.id = n.raceid
 JOIN classes cl ON cl.id = n.classid
 JOIN classcource cc ON cc.raceid = r.id AND cc.classid = cl.id AND cc.auto_cource_recognition = 0
 JOIN classes co2 ON co2.id = cc.courceid AND co2.cource = 1
+JOIN svr_classstarts cls on cls.classid = cl.id
 WHERE r.id = %s
   AND n.starttime IS NOT null
 GROUP BY Starttid, Løype
@@ -775,7 +777,7 @@ WITH n1 AS (
 	FROM names n 
 	JOIN classes cl ON cl.id = n.classid AND cl.cource = 0 
 	JOIN svr_classstarts cls ON cls.classid = cl.id
-	JOIN races r ON r.id = n.raceid AND n.status NOT IN ('V','X') AND r.id = %s
+	JOIN races r ON r.id = n.raceid AND r.id = %s
 )
 UPDATE names n
 JOIN n1 ON n.id = n1.id

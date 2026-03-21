@@ -5,15 +5,16 @@ Bygge og pakke Trekkeplan GUI med PyInstaller
 ---------------------------------------------
 
 Start. Søk. Anaconda -> Anaconda prompt.
+conda activate weasy2
+cd C:\Users\svein\OneDrive\Dokumenter\PycharmProjects\BrikkesysTillegg
+
+
 Bygg med PyInstaller her.
 
 Aktiver miljøet weasy2: conda activate weasy2
 Installer PyInstaller:
 (weasy2) C:\Users\svein>pip show pyinstaller
 (weasy2) C:\Users\svein>pip install pyinstaller
-
-CD til:
-(weasy2) C:\Users\svein\OneDrive\Dokumenter\PycharmProjects\BrikkesysTillegg>
 
 
 pyinstaller ^
