@@ -36,7 +36,7 @@ class AppContext:
         )
 
         # Ressurser
-        self.icon_path = resource_path("reshot-icon-running-JUSXPBMDTN.ico")
+        self.icon_path = resource_path("brikkesystillegg.ico")
         self.help_pdf = resource_path("hjelp.pdf")
         self.help_trekkeplan_pdf = resource_path("hjelp_trekkeplan.pdf")
         self.help_fakturagrunnlag_pdf = resource_path("hjelp_fakturagrunnlag.pdf")

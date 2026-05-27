@@ -18,11 +18,12 @@ Installer PyInstaller:
 
 
 pyinstaller ^
+  --clean ^
   --onefile ^
   --noconsole ^
   --name brikkesystillegg ^
-  --icon=reshot-icon-running-JUSXPBMDTN.ico ^
-  --add-data "reshot-icon-running-JUSXPBMDTN.ico;." ^
+  --icon=brikkesystillegg.ico ^
+  --add-data "brikkesystillegg.ico;." ^
   --add-data "hjelp.pdf;." ^
   --add-data "hjelp_trekkeplan.pdf;." ^
   --add-data "hjelp_direkteresultater.pdf;." ^
