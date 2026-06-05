@@ -61,15 +61,27 @@ brikkesystillegg.zip
 
 Laste ZIP-fil opp til ny release på GitHub.
 -------------------------------------------
+0. Logg på til GitHub.com
+
+1. Gå til repoet ditt:
+	https://github.com/RekaaSv/BrikkesysTillegg
+2. Klikk på Releases (til høyre, under "About").
+3. Klikk: Draft a new release.
+4. Fyll inn:
+  * Tag version: f.eks. v1.4.0
+  * Release title: f.eks. BrikkesysTillegg v1.4.0
+  * Description: hva som er nytt
+5. Dra brikkesys.zip inn i "Attach binaries"‑feltet.
+6. Klikk Publish release.
 
 
 GitHub
 ======
 Ny versjon:
-git tag v1.1.0
+git tag v1.1.3
 git push --tags
 
 
 
 
-Sist oppdatert: 25.01.2026
+Sist oppdatert: 05.06.2026
