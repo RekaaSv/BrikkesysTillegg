@@ -1005,7 +1005,7 @@ Første ord i båsnavnet representerer startsted navnet.
 
     def test_pdf(self):
         html = "<h1>Hei Sveinung</h1><p>Dette er en test.</p>"
-        sti = lag_pdf(html, "min_test.pdf")
+#        sti = lag_pdf(html, "min_test.pdf")
         print("PDF lagret:", sti)
 
     def make_starterlist(self):

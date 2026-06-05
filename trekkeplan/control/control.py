@@ -3,6 +3,7 @@ import logging
 
 from common.html_builder import HtmlBuilder
 from common.gui.utils import set_table_sizes
+from common.pdf_builder import PdfBuilder
 from trekkeplan.db import sql
 
 def first_start_edited(parent, race_id, new_first_start_datetime):
@@ -133,13 +134,15 @@ tbody.gruppe {
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
+#    PdfBuilder.build_grouped_pdf(parent.msg, rows, columns,3, report_header, f"{report_header_tail}-tider.pdf")
+
+#    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
 
 
 def make_startlist(parent, race_id, startlocation):
     logging.info("control.make_startlist")
     rows, columns = sql.sql_start_list(parent.ctx.conn_mgr, race_id, startlocation)
-    report_header_tail = startlocation if startlocation else "Starttider"
+    report_header_tail = startlocation if startlocation else "Start"
     report_header = f"{parent.race['day']}  {parent.race['name']} - {report_header_tail}-tider"
     css = HtmlBuilder.report_css(report_header)
 
@@ -147,7 +150,9 @@ def make_startlist(parent, race_id, startlocation):
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
+    PdfBuilder.build_startlist_pdf(parent.msg, rows, columns,0, report_header, f"{report_header_tail}-tider.pdf")
+
+#    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
 
 
 def make_starterlist(parent, race_id, startlocation):
@@ -165,7 +170,9 @@ def make_starterlist(parent, race_id, startlocation):
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}.html")
 
-    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}.pdf")
+#    PdfBuilder.build_grouped_pdf(parent.msg, rows, columns,5, report_header, f"{report_header_tail}.pdf")
+
+#    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}.pdf")
 
 
 def make_noof_in_cource(parent, race_id):

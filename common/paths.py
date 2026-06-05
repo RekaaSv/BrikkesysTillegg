@@ -22,7 +22,7 @@ def module_path(*parts) -> Path:
     """
     return ROOT.joinpath(*parts)
 
-from weasyprint import HTML, CSS
+# from weasyprint import HTML, CSS
 import os
 
 def lag_pdf(html_streng, filnavn, mappe=None):
@@ -45,6 +45,6 @@ def lag_pdf(html_streng, filnavn, mappe=None):
     """)
 
     # Generer PDF
-    HTML(string=html_streng).write_pdf(sti, stylesheets=[css])
+#    HTML(string=html_streng).write_pdf(sti, stylesheets=[css])
 
     return sti

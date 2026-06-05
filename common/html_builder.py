@@ -2,8 +2,6 @@ import logging
 import os
 from decimal import Decimal
 
-from weasyprint import HTML
-
 
 class HtmlBuilder:
     @staticmethod
@@ -149,19 +147,6 @@ class HtmlBuilder:
             f.write(html)
         # Open file.
         os.startfile(path)
-
-    @staticmethod
-    def build_and_download_pdf(msg, html, file_name):
-        downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-        path = os.path.join(downloads_path, file_name)
-        try:
-            HTML(string=html).write_pdf(path)
-        except Exception as e:
-            logging.error(e)
-            msg.error(f"Fikk ikke lagret filen ({path}). Sannsynligvis er forrige versjon åpen og derved låst.")
-            return
-        os.startfile(path)
-        msg.success(f"Fil lastet ned: {path}!")
 
     @staticmethod
     def build_report_html(css: str, body_html: str) -> str:
