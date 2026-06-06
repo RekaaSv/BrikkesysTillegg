@@ -619,7 +619,7 @@ def sql_starter_list(conn_mgr, raceid, startlocation=None):
     sql = """
 SELECT n.startnr Startnr , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, cl.name Klasse
      , substring(n.starttime,12,8) Starttid
-     ,'&#x25A1;' Startet
+     ,'-' Startet
 FROM names n
 JOIN classes cl on cl.id = n.classid
 LEFT JOIN svr_classstarts cls on cls.classid = n.classid

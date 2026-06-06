@@ -170,6 +170,8 @@ def make_starterlist(parent, race_id, startlocation):
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}.html")
 
+    PdfBuilder.build_starterlist_pdf(parent.msg, rows, columns,5, report_header, f"{report_header_tail}.pdf")
+
 #    PdfBuilder.build_grouped_pdf(parent.msg, rows, columns,5, report_header, f"{report_header_tail}.pdf")
 
 #    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}.pdf")
