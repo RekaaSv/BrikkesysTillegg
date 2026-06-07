@@ -53,10 +53,9 @@ class PdfBuilder:
                 # Fast topp-posisjon for header (stabil på alle sider)
                 header_top = page_height - 20
 
-                # --- Rapportnavn (kun første side) ---
-                if canvas.getPageNumber() == 1:
-                    canvas.setFont("Helvetica-Bold", 16)
-                    canvas.drawString(doc.leftMargin, header_top, report_header)
+                # --- Rapportnavn (på alle sider) ---
+                canvas.setFont("Helvetica-Bold", 16)
+                canvas.drawString(doc.leftMargin, header_top, report_header)
 
                 # --- Kolonneheader ---
                 header_y = header_top - 22
@@ -158,10 +157,9 @@ class PdfBuilder:
                 page_width, page_height = canvas._pagesize
                 header_top = page_height - 20
 
-                # Rapportnavn kun på side 1
-                if canvas.getPageNumber() == 1:
-                    canvas.setFont("Helvetica-Bold", 16)
-                    canvas.drawString(doc.leftMargin, header_top, report_header)
+                # --- Rapportnavn (på alle sider) ---
+                canvas.setFont("Helvetica-Bold", 16)
+                canvas.drawString(doc.leftMargin, header_top, report_header)
 
                 # Kolonneheader
                 header_y = header_top - 22
@@ -289,10 +287,9 @@ class PdfBuilder:
             page_width, page_height = canvas._pagesize
             header_top = page_height - 20
 
-            # Rapportnavn kun på side 1
-            if canvas.getPageNumber() == 1:
-                canvas.setFont("Helvetica-Bold", 16)
-                canvas.drawString(doc.leftMargin, header_top, report_header)
+            # --- Rapportnavn (på alle sider) ---
+            canvas.setFont("Helvetica-Bold", 16)
+            canvas.drawString(doc.leftMargin, header_top, report_header)
 
             # Kolonneheader
             header_y = header_top - 22
