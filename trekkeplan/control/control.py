@@ -134,10 +134,7 @@ tbody.gruppe {
     html = HtmlBuilder.build_report_html(css, html)
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
-#    PdfBuilder.build_grouped_pdf(parent.msg, rows, columns,3, report_header, f"{report_header_tail}-tider.pdf")
-
-#    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
-
+    PdfBuilder.build_clublist_pdf(parent.msg, rows, columns,3, report_header, f"{report_header_tail}-tider.pdf")
 
 def make_startlist(parent, race_id, startlocation):
     logging.info("control.make_startlist")
@@ -151,8 +148,6 @@ def make_startlist(parent, race_id, startlocation):
     HtmlBuilder.download(html, f"{report_header_tail}-tider.html")
 
     PdfBuilder.build_startlist_pdf(parent.msg, rows, columns,0, report_header, f"{report_header_tail}-tider.pdf")
-
-#    HtmlBuilder.build_and_download_pdf(parent.msg, html, f"{report_header_tail}-tider.pdf")
 
 
 def make_starterlist(parent, race_id, startlocation):

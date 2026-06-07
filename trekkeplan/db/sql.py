@@ -561,7 +561,7 @@ def sql_club_list(conn_mgr, raceid):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, concat("&nbsp;&nbsp;&nbsp;&nbsp;", substring(cast(n.starttime as char),12,8)) '&nbsp;&nbsp;&nbsp;Starttid'
+SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, coalesce(cast(n.ecardno as char), '____') Brikke, coalesce(substring(cast(n.starttime as char),12,8), '____') Starttid
 FROM names n
 JOIN classes cl on cl.id = n.classid
 LEFT JOIN svr_classstarts cls on cls.classid = n.classid
@@ -590,7 +590,7 @@ def sql_start_list(conn_mgr, raceid, startlocation=None):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, substring(cast(n.starttime as char),12,8) 'Starttid'
+SELECT cl.name Klasse, n.startnr 'St.nr' , n.name Navn, n.club Klubb, coalesce(cast(n.ecardno as char), '____') Brikke, coalesce(substring(cast(n.starttime as char),12,8), '____') 'Starttid'
 FROM names n
 JOIN classes cl on cl.id = n.classid
 LEFT JOIN svr_classstarts cls on cls.classid = n.classid
@@ -617,8 +617,8 @@ def sql_starter_list(conn_mgr, raceid, startlocation=None):
     conn = conn_mgr.get_connection()
     cursor = conn.cursor()
     sql = """
-SELECT n.startnr Startnr , n.name Navn, n.club Klubb, cast(n.ecardno as char) Brikke, cl.name Klasse
-     , substring(n.starttime,12,8) Starttid
+SELECT n.startnr Startnr , n.name Navn, n.club Klubb, coalesce(cast(n.ecardno as char),'____') Brikke, cl.name Klasse
+     , coalesce(substring(n.starttime,12,8), '____') Starttid
      ,'-' Startet
 FROM names n
 JOIN classes cl on cl.id = n.classid
