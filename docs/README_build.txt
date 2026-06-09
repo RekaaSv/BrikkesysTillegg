@@ -1,43 +1,43 @@
 README_build.txt
 ================
 
-Bygge og pakke Trekkeplan GUI med PyInstaller
+Bygge og pakke BrikkesysTillegg med PyInstaller
 ---------------------------------------------
 
-Start. Søk. Anaconda -> Anaconda prompt.
-conda activate weasy2
-cd C:\Users\svein\OneDrive\Dokumenter\PycharmProjects\BrikkesysTillegg
+Fjerne forrige bygg:
+rm -r build
+rm -r dist
+rm brikkesystillegg.spec
 
 
-Bygg med PyInstaller her.
+Bygg med PyInstaller i terminal.
 
-Aktiver miljøet weasy2: conda activate weasy2
-Installer PyInstaller:
-(weasy2) C:\Users\svein>pip show pyinstaller
-(weasy2) C:\Users\svein>pip install pyinstaller
-
-
-pyinstaller ^
-  --clean ^
-  --onefile ^
-  --noconsole ^
-  --name brikkesystillegg ^
-  --icon=brikkesystillegg.ico ^
-  --add-data "brikkesystillegg.ico;." ^
-  --add-data "hjelp.pdf;." ^
-  --add-data "hjelp_trekkeplan.pdf;." ^
-  --add-data "hjelp_direkteresultater.pdf;." ^
-  --add-data "hjelp_fakturagrunnlag.pdf;." ^
-  --add-data "update.bat;." ^
+.\.venv\Scripts\pyinstaller.exe `
+  --clean `
+  --onefile `
+  --noconsole `
+  --name brikkesystillegg `
+  --icon=brikkesystillegg.ico `
+  --add-data "brikkesystillegg.ico;." `
+  --add-data "hjelp.pdf;." `
+  --add-data "hjelp_trekkeplan.pdf;." `
+  --add-data "hjelp_direkteresultater.pdf;." `
+  --add-data "hjelp_fakturagrunnlag.pdf;." `
+  --add-data "update.bat;." `
   main.py
+
+
+Bygger man i CMD så brukes ^ i stedet for `.
 
 
 Installasjonen bygger en spec fil i rotkatalogen.
 Etter at .spec-filene er generert, kan du bygge med den:
 
-pyinstaller brikkesystillegg.spec
+.\.venv\Scripts\pyinstaller.exe brikkesystillegg.spec
+
 eller
-pyinstaller --clean BrikkesysTillegg.spec
+.\.venv\Scripts\pyinstaller.exe --clean brikkesystillegg.spec
+
 
 Opprydding etter bygging
 -------------------------
@@ -53,10 +53,19 @@ Pakke sammen zip-fil for nedlasting fra GitHub
 ----------------------------------------------
 Samle filene som skal zip'es sammen i folderen dist:
 - brikkesystillegg.exe (plassert hit under bygging)
-- brikkesystillegg.cfg (kopier fra rotkatalogen, men endre password til <passord>
+- brikkesystillegg.cfg (kopier 'brikkesystillegg - dist.cfg' fra rotkatalogen. Rename til brikkesystillegg.cfg.
 - README.pdf (kopier fra /docs)
 
-Pakk samme de 3 filene til:
+Ny release:
+===========
+
+Oppdater versjonsnr i app/__init__.py
+
+COMMIT og PUSH.
+
+Bygg ny exe.
+
+I DIST: pakk samme de 3 filene til:
 brikkesystillegg.zip
 
 Laste ZIP-fil opp til ny release på GitHub.
