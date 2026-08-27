@@ -59,6 +59,7 @@ Samle filene som skal zip'es sammen i folderen dist:
 Ny release:
 ===========
 
+Oppdater i CHANGELOG.md
 Oppdater versjonsnr i app/__init__.py
 
 COMMIT og PUSH.

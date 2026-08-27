@@ -15,6 +15,10 @@ def first_start_edited(parent, race_id, new_first_start_datetime):
 
     rebuild_class_starts(parent, race_id)
 
+def race_selected(parent, race_id):
+    logging.info("control.race_selected")
+    rebuild_class_starts(parent, race_id)
+
 def delete_class_start_row(parent, race_id, classstart_id):
     logging.info("control.delete_class_start_row")
     sql.delete_class_start_row(parent.ctx.conn_mgr, race_id, classstart_id)
