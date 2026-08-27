@@ -4,10 +4,13 @@ README_build.txt
 Bygge og pakke BrikkesysTillegg med PyInstaller
 ---------------------------------------------
 
+Hvis det skal bygges fra bunnen av (ikke bruke .spec filen):
 Fjerne forrige bygg:
-rm -r build
-rm -r dist
-rm brikkesystillegg.spec
+1) Slett build
+2) Slett dist/brikkesystillegg.exe
+3) Slett brikkesystillegg.spec
+4) Slett alle __pycache__ mapper. Gjøres enklest i terminal med denne:
+	Get-ChildItem -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
 
 
 Bygg med PyInstaller i terminal.
@@ -27,7 +30,8 @@ Bygg med PyInstaller i terminal.
   main.py
 
 
-Bygger man i CMD så brukes ^ i stedet for `.
+PS: Bygger man i CMD så brukes ^ i stedet for `.
+bruker ikke det!
 
 
 Installasjonen bygger en spec fil i rotkatalogen.
@@ -39,14 +43,8 @@ eller
 .\.venv\Scripts\pyinstaller.exe --clean brikkesystillegg.spec
 
 
-Opprydding etter bygging
--------------------------
-Du kan slette midlertidige filer:
-- build/
-- __pycache__/
-
 Hvis filstrukturen endrer seg, eller nye ressurs-filer, så må *.spec regenereres.
-Det gjøres ved å slette *.spec og byge med den første metoden
+Det gjøres ved å slette *.spec og bygge med den første metoden
 (som også lager ny *.spec fil).
 
 Pakke sammen zip-fil for nedlasting fra GitHub
@@ -59,6 +57,7 @@ Samle filene som skal zip'es sammen i folderen dist:
 Ny release:
 ===========
 
+Oppdater i CHANGELOG.md
 Oppdater versjonsnr i app/__init__.py
 
 COMMIT og PUSH.
@@ -93,4 +92,14 @@ git push --tags
 
 
 
-Sist oppdatert: 05.06.2026
+Biblioteker i bruk
+==================
+Installeres med: pip install:
+requests
+pymysql
+reportlab
+python-docx
+openpyxl
+
+
+Sist oppdatert: 28.08.2026

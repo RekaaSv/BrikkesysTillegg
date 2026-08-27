@@ -285,6 +285,9 @@ Første ord i båsnavnet representerer startsted navnet.
 
         # Oppfrisk tabeller.
         control.refresh_table(self, self.table_not_planned)
+
+        if self.race_id:
+            control.race_selected(self, self.race_id)
         self.after_plan_changed(None)
 
         self.table_not_planned.setColumnHidden(0, True)
@@ -923,6 +926,8 @@ Første ord i båsnavnet representerer startsted navnet.
             self.set_first_start_field()
             self.set_draw_time_field()
             control.refresh_table(self, self.table_not_planned)
+            control.race_selected(self, self.race_id)
+
             self.after_plan_changed(None)
         else:
             logging.debug("Brukeren avbrøt")
