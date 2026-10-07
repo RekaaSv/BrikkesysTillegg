@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.2] – 2026-10-07
+### Fixed
+- Forbedret dokumentasjon.
+
 ## [1.2.1] – 2026-08-27
 ### Fixed
 - Trekkeplan starttider for klasser ble ikke bygd på nytt ved åpning av løp. Nødvendig siden antall løpere kan være endret.

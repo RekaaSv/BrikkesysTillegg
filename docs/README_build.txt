@@ -61,6 +61,9 @@ Oppdater i CHANGELOG.md
 Oppdater versjonsnr i app/__init__.py
 
 COMMIT og PUSH.
+git tag v1.1.3
+git push --tags
+
 
 Bygg ny exe.
 
