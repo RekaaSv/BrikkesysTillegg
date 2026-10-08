@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.3] – 2026-10-08
+### Fixed
+- Fjernet utsteder i konfig-filen, siden det er styrt av regnskapssystemet.
+- Bedre feilhåndtering ved nedlasting når tidligere nedlastet fil er åpen.
+
 ## [1.2.2] – 2026-10-07
 ### Fixed
 - Forbedret dokumentasjon.
