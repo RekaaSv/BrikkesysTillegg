@@ -392,15 +392,22 @@ class FakturaMainWindow(QWidget):
         bundle_id = self.get_selected_bundle_id()
         if bundle_id is None:
             return
-        noof_rows = control.export_tripletex_csv(self, bundle_id)
-        self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        try:
+            noof_rows = control.export_tripletex_csv(self, bundle_id)
+            self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        except Exception as e:
+            return
+
 
     def export_bundle_excel(self):
         bundle_id = self.get_selected_bundle_id()
         if bundle_id is None:
             return
-        noof_rows = control.export_tripletex_excel(self, bundle_id)
-        self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        try:
+            noof_rows = control.export_tripletex_excel(self, bundle_id)
+            self.msg.success(f"Antall ordrelinjer lastet ned til 'Downloads'-mappen: {noof_rows}.")
+        except Exception as e:
+            return
 
     def dont_export_on_off(self):
         logging.info("dont_export_on_off")
