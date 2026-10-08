@@ -48,8 +48,11 @@ def export_tripletex_csv(parent, bundle_id):
     download_path = get_download_path()
     full_path = os.path.join(download_path, "tripletex_invoice.csv")
 
-    write_tripletex_csv(rows, columns, full_path)
-    return len(rows)
+    try:
+        write_tripletex_csv(parent, rows, columns, full_path)
+        return len(rows)
+    except Exception as e:
+        raise e
 
 """
 Henter organisasjonsnummer fra Brønnøysund registeret og
@@ -79,7 +82,7 @@ def add_org_no(parent, bundle_id, progress):
     return j
 
 
-def write_tripletex_csv(rows, columns, output_path="tripletex_invoice.csv"):
+def write_tripletex_csv(parent, rows, columns, output_path="tripletex_invoice.csv"):
     """
     Writes Tripletex-compatible CSV from SQL query result.
 
@@ -91,12 +94,16 @@ def write_tripletex_csv(rows, columns, output_path="tripletex_invoice.csv"):
     # Convert column names: 'invoice_no' → 'INVOICE NO'
     header = [col.replace("_", " ").upper() for col in columns]
 
+    try:
+        with open(output_path, mode="w", newline="", encoding="utf-8-sig") as file:
+            writer = csv.writer(file, delimiter=";")
+            writer.writerow(header)
+            for row in rows:
+                writer.writerow(row)
+    except PermissionError as e:
+        parent.msg.error(f"Kunne ikke lagre filen:\n{output_path}\nSannsynligvis er den allerede åpen i Excel.\nLukk filen og prøv igjen.")
+        raise e
 
-    with open(output_path, mode="w", newline="", encoding="utf-8-sig") as file:
-        writer = csv.writer(file, delimiter=";")
-        writer.writerow(header)
-        for row in rows:
-            writer.writerow(row)
 
 def export_tripletex_excel(parent, bundle_id):
     logging.info("control.export_tripletex")
@@ -105,9 +112,11 @@ def export_tripletex_excel(parent, bundle_id):
     download_path = get_download_path()
     full_path = os.path.join(download_path, "tripletex_invoice.xlsx")
 
-    write_tripletex_excel(parent, rows, columns, full_path)
-    return len(rows)
-
+    try:
+        write_tripletex_excel(parent, rows, columns, full_path)
+        return len(rows)
+    except Exception as e:
+        raise e
 
 def write_tripletex_excel(parent, rows, columns, full_path):
     """
@@ -139,8 +148,9 @@ def write_tripletex_excel(parent, rows, columns, full_path):
 
     try:
         wb.save(full_path)
-    except PermissionError:
+    except PermissionError as e:
         parent.msg.error(f"Kunne ikke lagre filen:\n{full_path}\nSannsynligvis er den allerede åpen i Excel.\nLukk filen og prøv igjen.")
+        raise e
 
 def get_download_path():
     return os.path.join(os.path.expanduser("~"), "Downloads")
