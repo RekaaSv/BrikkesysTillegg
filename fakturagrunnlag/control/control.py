@@ -279,15 +279,15 @@ def write_manual_invoice_word(parent, invoice_config, rows, columns, download_pa
     if felt['Telefonnr']:
         left.add_run(f"Tlf: {felt['Telefonnr']}")
 
-    # Høyre: utsteder + fakturainfo
+    # Høyre: fakturainfo
     right = hdr_cells[1].paragraphs[0]
     right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    right.add_run(f"{invoice_config['utsteder']}\n")
-    right.add_run(f"{invoice_config['adr1']}\n")
-    right.add_run(f"{invoice_config['adr2']}\n")
-    right.add_run(f"{invoice_config['adr3']}\n")
-    right.add_run(f"{invoice_config['epost']}\n")
-    right.add_run(f"Tlf: {invoice_config['tlf']}\n\n")  # litt luft etter Tlf
+#    right.add_run(f"{invoice_config['utsteder']}\n")
+#    right.add_run(f"{invoice_config['adr1']}\n")
+#    right.add_run(f"{invoice_config['adr2']}\n")
+#    right.add_run(f"{invoice_config['adr3']}\n")
+#    right.add_run(f"{invoice_config['epost']}\n")
+#    right.add_run(f"Tlf: {invoice_config['tlf']}\n\n")  # litt luft etter Tlf
 
     p_payinfo = hdr_cells[1].paragraphs[0]
     p_payinfo.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -392,15 +392,15 @@ def write_manual_invoice_pdf(parent, invoice_config, rows, columns, download_pat
     if felt["Telefonnr"]:
         c.drawString(x_left, y, f"Tlf: {felt['Telefonnr']}")
 
-    # Høyre: utsteder + betalingsinfo
+    # Høyre: betalingsinfo
     y = y_start - 40
     c.setFont("Helvetica", 10)
-    c.drawRightString(x_right, y, invoice_config["utsteder"]); y -= 12
-    c.drawRightString(x_right, y, invoice_config["adr1"]); y -= 12
-    c.drawRightString(x_right, y, invoice_config["adr2"]); y -= 12
-    c.drawRightString(x_right, y, invoice_config["adr3"]); y -= 12
-    c.drawRightString(x_right, y, invoice_config["epost"]); y -= 12
-    c.drawRightString(x_right, y, f"Tlf: {invoice_config['tlf']}"); y -= 24
+#    c.drawRightString(x_right, y, invoice_config["utsteder"]); y -= 12
+#    c.drawRightString(x_right, y, invoice_config["adr1"]); y -= 12
+#    c.drawRightString(x_right, y, invoice_config["adr2"]); y -= 12
+#    c.drawRightString(x_right, y, invoice_config["adr3"]); y -= 12
+#    c.drawRightString(x_right, y, invoice_config["epost"]); y -= 12
+#    c.drawRightString(x_right, y, f"Tlf: {invoice_config['tlf']}"); y -= 24
 
     # Fakturainfo med bold verdier
     def add_info(c, x_right, y, label, value, font_label="Helvetica", font_value="Helvetica-Bold", size=10):
